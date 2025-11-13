@@ -35,19 +35,40 @@
                 <div class="grid grid-cols-3 gap-2">
                     <button
                         class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('box')"><i class="fa-solid fa-cube fa-fw text-2xl"></i> Box</button>
+                        onclick="addShape('box')" title="Box"><i class="fa-solid fa-cube fa-fw text-2xl"></i> Box</button>
                     <button
                         class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('sphere')"><i class="fa-solid fa-circle fa-fw text-2xl"></i> Sphere</button>
+                        onclick="addShape('sphere')" title="Sphere"><i class="fa-solid fa-circle fa-fw text-2xl"></i> Sphere</button>
                     <button
                         class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('cylinder')"><i class="fa-solid fa-database fa-fw text-2xl"></i> Cylinder</button>
+                        onclick="addShape('cylinder')" title="Cylinder"><i class="fa-solid fa-database fa-fw text-2xl"></i> Cylinder</button>
                     <button
                         class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('cone')"><i class="fa-solid fa-caret-up fa-fw text-2xl"></i> Cone</button>
+                        onclick="addShape('cone')" title="Cone"><i class="fa-solid fa-caret-up fa-fw text-2xl"></i> Cone</button>
                     <button
                         class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('torus')"><i class="fa-solid fa-ring fa-fw text-2xl"></i> Torus</button>
+                        onclick="addShape('torus')" title="Torus"><i class="fa-solid fa-ring fa-fw text-2xl"></i> Torus</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('plane')" title="Plane"><i class="fa-solid fa-square fa-fw text-2xl"></i> Plane</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('capsule')" title="Capsule"><i class="fa-solid fa-capsules fa-fw text-2xl"></i> Capsule</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('torusknot')" title="Torus Knot"><i class="fa-solid fa-code-branch fa-fw text-2xl"></i> Knot</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('tetrahedron')" title="Tetrahedron"><i class="fa-solid fa-pyramid fa-fw text-2xl"></i> Tetra</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('octahedron')" title="Octahedron"><i class="fa-solid fa-gem fa-fw text-2xl"></i> Octa</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('icosahedron')" title="Icosahedron"><i class="fa-solid fa-ball fa-fw text-2xl"></i> Icosa</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('dodecahedron')" title="Dodecahedron"><i class="fa-solid fa-dice fa-fw text-2xl"></i> Dodeca</button>
                 </div>
             </div>
             <div x-show="tab === 'outliner'">
@@ -186,7 +207,14 @@
             sphere: 0,
             cylinder: 0,
             cone: 0,
-            torus: 0
+            torus: 0,
+            plane: 0,
+            capsule: 0,
+            torusknot: 0,
+            tetrahedron: 0,
+            octahedron: 0,
+            icosahedron: 0,
+            dodecahedron: 0
         };
 
         // Undo/Redo History
@@ -253,6 +281,27 @@
                         break;
                     case 'torus':
                         geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+                        break;
+                    case 'plane':
+                        geometry = new THREE.PlaneGeometry(1, 1);
+                        break;
+                    case 'capsule':
+                        geometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+                        break;
+                    case 'torusknot':
+                        geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16);
+                        break;
+                    case 'tetrahedron':
+                        geometry = new THREE.TetrahedronGeometry(0.7);
+                        break;
+                    case 'octahedron':
+                        geometry = new THREE.OctahedronGeometry(0.7);
+                        break;
+                    case 'icosahedron':
+                        geometry = new THREE.IcosahedronGeometry(0.7);
+                        break;
+                    case 'dodecahedron':
+                        geometry = new THREE.DodecahedronGeometry(0.7);
                         break;
                 }
                 
@@ -420,6 +469,27 @@
                     break;
                 case 'torus':
                     geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+                    break;
+                case 'plane':
+                    geometry = new THREE.PlaneGeometry(1, 1);
+                    break;
+                case 'capsule':
+                    geometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+                    break;
+                case 'torusknot':
+                    geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16);
+                    break;
+                case 'tetrahedron':
+                    geometry = new THREE.TetrahedronGeometry(0.7);
+                    break;
+                case 'octahedron':
+                    geometry = new THREE.OctahedronGeometry(0.7);
+                    break;
+                case 'icosahedron':
+                    geometry = new THREE.IcosahedronGeometry(0.7);
+                    break;
+                case 'dodecahedron':
+                    geometry = new THREE.DodecahedronGeometry(0.7);
                     break;
             }
             const material = new THREE.MeshStandardMaterial({
