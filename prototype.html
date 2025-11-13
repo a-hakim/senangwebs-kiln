@@ -8,83 +8,569 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/threebsp@1.0.4/index.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="//unpkg.com/alpinejs" defer></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background-color: #1e293b;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 14px;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: auto;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Shapes Panel */
+        .shapes-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            pointer-events: auto;
+            z-index: 20;
+            min-width: 320px;
+        }
+
+        .panel-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tab-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .tab-button:hover {
+            background-color: #d1d5db;
+        }
+
+        .tab-button.active {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1f2937;
+        }
+
+        .shapes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .shape-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .shape-button:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .shape-button:active {
+            transform: translateY(0);
+        }
+
+        .shape-button i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .outliner-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .outliner-item {
+            font-size: 13px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: transparent;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid transparent;
+        }
+
+        .outliner-item:hover {
+            background-color: #e0f2fe;
+        }
+
+        .outliner-item.selected {
+            background-color: #bfdbfe;
+            font-weight: 600;
+        }
+
+        .outliner-item.group {
+            background-color: #fef3c7;
+        }
+
+        .outliner-item.group.selected {
+            background-color: #fcd34d;
+            font-weight: 600;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            pointer-events: auto;
+            z-index: 20;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            color: #4b5563;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .control-group select {
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #d1d5db;
+        }
+
+        .button-group button {
+            padding: 8px 12px;
+            color: white;
+            text-align: center;
+            font-size: 12px;
+            flex-grow: 1;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .button-group button:last-child {
+            border-right: none;
+        }
+
+        .button-group.camera-group button:first-child {
+            background-color: #1e40af;
+        }
+
+        .button-group.camera-group button:first-child:hover {
+            background-color: #1e3a8a;
+        }
+
+        .button-group.camera-group button:last-child {
+            background-color: #3b82f6;
+        }
+
+        .button-group.camera-group button:last-child:hover {
+            background-color: #2563eb;
+        }
+
+        .button-group.transform-group button {
+            background-color: #3b82f6;
+        }
+
+        .button-group.transform-group button:hover {
+            background-color: #2563eb;
+        }
+
+        .button-group.transform-group button:first-child {
+            background-color: #1e40af;
+        }
+
+        .button-group.transform-group button:first-child:hover {
+            background-color: #1e3a8a;
+        }
+
+        .action-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            color: white;
+            flex-grow: 1;
+            transition: all 0.2s ease;
+        }
+
+        .action-button.copy {
+            background-color: #06b6d4;
+        }
+
+        .action-button.copy:hover {
+            background-color: #0891b2;
+        }
+
+        .action-button.delete {
+            background-color: #ef4444;
+        }
+
+        .action-button.delete:hover {
+            background-color: #dc2626;
+        }
+
+        .action-button.group {
+            background-color: #f97316;
+        }
+
+        .action-button.group:hover {
+            background-color: #ea580c;
+        }
+
+        .action-button.ungroup {
+            background-color: #f97316;
+        }
+
+        .action-button.ungroup:hover {
+            background-color: #ea580c;
+        }
+
+        .action-button.undo {
+            background-color: #a855f7;
+        }
+
+        .action-button.undo:hover {
+            background-color: #9333ea;
+        }
+
+        .action-button.redo {
+            background-color: #a855f7;
+        }
+
+        .action-button.redo:hover {
+            background-color: #9333ea;
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Property Pane */
+        #property-pane {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 288px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            pointer-events: auto;
+            z-index: 20;
+            display: none;
+        }
+
+        #property-pane.visible {
+            display: block;
+        }
+
+        .property-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .property-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .property-close {
+            font-size: 24px;
+            font-weight: 700;
+            color: #9ca3af;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: color 0.2s ease;
+        }
+
+        .property-close:hover {
+            color: #374151;
+        }
+
+        .property-section {
+            margin-bottom: 16px;
+        }
+
+        .property-section h4 {
+            font-size: 12px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        .property-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .property-row label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .property-row input[type="color"] {
+            width: 128px;
+            height: 32px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 2px;
+            cursor: pointer;
+        }
+
+        .type-button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .type-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s ease;
+        }
+
+        .type-button.solid {
+            background-color: #3b82f6;
+        }
+
+        .type-button.solid:hover {
+            background-color: #2563eb;
+        }
+
+        .type-button.solid.active {
+            background-color: #1e40af;
+        }
+
+        .type-button.hole {
+            background-color: #9ca3af;
+        }
+
+        .type-button.hole:hover {
+            background-color: #6b7280;
+        }
+
+        .type-button.hole.active {
+            background-color: #6b7280;
+        }
+
+        .property-coords {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .property-coord-input {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .property-coord-input label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .property-coord-input input {
+            padding: 8px 4px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
 
 </head>
 
-<body class="overflow-hidden bg-gray-800 m-0 p-0">
+<body>
     <!-- Layer 0: The 3D Canvas. Sits at the very back (z-0). -->
-    <div id="canvas-container" class="fixed inset-0 w-full h-full z-0"></div>
+    <div id="canvas-container"></div>
 
-    <div id="ui-container" class="fixed inset-0 z-10 pointer-events-none">
+    <div id="ui-container">
 
-        <div class="absolute top-5 left-5 bg-white/95 p-2 rounded-lg shadow-xl pointer-events-auto flex flex-col gap-2 min-w-80"
-            x-data="{ tab: 'shapes' }">
-            <div class="grid grid-cols-2 gap-2">
-                <button :class="tab === 'shapes' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
-                    class="px-3 py-2 rounded-md text-sm font-medium transition duration-200"
-                    @click="tab = 'shapes'">Shapes</button>
-                <button :class="tab === 'outliner' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
-                    class="px-3 py-2 rounded-md text-sm font-medium transition duration-200"
-                    @click="tab = 'outliner'">Outliner</button>
+        <div class="shapes-panel">
+            <div class="panel-tabs">
+                <button class="tab-button active" onclick="switchTab('shapes')">Shapes</button>
+                <button class="tab-button" onclick="switchTab('outliner')">Outliner</button>
             </div>
-            <div x-show="tab === 'shapes'">
-                <h3 class="text-lg font-bold mb-2 text-gray-800">Add Shapes</h3>
-                <div class="grid grid-cols-3 gap-2">
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('box')" title="Box"><i class="fa-solid fa-cube fa-fw text-2xl"></i> Box</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('sphere')" title="Sphere"><i class="fa-solid fa-circle fa-fw text-2xl"></i> Sphere</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('cylinder')" title="Cylinder"><i class="fa-solid fa-database fa-fw text-2xl"></i> Cylinder</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('cone')" title="Cone"><i class="fa-solid fa-caret-up fa-fw text-2xl"></i> Cone</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('torus')" title="Torus"><i class="fa-solid fa-ring fa-fw text-2xl"></i> Torus</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('plane')" title="Plane"><i class="fa-solid fa-square fa-fw text-2xl"></i> Plane</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('capsule')" title="Capsule"><i class="fa-solid fa-capsules fa-fw text-2xl"></i> Capsule</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('torusknot')" title="Torus Knot"><i class="fa-solid fa-code-branch fa-fw text-2xl"></i> Knot</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('tetrahedron')" title="Tetrahedron"><i class="fa-solid fa-pyramid fa-fw text-2xl"></i> Tetra</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('octahedron')" title="Octahedron"><i class="fa-solid fa-gem fa-fw text-2xl"></i> Octa</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('icosahedron')" title="Icosahedron"><i class="fa-solid fa-ball fa-fw text-2xl"></i> Icosa</button>
-                    <button
-                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('dodecahedron')" title="Dodecahedron"><i class="fa-solid fa-dice fa-fw text-2xl"></i> Dodeca</button>
+
+            <div id="shapes-content" class="tab-content active">
+                <div class="panel-title">Add Shapes</div>
+                <div class="shapes-grid">
+                    <button class="shape-button" onclick="addShape('box')" title="Box">
+                        <i class="fa-solid fa-cube"></i>
+                        Box
+                    </button>
+                    <button class="shape-button" onclick="addShape('sphere')" title="Sphere">
+                        <i class="fa-solid fa-circle"></i>
+                        Sphere
+                    </button>
+                    <button class="shape-button" onclick="addShape('cylinder')" title="Cylinder">
+                        <i class="fa-solid fa-database"></i>
+                        Cylinder
+                    </button>
+                    <button class="shape-button" onclick="addShape('cone')" title="Cone">
+                        <i class="fa-solid fa-caret-up"></i>
+                        Cone
+                    </button>
+                    <button class="shape-button" onclick="addShape('torus')" title="Torus">
+                        <i class="fa-solid fa-ring"></i>
+                        Torus
+                    </button>
+                    <button class="shape-button" onclick="addShape('plane')" title="Plane">
+                        <i class="fa-solid fa-square"></i>
+                        Plane
+                    </button>
+                    <button class="shape-button" onclick="addShape('capsule')" title="Capsule">
+                        <i class="fa-solid fa-capsules"></i>
+                        Capsule
+                    </button>
+                    <button class="shape-button" onclick="addShape('torusknot')" title="Torus Knot">
+                        <i class="fa-solid fa-code-branch"></i>
+                        Knot
+                    </button>
+                    <button class="shape-button" onclick="addShape('tetrahedron')" title="Tetrahedron">
+                        <i class="fa-solid fa-pyramid"></i>
+                        Tetra
+                    </button>
+                    <button class="shape-button" onclick="addShape('octahedron')" title="Octahedron">
+                        <i class="fa-solid fa-gem"></i>
+                        Octa
+                    </button>
+                    <button class="shape-button" onclick="addShape('icosahedron')" title="Icosahedron">
+                        <i class="fa-solid fa-ball"></i>
+                        Icosa
+                    </button>
+                    <button class="shape-button" onclick="addShape('dodecahedron')" title="Dodecahedron">
+                        <i class="fa-solid fa-dice"></i>
+                        Dodeca
+                    </button>
                 </div>
             </div>
-            <div x-show="tab === 'outliner'">
-                <h3 class="text-lg font-bold mb-2 text-gray-800">Scene Outliner</h3>
-                <ul id="outliner-list" class="flex flex-col gap-1 mt-2"></ul>
+
+            <div id="outliner-content" class="tab-content">
+                <div class="panel-title">Scene Outliner</div>
+                <ul id="outliner-list" class="outliner-list"></ul>
             </div>
         </div>
 
         <!-- Controls Panel -->
-        <div
-            class="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-white/95 p-2 rounded-lg shadow-xl flex gap-3 pointer-events-auto">
-            <div class="flex items-center">
-                <label for="snap-unit-select" class="text-xs text-gray-700 px-2 font-medium whitespace-nowrap">
-                    Unit</label>
-                <select id="snap-unit-select" onchange="updateSnapSettings()"
-                    class="w-full p-1.5 border border-gray-300 rounded-md text-xs bg-white">
+        <div class="controls-panel">
+            <div class="control-group">
+                <label for="snap-unit-select">Unit</label>
+                <select id="snap-unit-select" onchange="updateSnapSettings()">
                     <option value="0.5">0.5</option>
                     <option value="0.2">0.2</option>
                     <option value="0.1" selected>0.1</option>
@@ -94,99 +580,101 @@
                     <option value="0">Off</option>
                 </select>
             </div>
-            <div class="flex items-center">
-                <div class="flex rounded-md overflow-hidden border border-gray-300">
-                    <button id="perspective-btn" class="px-3 py-2 bg-blue-700 text-white text-xs flex-grow border-r border-gray-300 last:border-r-0 hover:bg-blue-600 transition-colors"
-                        onclick="setCameraMode('perspective')">Perspective</button>
-                    <button id="orthographic-btn" class="px-3 py-2 bg-blue-500 text-white text-xs flex-grow hover:bg-blue-600 transition-colors"
-                        onclick="setCameraMode('orthographic')">Orthographic</button>
-                </div>
+
+            <div class="button-group camera-group">
+                <button id="perspective-btn" onclick="setCameraMode('perspective')">Perspective</button>
+                <button id="orthographic-btn" onclick="setCameraMode('orthographic')">Orthographic</button>
             </div>
-            <div class="flex rounded-md overflow-hidden border border-gray-300 gap-0">
-                <button id="translate-btn" class="px-3 py-2 text-white text-xs flex-grow bg-blue-700 border-r border-gray-300 hover:bg-blue-600 transition-colors"
-                    onclick="setTransformMode('translate')">Translate (T)</button>
-                <button id="rotate-btn" class="px-3 py-2 text-white text-xs flex-grow bg-blue-500 border-r border-gray-300 hover:bg-blue-600 transition-colors"
-                    onclick="setTransformMode('rotate')">Rotate (R)</button>
-                <button id="scale-btn" class="px-3 py-2 text-white text-xs flex-grow bg-blue-500 hover:bg-blue-600 transition-colors"
-                    onclick="setTransformMode('scale')">Scale (S)</button>
+
+            <div class="button-group transform-group">
+                <button id="translate-btn" onclick="setTransformMode('translate')">Translate (T)</button>
+                <button id="rotate-btn" onclick="setTransformMode('rotate')">Rotate (R)</button>
+                <button id="scale-btn" onclick="setTransformMode('scale')">Scale (S)</button>
             </div>
-            <div class="flex gap-1">
-                <button class="px-3 py-2 bg-sky-500 text-white rounded-md text-xs flex-grow"
-                    onclick="duplicateSelected()">Copy</button>
-                <button class="px-3 py-2 bg-red-500 text-white rounded-md text-xs flex-grow"
-                    onclick="deleteSelected()">Delete</button>
-                <button id="undo-btn" class="px-3 py-2 bg-purple-500 text-white rounded-md text-xs flex-grow hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    onclick="undo()" title="Undo (Ctrl+Z)">↶ Undo</button>
-                <button id="redo-btn" class="px-3 py-2 bg-purple-500 text-white rounded-md text-xs flex-grow hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    onclick="redo()" title="Redo (Ctrl+Y)">↷ Redo</button>
+
+            <div style="display: flex; gap: 8px;">
+                <button class="action-button copy" onclick="duplicateSelected()">Copy</button>
+                <button class="action-button delete" onclick="deleteSelected()">Delete</button>
+                <button id="group-btn" class="action-button group" onclick="groupSelected()" title="Group selected shapes">📦 Group</button>
+                <button id="ungroup-btn" class="action-button ungroup" onclick="ungroupSelected()" title="Ungroup selected group">📂 Ungroup</button>
+                <button id="undo-btn" class="action-button undo" onclick="undo()" title="Undo (Ctrl+Z)">↶ Undo</button>
+                <button id="redo-btn" class="action-button redo" onclick="redo()" title="Redo (Ctrl+Y)">↷ Redo</button>
             </div>
         </div>
 
         <!-- Property Pane -->
-        <div id="property-pane"
-            class="absolute top-5 right-5 w-72 bg-white/95 p-2 pt-1 rounded-lg shadow-xl hidden pointer-events-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-800 h-6">Properties</h3>
-                <span class="text-2xl font-bold text-gray-500 cursor-pointer w-6 h-6 flex justify-center items-center hover:text-gray-700"
-                    onclick="closePropertyPane()">&times;</span>
+        <div id="property-pane">
+            <div class="property-header">
+                <h3>Properties</h3>
+                <span class="property-close" onclick="closePropertyPane()">&times;</span>
             </div>
-            <div class="mb-4">
-                <h4 class="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Material</h4>
-                <div class="flex justify-between items-center mt-2">
-                    <label for="colorPicker" class="text-sm font-medium text-gray-600">Color</label>
-                    <input type="color" id="colorPicker" value="#ff6b6b" onchange="updateColor()"
-                        class="w-32 h-8 border border-gray-300 rounded p-0.5 cursor-pointer">
+
+            <div class="property-section">
+                <h4>Material</h4>
+                <div class="property-row">
+                    <label for="colorPicker">Color</label>
+                    <input type="color" id="colorPicker" value="#ff6b6b" onchange="updateColor()">
+                </div>
+                <div class="property-row">
+                    <label for="shapeTypeToggle">Type</label>
+                    <div class="type-button-group">
+                        <button id="solid-btn" class="type-button solid active" onclick="setShapeType('solid')" title="Set as Solid">🟦 Solid</button>
+                        <button id="hole-btn" class="type-button hole" onclick="setShapeType('hole')" title="Set as Hole">⚫ Hole</button>
+                    </div>
                 </div>
             </div>
-            <div class="mb-4">
-                <h4 class="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Position (m)</h4>
-                <div class="flex justify-between gap-2">
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">X</label><input type="number" step="0.1"
-                            id="prop-pos-x" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">Y</label><input type="number" step="0.1"
-                            id="prop-pos-y" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">Z</label><input type="number"
-                            step="0.1" id="prop-pos-z" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+
+            <div class="property-section">
+                <h4>Position (m)</h4>
+                <div class="property-coords">
+                    <div class="property-coord-input">
+                        <label>X</label>
+                        <input type="number" step="0.1" id="prop-pos-x" onchange="updateObjectFromPane()">
+                    </div>
+                    <div class="property-coord-input">
+                        <label>Y</label>
+                        <input type="number" step="0.1" id="prop-pos-y" onchange="updateObjectFromPane()">
+                    </div>
+                    <div class="property-coord-input">
+                        <label>Z</label>
+                        <input type="number" step="0.1" id="prop-pos-z" onchange="updateObjectFromPane()">
+                    </div>
                 </div>
             </div>
-            <div class="mb-4">
-                <h4 class="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Rotation (°)</h4>
-                <div class="flex justify-between gap-2">
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">X</label><input type="number"
-                            id="prop-rot-x" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">Y</label><input type="number"
-                            id="prop-rot-y" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">Z</label><input type="number"
-                            id="prop-rot-z" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+
+            <div class="property-section">
+                <h4>Rotation (°)</h4>
+                <div class="property-coords">
+                    <div class="property-coord-input">
+                        <label>X</label>
+                        <input type="number" id="prop-rot-x" onchange="updateObjectFromPane()">
+                    </div>
+                    <div class="property-coord-input">
+                        <label>Y</label>
+                        <input type="number" id="prop-rot-y" onchange="updateObjectFromPane()">
+                    </div>
+                    <div class="property-coord-input">
+                        <label>Z</label>
+                        <input type="number" id="prop-rot-z" onchange="updateObjectFromPane()">
+                    </div>
                 </div>
             </div>
-            <div>
-                <h4 class="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Scale</h4>
-                <div class="flex justify-between gap-2">
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">X</label><input type="number"
-                            step="0.1" id="prop-scale-x" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">Y</label><input type="number"
-                            step="0.1" id="prop-scale-y" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
-                    <div class="flex flex-col w-1/3"><label
-                            class="text-xs text-gray-500 mb-1 text-center">Z</label><input type="number"
-                            step="0.1" id="prop-scale-z" onchange="updateObjectFromPane()"
-                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+
+            <div class="property-section">
+                <h4>Scale</h4>
+                <div class="property-coords">
+                    <div class="property-coord-input">
+                        <label>X</label>
+                        <input type="number" step="0.1" id="prop-scale-x" onchange="updateObjectFromPane()">
+                    </div>
+                    <div class="property-coord-input">
+                        <label>Y</label>
+                        <input type="number" step="0.1" id="prop-scale-y" onchange="updateObjectFromPane()">
+                    </div>
+                    <div class="property-coord-input">
+                        <label>Z</label>
+                        <input type="number" step="0.1" id="prop-scale-z" onchange="updateObjectFromPane()">
+                    </div>
                 </div>
             </div>
         </div>
@@ -202,6 +690,9 @@
 
         let objects = [];
         let selectedObject = null;
+        let selectedObjects = [];  // For multi-selection
+        let groups = [];
+        let groupIdCounter = 0;
         let shapeCounters = {
             box: 0,
             sphere: 0,
@@ -222,6 +713,80 @@
         let historyIndex = -1;
         const MAX_HISTORY = 50;
 
+        // Tab switching function
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.getElementById('shapes-content').classList.remove('active');
+            document.getElementById('outliner-content').classList.remove('active');
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            if (tabName === 'shapes') {
+                document.getElementById('shapes-content').classList.add('active');
+                buttons[0].classList.add('active');
+            } else if (tabName === 'outliner') {
+                document.getElementById('outliner-content').classList.add('active');
+                buttons[1].classList.add('active');
+            }
+        }
+
+        // Shape Type Management
+        function getMaterialForType(type) {
+            if (type === 'hole') {
+                return new THREE.MeshStandardMaterial({
+                    color: '#888888',
+                    roughness: 0.7,
+                    metalness: 0.1,
+                    transparent: true,
+                    opacity: 0.3,
+                    wireframe: false
+                });
+            } else {
+                // Solid - use original color if available
+                const color = selectedObject && selectedObject.userData.color
+                    ? selectedObject.userData.color
+                    : '#ff6b6b';
+                return new THREE.MeshStandardMaterial({
+                    color: color,
+                    roughness: 0.5,
+                    metalness: 0.3,
+                    transparent: false,
+                    opacity: 1.0
+                });
+            }
+        }
+
+        function setShapeType(type) {
+            if (!selectedObject) return;
+            selectedObject.userData.shapeType = type;
+            
+            // Update material based on type
+            if (type === 'hole') {
+                selectedObject.material = new THREE.MeshStandardMaterial({
+                    color: '#888888',
+                    roughness: 0.7,
+                    metalness: 0.1,
+                    transparent: true,
+                    opacity: 0.3
+                });
+            } else {
+                selectedObject.material = new THREE.MeshStandardMaterial({
+                    color: selectedObject.userData.color || '#ff6b6b',
+                    roughness: 0.5,
+                    metalness: 0.3,
+                    transparent: false,
+                    opacity: 1.0
+                });
+            }
+            
+            updatePropertyPane();
+            updateOutliner();
+            captureState();
+        }
+
         function captureState() {
             // Remove any forward history if we made a new change
             history = history.slice(0, historyIndex + 1);
@@ -233,10 +798,17 @@
                     position: obj.position.clone(),
                     rotation: obj.rotation.clone(),
                     scale: obj.scale.clone(),
-                    color: obj.material.color.getHex(),
-                    uuid: obj.uuid
+                    color: obj.userData.color || obj.material.color.getHex(),
+                    shapeType: obj.userData.shapeType || 'solid',
+                    uuid: obj.uuid,
+                    groupId: obj.userData.groupId || null
                 })),
-                selectedObjectUuid: selectedObject ? selectedObject.uuid : null,
+                groups: groups.map(g => ({
+                    id: g.id,
+                    name: g.name,
+                    children: g.children.map(c => c.uuid)
+                })),
+                selectedObjectUuids: selectedObjects.map(obj => obj.uuid),
                 shapeCounters: { ...shapeCounters }
             };
             
@@ -255,14 +827,14 @@
             
             // Remove objects not in state
             objects.forEach(obj => scene.remove(obj));
+            groups.forEach(g => {
+                if (g.resultMesh) scene.remove(g.resultMesh);
+            });
             objects = [];
+            groups = [];
             
             // Recreate objects from state
             state.objects.forEach(objState => {
-                const originalObj = history.find(h => 
-                    h.objects.some(o => o.uuid === objState.uuid)
-                );
-                
                 // Find geometry type from name
                 const type = objState.name.split(' ')[0].toLowerCase();
                 let geometry;
@@ -305,15 +877,37 @@
                         break;
                 }
                 
-                const material = new THREE.MeshStandardMaterial({
-                    color: objState.color,
-                    roughness: 0.5,
-                    metalness: 0.3
-                });
+                // Ensure geometry has proper bounds
+                geometry.computeBoundingBox();
+                geometry.computeBoundingSphere();
+                geometry.center();
+                
+                // Determine material based on shape type
+                let material;
+                if (objState.shapeType === 'hole') {
+                    material = new THREE.MeshStandardMaterial({
+                        color: '#888888',
+                        roughness: 0.7,
+                        metalness: 0.1,
+                        transparent: true,
+                        opacity: 0.3
+                    });
+                } else {
+                    material = new THREE.MeshStandardMaterial({
+                        color: objState.color,
+                        roughness: 0.5,
+                        metalness: 0.3,
+                        transparent: false,
+                        opacity: 1.0
+                    });
+                }
                 
                 const mesh = new THREE.Mesh(geometry, material);
                 mesh.name = objState.name;
                 mesh.uuid = objState.uuid;
+                mesh.userData.shapeType = objState.shapeType || 'solid';
+                mesh.userData.color = objState.color;
+                mesh.userData.groupId = objState.groupId || null;
                 mesh.position.copy(objState.position);
                 mesh.rotation.copy(objState.rotation);
                 mesh.scale.copy(objState.scale);
@@ -324,15 +918,44 @@
                 objects.push(mesh);
             });
             
+            // Restore groups
+            state.groups.forEach(groupState => {
+                const group = {
+                    id: groupState.id,
+                    name: groupState.name,
+                    children: groupState.children.map(uuid => objects.find(o => o.uuid === uuid)).filter(o => o),
+                    resultMesh: null,
+                    isDirty: true
+                };
+                groups.push(group);
+                if (group.children.length > 0) {
+                    computeGroupResult(group);
+                }
+            });
+            
             shapeCounters = { ...state.shapeCounters };
             
             // Restore selection
-            if (state.selectedObjectUuid) {
-                const selectedObj = objects.find(obj => obj.uuid === state.selectedObjectUuid);
-                if (selectedObj) {
-                    selectObject(selectedObj);
-                } else {
-                    deselectObject();
+            if (state.selectedObjectUuids && state.selectedObjectUuids.length > 0) {
+                selectedObjects = [];
+                state.selectedObjectUuids.forEach(uuid => {
+                    const obj = objects.find(o => o.uuid === uuid);
+                    if (obj) {
+                        selectedObjects.push(obj);
+                        if (obj.material && obj.material.emissive) {
+                            obj.material.emissive.setHex(0x555555);
+                        }
+                    }
+                });
+                selectedObject = selectedObjects.length > 0 ? selectedObjects[0] : null;
+                
+                if (selectedObjects.length === 1) {
+                    document.getElementById('property-pane').classList.add('visible');
+                    updatePropertyPane();
+                    transformControls.attach(selectedObject);
+                } else if (selectedObjects.length > 1) {
+                    document.getElementById('property-pane').classList.remove('visible');
+                    transformControls.detach();
                 }
             } else {
                 deselectObject();
@@ -365,6 +988,122 @@
             redoBtn.disabled = historyIndex >= history.length - 1;
         }
 
+        // Boolean CSG Computation
+        function computeGroupResult(group) {
+            if (group.resultMesh) {
+                scene.remove(group.resultMesh);
+            }
+            
+            if (group.children.length === 0) return;
+            
+            try {
+                let resultGeometry = null;
+                
+                for (let i = 0; i < group.children.length; i++) {
+                    const child = group.children[i];
+                    const childBSP = new ThreeBSP(child);
+                    
+                    if (resultGeometry === null) {
+                        resultGeometry = childBSP;
+                    } else {
+                        const resultBSP = new ThreeBSP(resultGeometry.toMesh());
+                        
+                        if (child.userData.shapeType === 'hole') {
+                            resultGeometry = resultBSP.subtract(childBSP);
+                        } else {
+                            resultGeometry = resultBSP.union(childBSP);
+                        }
+                    }
+                }
+                
+                if (resultGeometry) {
+                    const resultMesh = resultGeometry.toMesh();
+                    resultMesh.material = new THREE.MeshStandardMaterial({
+                        color: '#ff9800',
+                        roughness: 0.5,
+                        metalness: 0.3
+                    });
+                    resultMesh.castShadow = true;
+                    resultMesh.receiveShadow = true;
+                    resultMesh.userData.isGroupResult = true;
+                    resultMesh.userData.groupId = group.id;
+                    
+                    scene.add(resultMesh);
+                    group.resultMesh = resultMesh;
+                    group.isDirty = false;
+                }
+            } catch (e) {
+                console.error("Error computing Boolean result:", e);
+            }
+        }
+
+        function groupSelected() {
+            if (selectedObjects.length < 1) {
+                console.log("No objects selected for grouping");
+                return;
+            }
+            
+            console.log(`Grouping ${selectedObjects.length} objects`);
+            
+            const groupId = `group_${groupIdCounter++}`;
+            const group = {
+                id: groupId,
+                name: `Group ${groups.length + 1}`,
+                children: [...selectedObjects],
+                resultMesh: null,
+                isDirty: true
+            };
+            
+            // Mark objects as part of group
+            selectedObjects.forEach(obj => {
+                obj.userData.groupId = groupId;
+                scene.remove(obj);
+            });
+            
+            groups.push(group);
+            computeGroupResult(group);
+            
+            // Hide original objects, show result
+            selectedObjects.forEach(obj => {
+                obj.visible = false;
+            });
+            
+            deselectObject();
+            selectObject(group.resultMesh);
+            updateOutliner();
+            captureState();
+        }
+
+        function ungroupSelected() {
+            if (!selectedObject || !selectedObject.userData.isGroupResult) return;
+            
+            const groupId = selectedObject.userData.groupId;
+            const groupIndex = groups.findIndex(g => g.id === groupId);
+            
+            if (groupIndex === -1) return;
+            
+            const group = groups[groupIndex];
+            
+            // Show original objects
+            group.children.forEach(obj => {
+                obj.visible = true;
+                obj.userData.groupId = null;
+            });
+            
+            // Remove result mesh
+            scene.remove(group.resultMesh);
+            groups.splice(groupIndex, 1);
+            
+            if (group.children.length > 0) {
+                selectObject(group.children[0]);
+            } else {
+                deselectObject();
+            }
+            
+            updateOutliner();
+            captureState();
+        }
+
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x334155);
@@ -387,6 +1126,10 @@
             const container = document.getElementById('canvas-container');
             container.appendChild(renderer.domElement);
             canvasElement = renderer.domElement;
+            
+            // Ensure canvas is clickable
+            canvasElement.style.pointerEvents = 'auto';
+            console.log("Canvas initialized:", canvasElement);
 
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
@@ -413,8 +1156,9 @@
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
 
-            // The listener is on the canvas. The CSS structure now ensures it can be reached.
-            canvasElement.addEventListener('mousedown', onMouseDown, false);
+            // Single click listener on canvas
+            canvasElement.addEventListener('click', onCanvasClick, false);
+            console.log("Canvas click listener attached");
 
             window.addEventListener('resize', onWindowResize);
             document.addEventListener('keydown', onKeyDown);
@@ -426,30 +1170,53 @@
             animate();
         }
 
-        function onMouseDown(event) {
-            // This function will now ONLY fire when the canvas itself is clicked.
-            console.log("--- Mouse Click Detected on CANVAS ---");
+        function onCanvasClick(event) {
+            console.log("✓ Canvas click fired, target:", event.target.tagName);
+            performRaycast(event);
+        }
 
-            if (transformControls.dragging) {
-                console.log("DEBUG: Transform controls are dragging. Aborting selection.");
-                return;
-            }
+        function performRaycast(event) {
+            if (transformControls.dragging) return;
 
             const rect = canvasElement.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
+            
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(objects, false);
-
+            
+            // Collect all selectable objects
+            const selectableObjects = [];
+            objects.forEach(obj => {
+                if (obj.visible && !obj.userData.isGroupResult) {
+                    selectableObjects.push(obj);
+                }
+            });
+            groups.forEach(group => {
+                if (group.resultMesh && group.resultMesh.visible) {
+                    selectableObjects.push(group.resultMesh);
+                }
+            });
+            
+            const intersects = raycaster.intersectObjects(selectableObjects);
+            
+            console.log("🖱️ Click - Objects:", selectableObjects.length, "Hits:", intersects.length);
+            
             if (intersects.length > 0) {
-                console.log("✅ SUCCESS: Object hit!", intersects[0].object.name);
-                selectObject(intersects[0].object);
+                const clickedObject = intersects[0].object;
+                console.log("✅ Hit:", clickedObject.name);
+                
+                // Ctrl/Cmd + click for multi-select
+                if (event.ctrlKey || event.metaKey) {
+                    console.log("Ctrl+Click - Multi-select mode");
+                    toggleObjectSelection(clickedObject);
+                } else {
+                    console.log("Regular click - Single select");
+                    selectObject(clickedObject);
+                }
             } else {
-                console.log("⭕️ INFO: No object was hit. Deselecting.");
+                console.log("❌ Missed");
                 deselectObject();
             }
-            console.log("---------------------------\n");
         }
 
         function addShape(type) {
@@ -492,6 +1259,12 @@
                     geometry = new THREE.DodecahedronGeometry(0.7);
                     break;
             }
+            
+            // Ensure geometry has proper bounds
+            geometry.computeBoundingBox();
+            geometry.computeBoundingSphere();
+            geometry.center();
+            
             const material = new THREE.MeshStandardMaterial({
                 color: '#ff6b6b',
                 roughness: 0.5,
@@ -503,45 +1276,129 @@
             mesh.position.y = 0.5;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
+            mesh.userData.shapeType = 'solid';
+            mesh.userData.color = '#ff6b6b';
             scene.add(mesh);
             objects.push(mesh);
             selectObject(mesh);
             captureState();
         }
 
-        function selectObject(obj) {
-            if (selectedObject === obj) return;
-            deselectObject();
-            selectedObject = obj;
-            selectedObject.material.emissive = new THREE.Color(0x555555);
-            transformControls.attach(selectedObject);
-            document.getElementById('property-pane').classList.remove('hidden');
-            updatePropertyPane();
+        function deselectObject() {
+            if (selectedObject) {
+                if (selectedObject.material && selectedObject.material.emissive) {
+                    selectedObject.material.emissive.setHex(0x000000);
+                }
+            }
+            selectedObject = null;
+            selectedObjects = [];
+            transformControls.detach();
+            document.getElementById('property-pane').classList.remove('visible');
             updateOutliner();
         }
 
-        function deselectObject() {
-            if (selectedObject) {
-                selectedObject.material.emissive = new THREE.Color(0x000000);
+        function toggleObjectSelection(obj) {
+            // Check if already selected
+            const index = selectedObjects.indexOf(obj);
+            if (index > -1) {
+                // Remove from selection
+                selectedObjects.splice(index, 1);
+                if (obj.material && obj.material.emissive) {
+                    obj.material.emissive.setHex(0x000000);
+                }
+                console.log(`Deselected: ${obj.name}, Total selected: ${selectedObjects.length}`);
+            } else {
+                // Add to selection
+                selectedObjects.push(obj);
+                if (obj.material && obj.material.emissive) {
+                    obj.material.emissive.setHex(0x555555);
+                }
+                console.log(`Selected: ${obj.name}, Total selected: ${selectedObjects.length}`);
             }
-            selectedObject = null;
-            transformControls.detach();
-            document.getElementById('property-pane').classList.add('hidden');
+            
+            // Update references
+            selectedObject = selectedObjects.length > 0 ? selectedObjects[0] : null;
+            
+            // Show property pane only if 1 object selected
+            if (selectedObjects.length === 1) {
+                document.getElementById('property-pane').classList.add('visible');
+                updatePropertyPane();
+                transformControls.attach(selectedObject);
+            } else if (selectedObjects.length > 1) {
+                // Multiple selection - hide property pane
+                document.getElementById('property-pane').classList.remove('visible');
+                transformControls.detach();
+            } else {
+                // No selection
+                document.getElementById('property-pane').classList.remove('visible');
+                transformControls.detach();
+            }
+            
             updateOutliner();
+        }
+
+        function selectObject(obj) {
+            if (!obj) return;
+            
+            // Clear previous selection and start fresh
+            selectedObjects.forEach(sel => {
+                if (sel.material && sel.material.emissive) {
+                    sel.material.emissive.setHex(0x000000);
+                }
+            });
+            
+            selectedObjects = [obj];
+            selectedObject = obj;
+            
+            // Set emissive highlight
+            if (selectedObject.material && selectedObject.material.emissive) {
+                selectedObject.material.emissive.setHex(0x555555);
+            }
+            
+            transformControls.attach(selectedObject);
+            document.getElementById('property-pane').classList.add('visible');
+            updatePropertyPane();
+            updateOutliner();
+            console.log(`Single selected: ${obj.name}`);
         }
 
         function updateOutliner() {
             const outlinerList = document.getElementById('outliner-list');
             outlinerList.innerHTML = '';
+            
+            // Show regular objects
             objects.forEach(obj => {
-                const li = document.createElement('li');
-                li.className = 'text-sm p-1.5 rounded-md cursor-pointer hover:bg-sky-100';
-                if (obj === selectedObject) {
-                    li.classList.add('bg-sky-200', 'font-semibold');
+                if (obj.visible) {
+                    const li = document.createElement('li');
+                    li.className = 'outliner-item';
+                    if (selectedObjects.includes(obj)) {
+                        li.classList.add('selected');
+                    }
+                    
+                    const icon = obj.userData.shapeType === 'hole' ? '⚫' : '🟦';
+                    li.innerHTML = `<span>${icon}</span><span>${obj.name}</span>`;
+                    li.onclick = (e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                            toggleObjectSelection(obj);
+                        } else {
+                            selectObject(obj);
+                        }
+                    };
+                    outlinerList.appendChild(li);
                 }
-                li.textContent = obj.name;
+            });
+            
+            // Show groups
+            groups.forEach(group => {
+                const li = document.createElement('li');
+                li.className = 'outliner-item group';
+                if (selectedObjects.includes(group.resultMesh)) {
+                    li.classList.add('selected');
+                }
+                
+                li.innerHTML = `<span>📦</span><span>${group.name}</span>`;
                 li.onclick = () => {
-                    selectObject(obj);
+                    selectObject(group.resultMesh);
                 };
                 outlinerList.appendChild(li);
             });
@@ -603,11 +1460,9 @@
             for (const key in buttons) {
                 const button = buttons[key];
                 if (key === mode) {
-                    button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-                    button.classList.add('bg-blue-700');
+                    button.style.backgroundColor = '#1e40af';
                 } else {
-                    button.classList.remove('bg-blue-700');
-                    button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                    button.style.backgroundColor = '#3b82f6';
                 }
             }
         }
@@ -624,41 +1479,77 @@
             camera.updateProjectionMatrix();
             controls.update();
             currentCameraMode = mode;
-            const pBtn = document.getElementById('perspective-btn'),
-                oBtn = document.getElementById('orthographic-btn');
-            pBtn.classList.toggle('bg-blue-700', mode === 'perspective');
-            pBtn.classList.toggle('bg-blue-500', mode !== 'perspective');
-            oBtn.classList.toggle('bg-blue-700', mode === 'orthographic');
-            oBtn.classList.toggle('bg-blue-500', mode !== 'orthographic');
+            const pBtn = document.getElementById('perspective-btn');
+            const oBtn = document.getElementById('orthographic-btn');
+            
+            if (mode === 'perspective') {
+                pBtn.style.backgroundColor = '#1e40af';
+                oBtn.style.backgroundColor = '#3b82f6';
+            } else {
+                pBtn.style.backgroundColor = '#3b82f6';
+                oBtn.style.backgroundColor = '#1e40af';
+            }
         }
 
         function updateColor() {
             if (selectedObject) {
-                selectedObject.material.color.set(document.getElementById('colorPicker').value);
+                const newColor = document.getElementById('colorPicker').value;
+                selectedObject.userData.color = newColor;
+                selectedObject.material.color.set(newColor);
                 captureState();
             }
         }
 
         function duplicateSelected() {
-            if (!selectedObject) return;
-            const clone = selectedObject.clone();
-            clone.material = selectedObject.material.clone();
-            clone.position.x += 1.5;
-            let originalType = selectedObject.name.split(' ')[0].toLowerCase();
-            shapeCounters[originalType]++;
-            clone.name = `${originalType.charAt(0).toUpperCase() + originalType.slice(1)} ${shapeCounters[originalType]}`;
-            scene.add(clone);
-            objects.push(clone);
-            selectObject(clone);
+            if (selectedObjects.length === 0) return;
+            
+            console.log(`Duplicating ${selectedObjects.length} objects`);
+            const clones = [];
+            
+            selectedObjects.forEach(obj => {
+                const clone = obj.clone();
+                clone.material = obj.material.clone();
+                clone.position.x += 1.5;
+                let originalType = obj.name.split(' ')[0].toLowerCase();
+                shapeCounters[originalType]++;
+                clone.name = `${originalType.charAt(0).toUpperCase() + originalType.slice(1)} ${shapeCounters[originalType]}`;
+                scene.add(clone);
+                objects.push(clone);
+                clones.push(clone);
+            });
+            
+            // Select all the clones
+            deselectObject();
+            clones.forEach(clone => {
+                selectedObjects.push(clone);
+                if (clone.material && clone.material.emissive) {
+                    clone.material.emissive.setHex(0x555555);
+                }
+            });
+            selectedObject = clones.length > 0 ? clones[0] : null;
+            
+            if (clones.length === 1) {
+                document.getElementById('property-pane').classList.add('visible');
+                updatePropertyPane();
+                transformControls.attach(selectedObject);
+            } else if (clones.length > 1) {
+                document.getElementById('property-pane').classList.remove('visible');
+            }
+            
+            updateOutliner();
             captureState();
         }
 
         function deleteSelected() {
-            if (!selectedObject) return;
-            const objectToRemove = selectedObject;
+            if (selectedObjects.length === 0) return;
+            
+            console.log(`Deleting ${selectedObjects.length} objects`);
+            selectedObjects.forEach(objToRemove => {
+                scene.remove(objToRemove);
+                objects = objects.filter(obj => obj !== objToRemove);
+            });
+            
             deselectObject();
-            scene.remove(objectToRemove);
-            objects = objects.filter(obj => obj !== objectToRemove);
             updateOutliner();
             captureState();
         }
@@ -669,7 +1560,35 @@
 
         function updatePropertyPane() {
             if (!selectedObject) return;
-            document.getElementById('colorPicker').value = '#' + selectedObject.material.color.getHexString();
+            
+            // Handle color - check userData or material
+            let colorValue = '#ff6b6b';
+            if (selectedObject.userData && selectedObject.userData.color) {
+                colorValue = selectedObject.userData.color;
+            } else if (selectedObject.material && selectedObject.material.color) {
+                colorValue = '#' + selectedObject.material.color.getHexString();
+            }
+            
+            // Ensure color value starts with #
+            if (typeof colorValue === 'string' && !colorValue.startsWith('#')) {
+                colorValue = '#' + colorValue;
+            }
+            document.getElementById('colorPicker').value = colorValue;
+            
+            // Update solid/hole buttons
+            const shapeType = (selectedObject.userData && selectedObject.userData.shapeType) ? selectedObject.userData.shapeType : 'solid';
+            const solidBtn = document.getElementById('solid-btn');
+            const holeBtn = document.getElementById('hole-btn');
+            
+            solidBtn.classList.remove('active');
+            holeBtn.classList.remove('active');
+            
+            if (shapeType === 'solid') {
+                solidBtn.classList.add('active');
+            } else {
+                holeBtn.classList.add('active');
+            }
+            
             document.getElementById('prop-pos-x').value = selectedObject.position.x.toFixed(3);
             document.getElementById('prop-pos-y').value = selectedObject.position.y.toFixed(3);
             document.getElementById('prop-pos-z').value = selectedObject.position.z.toFixed(3);
