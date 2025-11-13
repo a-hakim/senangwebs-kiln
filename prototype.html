@@ -188,7 +188,7 @@
                 <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Material</h4>
                 <div class="flex justify-between items-center mb-3 gap-2">
                     <label for="colorPicker" class="text-xs font-medium text-gray-600 flex-grow">Color</label>
-                    <input type="color" id="colorPicker" value="#ff6b6b" onchange="updateColor()"
+                    <input type="color" id="colorPicker" value="#007370" onchange="updateColor()"
                         class="w-8 h-8 border border-gray-300 rounded-sm p-0.5 cursor-pointer">
                     <input type="text" id="hexInput" value="ff6b6b" maxlength="7" placeholder="#000000" 
                         onchange="updateColorFromHex()" 
@@ -278,6 +278,7 @@
         const VIEWPORT_BG_COLOR = 0xe2e8f0;
         const GRID_COLOR_CENTER = 0x45556c;
         const GRID_COLOR_LINES = 0x90a1b9;
+        const OUTLINE_COLOR = 0x1d293d;
 
         let scene, renderer, raycaster, mouse;
         let perspectiveCamera, orthographicCamera, camera;
@@ -356,7 +357,7 @@
                 // Solid - use original color if available
                 const color = selectedObject && selectedObject.userData.color ?
                     selectedObject.userData.color :
-                    '#ff6b6b';
+                    '#007370';
                 return new THREE.MeshStandardMaterial({
                     color: color,
                     roughness: 0.5,
@@ -382,7 +383,7 @@
                 });
             } else {
                 selectedObject.material = new THREE.MeshStandardMaterial({
-                    color: selectedObject.userData.color || '#ff6b6b',
+                    color: selectedObject.userData.color || '#007370',
                     roughness: 0.5,
                     metalness: 0.3,
                     transparent: false,
@@ -612,7 +613,7 @@
             
             // Create outline material - black, rendered on back
             const outlineMaterial = new THREE.MeshBasicMaterial({
-                color: 0x000000,
+                color: OUTLINE_COLOR,
                 side: THREE.BackSide,
                 depthWrite: false,
                 polygonOffset: true,
@@ -919,7 +920,7 @@
             geometry.center();
 
             const material = new THREE.MeshStandardMaterial({
-                color: '#ff6b6b',
+                color: '#007370',
                 roughness: 0.5,
                 metalness: 0.3
             });
@@ -930,7 +931,7 @@
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             mesh.userData.shapeType = 'solid';
-            mesh.userData.color = '#ff6b6b';
+            mesh.userData.color = '#007370';
             scene.add(mesh);
             objects.push(mesh);
             selectObject(mesh);
@@ -1360,7 +1361,7 @@
                 materialSection.classList.remove('hidden');
                 
                 // Handle color - check userData or material
-                let colorValue = '#ff6b6b';
+                let colorValue = '#007370';
                 if (selectedObject.userData && selectedObject.userData.color) {
                     colorValue = selectedObject.userData.color;
                 } else if (selectedObject.material && selectedObject.material.color) {
