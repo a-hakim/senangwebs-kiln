@@ -185,7 +185,7 @@
             </div>
 
             <div id="property-material-section">
-                <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Material</h4>
+                <h4 class="text-xs font-bold text-gray-700 mb-3">Material</h4>
                 <div class="flex justify-between items-center mb-3 gap-2">
                     <label for="colorPicker" class="text-xs font-medium text-gray-600 flex-grow">Color</label>
                     <input type="color" id="colorPicker" value="#007370" onchange="updateColor()"
@@ -194,21 +194,10 @@
                         onchange="updateColorFromHex()" 
                         class="flex-1 px-2 py-1 border border-gray-300 rounded text-xs font-mono w-20 h-8">
                 </div>
-                <div class="flex justify-between items-center mb-3">
-                    <label for="shapeTypeToggle" class="text-xs font-medium text-gray-600">Type</label>
-                    <div class="flex gap-2">
-                        <button id="solid-btn"
-                            class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-blue-500 hover:bg-blue-600 active:bg-blue-900"
-                            onclick="setShapeType('solid')" title="Set as Solid">Solid</button>
-                        <button id="hole-btn"
-                            class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-gray-400 hover:bg-gray-500 active:bg-gray-600"
-                            onclick="setShapeType('hole')" title="Set as Hole">Hole</button>
-                    </div>
-                </div>
             </div>
 
             <div id="property-position-section">
-                <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Position (m)</h4>
+                <h4 class="text-xs font-bold text-gray-700 mb-3">Position (m)</h4>
                 <div class="grid grid-cols-3 gap-2 w-full">
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-pos-x">X</label>
@@ -229,7 +218,7 @@
             </div>
 
             <div id="property-rotation-section">
-                <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Rotation (°)</h4>
+                <h4 class="text-xs font-bold text-gray-700 mb-3">Rotation (°)</h4>
                 <div class="grid grid-cols-3 gap-2 w-full">
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-rot-x">X</label>
@@ -250,7 +239,7 @@
             </div>
 
             <div id="property-scale-section">
-                <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Scale</h4>
+                <h4 class="text-xs font-bold text-gray-700 mb-3">Scale</h4>
                 <div class="grid grid-cols-3 gap-2 w-full">
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-scale-x">X</label>
@@ -342,60 +331,6 @@
             }
         }
 
-        // Shape Type Management
-        function getMaterialForType(type) {
-            if (type === 'hole') {
-                return new THREE.MeshStandardMaterial({
-                    color: '#888888',
-                    roughness: 0.7,
-                    metalness: 0.1,
-                    transparent: true,
-                    opacity: 0.3,
-                    wireframe: false
-                });
-            } else {
-                // Solid - use original color if available
-                const color = selectedObject && selectedObject.userData.color ?
-                    selectedObject.userData.color :
-                    '#007370';
-                return new THREE.MeshStandardMaterial({
-                    color: color,
-                    roughness: 0.5,
-                    metalness: 0.3,
-                    transparent: false,
-                    opacity: 1.0
-                });
-            }
-        }
-
-        function setShapeType(type) {
-            if (!selectedObject) return;
-            selectedObject.userData.shapeType = type;
-
-            // Update material based on type
-            if (type === 'hole') {
-                selectedObject.material = new THREE.MeshStandardMaterial({
-                    color: '#888888',
-                    roughness: 0.7,
-                    metalness: 0.1,
-                    transparent: true,
-                    opacity: 0.3
-                });
-            } else {
-                selectedObject.material = new THREE.MeshStandardMaterial({
-                    color: selectedObject.userData.color || '#007370',
-                    roughness: 0.5,
-                    metalness: 0.3,
-                    transparent: false,
-                    opacity: 1.0
-                });
-            }
-
-            updatePropertyPane();
-            updateOutliner();
-            captureState();
-        }
-
         function captureState() {
             // Remove any forward history if we made a new change
             history = history.slice(0, historyIndex + 1);
@@ -408,7 +343,6 @@
                     rotation: obj.rotation.clone(),
                     scale: obj.scale.clone(),
                     color: obj.userData.color || obj.material.color.getHex(),
-                    shapeType: obj.userData.shapeType || 'solid',
                     uuid: obj.uuid,
                     groupId: obj.userData.groupId || null
                 })),
@@ -493,30 +427,18 @@
                 geometry.computeBoundingSphere();
                 geometry.center();
 
-                // Determine material based on shape type
-                let material;
-                if (objState.shapeType === 'hole') {
-                    material = new THREE.MeshStandardMaterial({
-                        color: '#888888',
-                        roughness: 0.7,
-                        metalness: 0.1,
-                        transparent: true,
-                        opacity: 0.3
-                    });
-                } else {
-                    material = new THREE.MeshStandardMaterial({
-                        color: objState.color,
-                        roughness: 0.5,
-                        metalness: 0.3,
-                        transparent: false,
-                        opacity: 1.0
-                    });
-                }
+                // Create material
+                const material = new THREE.MeshStandardMaterial({
+                    color: objState.color,
+                    roughness: 0.5,
+                    metalness: 0.3,
+                    transparent: false,
+                    opacity: 1.0
+                });
 
                 const mesh = new THREE.Mesh(geometry, material);
                 mesh.name = objState.name;
                 mesh.uuid = objState.uuid;
-                mesh.userData.shapeType = objState.shapeType || 'solid';
                 mesh.userData.color = objState.color;
                 mesh.userData.groupId = objState.groupId || null;
                 mesh.position.copy(objState.position);
@@ -930,7 +852,6 @@
             mesh.position.y = 0.5;
             mesh.castShadow = true;
             mesh.receiveShadow = true;
-            mesh.userData.shapeType = 'solid';
             mesh.userData.color = '#007370';
             scene.add(mesh);
             objects.push(mesh);
@@ -1080,15 +1001,15 @@
                 // Create group container item
                 const groupLi = document.createElement('li');
                 groupLi.className =
-                    'text-sm rounded-md cursor-pointer transition-all bg-amber-100 text-gray-900 border border-transparent';
+                    'text-sm rounded-md cursor-pointer transition-all bg-slate-50 text-gray-900 border border-transparent';
                 if (selectedObjects.includes(group.resultMesh)) {
-                    groupLi.classList.add('bg-amber-300', 'font-semibold');
+                    groupLi.classList.add('bg-slate-200', 'font-semibold');
                 }
 
                 const groupHeader = document.createElement('div');
-                groupHeader.className = 'flex items-center gap-2 p-3 hover:bg-amber-200 rounded-md';
+                groupHeader.className = 'flex items-center gap-2 p-3 hover:bg-slate-100 rounded-md';
                 groupHeader.innerHTML =
-                    `<span>📦</span><span>${group.name}</span> <span class="text-xs text-gray-600 ml-auto">(${group.children.length})</span>`;
+                    `<i class="fa-regular fa-object-group"></i><span>${group.name}</span> <span class="text-xs text-gray-600 ml-auto">(${group.children.length})</span>`;
                 groupHeader.onclick = () => {
                     selectObject(group.resultMesh);
                 };
@@ -1096,7 +1017,7 @@
 
                 // Create collapsible children container
                 const childrenUl = document.createElement('ul');
-                childrenUl.className = 'ml-4 border-l-2 border-amber-300 pl-2 space-y-1';
+                childrenUl.className = 'ml-4 border-l-2 border-slate-300 pl-2 space-y-1';
 
                 group.children.forEach(child => {
                     if (child.visible) {
@@ -1108,8 +1029,7 @@
                         }
                         childLi.classList.add('hover:bg-sky-100');
 
-                        const icon = child.userData.shapeType === 'hole' ? '⚫' : '🟦';
-                        childLi.innerHTML = `<span>${icon}</span><span>${child.name}</span>`;
+                        childLi.innerHTML = `<i class="fa-solid fa-cube"></i><span>${child.name}</span>`;
                         childLi.onclick = (e) => {
                             if (e.ctrlKey || e.metaKey) {
                                 toggleObjectSelection(child);
@@ -1136,8 +1056,7 @@
                     }
                     li.classList.add('hover:bg-sky-100');
 
-                    const icon = obj.userData.shapeType === 'hole' ? '⚫' : '🟦';
-                    li.innerHTML = `<span>${icon}</span><span>${obj.name}</span>`;
+                    li.innerHTML = `<i class="fa-solid fa-cube"></i><span>${obj.name}</span>`;
                     li.onclick = (e) => {
                         if (e.ctrlKey || e.metaKey) {
                             toggleObjectSelection(obj);
@@ -1375,21 +1294,6 @@
                 document.getElementById('colorPicker').value = colorValue;
                 // Update hex input to match
                 document.getElementById('hexInput').value = colorValue.replace('#', '');
-
-                // Update solid/hole buttons
-                const shapeType = (selectedObject.userData && selectedObject.userData.shapeType) ? selectedObject.userData
-                    .shapeType : 'solid';
-                const solidBtn = document.getElementById('solid-btn');
-                const holeBtn = document.getElementById('hole-btn');
-
-                solidBtn.classList.remove('active');
-                holeBtn.classList.remove('active');
-
-                if (shapeType === 'solid') {
-                    solidBtn.classList.add('active');
-                } else {
-                    holeBtn.classList.add('active');
-                }
             }
 
             document.getElementById('prop-pos-x').value = selectedObject.position.x.toFixed(3);
