@@ -10,567 +10,87 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/threebsp@1.0.4/index.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            overflow: hidden;
-            background-color: #1e293b;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            font-size: 14px;
-        }
-
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: auto;
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        #ui-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        /* Shapes Panel */
-        .shapes-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            pointer-events: auto;
-            z-index: 20;
-            min-width: 320px;
-        }
-
-        .panel-tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .tab-button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-        .tab-button:hover {
-            background-color: #d1d5db;
-        }
-
-        .tab-button.active {
-            background-color: #2563eb;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .panel-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: #1f2937;
-        }
-
-        .shapes-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .shape-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 12px 8px;
-            background-color: #10b981;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .shape-button:hover {
-            background-color: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .shape-button:active {
-            transform: translateY(0);
-        }
-
-        .shape-button i {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        .outliner-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .outliner-item {
-            font-size: 13px;
-            padding: 10px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background-color: transparent;
-            color: #1f2937;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid transparent;
-        }
-
-        .outliner-item:hover {
-            background-color: #e0f2fe;
-        }
-
-        .outliner-item.selected {
-            background-color: #bfdbfe;
-            font-weight: 600;
-        }
-
-        .outliner-item.group {
-            background-color: #fef3c7;
-        }
-
-        .outliner-item.group.selected {
-            background-color: #fcd34d;
-            font-weight: 600;
-        }
-
-        /* Controls Panel */
-        .controls-panel {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            pointer-events: auto;
-            z-index: 20;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .control-group label {
-            font-size: 12px;
-            color: #4b5563;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .control-group select {
-            padding: 8px 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 12px;
-            background-color: white;
-            cursor: pointer;
-        }
-
-        .button-group {
-            display: flex;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #d1d5db;
-        }
-
-        .button-group button {
-            padding: 8px 12px;
-            color: white;
-            text-align: center;
-            font-size: 12px;
-            flex-grow: 1;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .button-group button:last-child {
-            border-right: none;
-        }
-
-        .button-group.camera-group button:first-child {
-            background-color: #1e40af;
-        }
-
-        .button-group.camera-group button:first-child:hover {
-            background-color: #1e3a8a;
-        }
-
-        .button-group.camera-group button:last-child {
-            background-color: #3b82f6;
-        }
-
-        .button-group.camera-group button:last-child:hover {
-            background-color: #2563eb;
-        }
-
-        .button-group.transform-group button {
-            background-color: #3b82f6;
-        }
-
-        .button-group.transform-group button:hover {
-            background-color: #2563eb;
-        }
-
-        .button-group.transform-group button:first-child {
-            background-color: #1e40af;
-        }
-
-        .button-group.transform-group button:first-child:hover {
-            background-color: #1e3a8a;
-        }
-
-        .action-button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            color: white;
-            flex-grow: 1;
-            transition: all 0.2s ease;
-        }
-
-        .action-button.copy {
-            background-color: #06b6d4;
-        }
-
-        .action-button.copy:hover {
-            background-color: #0891b2;
-        }
-
-        .action-button.delete {
-            background-color: #ef4444;
-        }
-
-        .action-button.delete:hover {
-            background-color: #dc2626;
-        }
-
-        .action-button.group {
-            background-color: #f97316;
-        }
-
-        .action-button.group:hover {
-            background-color: #ea580c;
-        }
-
-        .action-button.ungroup {
-            background-color: #f97316;
-        }
-
-        .action-button.ungroup:hover {
-            background-color: #ea580c;
-        }
-
-        .action-button.undo {
-            background-color: #a855f7;
-        }
-
-        .action-button.undo:hover {
-            background-color: #9333ea;
-        }
-
-        .action-button.redo {
-            background-color: #a855f7;
-        }
-
-        .action-button.redo:hover {
-            background-color: #9333ea;
-        }
-
-        .action-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Property Pane */
-        #property-pane {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 288px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            pointer-events: auto;
-            z-index: 20;
-            display: none;
-        }
-
-        #property-pane.visible {
-            display: block;
-        }
-
-        .property-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .property-header h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1f2937;
-        }
-
-        .property-close {
-            font-size: 24px;
-            font-weight: 700;
-            color: #9ca3af;
-            cursor: pointer;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: color 0.2s ease;
-        }
-
-        .property-close:hover {
-            color: #374151;
-        }
-
-        .property-section {
-            margin-bottom: 16px;
-        }
-
-        .property-section h4 {
-            font-size: 12px;
-            font-weight: 700;
-            color: #374151;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 8px;
-        }
-
-        .property-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .property-row label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #4b5563;
-        }
-
-        .property-row input[type="color"] {
-            width: 128px;
-            height: 32px;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            padding: 2px;
-            cursor: pointer;
-        }
-
-        .type-button-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .type-button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            color: white;
-            transition: all 0.2s ease;
-        }
-
-        .type-button.solid {
-            background-color: #3b82f6;
-        }
-
-        .type-button.solid:hover {
-            background-color: #2563eb;
-        }
-
-        .type-button.solid.active {
-            background-color: #1e40af;
-        }
-
-        .type-button.hole {
-            background-color: #9ca3af;
-        }
-
-        .type-button.hole:hover {
-            background-color: #6b7280;
-        }
-
-        .type-button.hole.active {
-            background-color: #6b7280;
-        }
-
-        .property-coords {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .property-coord-input {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .property-coord-input label {
-            font-size: 11px;
-            color: #6b7280;
-            margin-bottom: 4px;
-            text-align: center;
-        }
-
-        .property-coord-input input {
-            padding: 8px 4px;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 12px;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 
 </head>
 
-<body>
+<body class="overflow-hidden bg-slate-800 font-system"
     <!-- Layer 0: The 3D Canvas. Sits at the very back (z-0). -->
-    <div id="canvas-container"></div>
+    <div id="canvas-container" class="fixed top-0 left-0 w-full h-full z-0 pointer-events-auto"></div>
 
-    <div id="ui-container">
+    <div id="ui-container" class="fixed top-0 left-0 w-full h-full z-10 pointer-events-none">
 
-        <div class="shapes-panel">
-            <div class="panel-tabs">
-                <button class="tab-button active" onclick="switchTab('shapes')">Shapes</button>
-                <button class="tab-button" onclick="switchTab('outliner')">Outliner</button>
+        <div class="shapes-panel absolute top-5 left-5 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 min-w-80">
+            <div class="panel-tabs grid grid-cols-2 gap-2 mb-3">
+                <button class="tab-button px-3 py-2 border-none rounded bg-gray-200 text-gray-700 text-sm font-medium cursor-pointer transition-all hover:bg-gray-300 active bg-blue-500 text-white" onclick="switchTab('shapes')">Shapes</button>
+                <button class="tab-button px-3 py-2 border-none rounded bg-gray-200 text-gray-700 text-sm font-medium cursor-pointer transition-all hover:bg-gray-300" onclick="switchTab('outliner')">Outliner</button>
             </div>
 
-            <div id="shapes-content" class="tab-content active">
-                <div class="panel-title">Add Shapes</div>
-                <div class="shapes-grid">
-                    <button class="shape-button" onclick="addShape('box')" title="Box">
-                        <i class="fa-solid fa-cube"></i>
+            <div id="shapes-content" class="tab-content">
+                <div class="text-base font-bold text-gray-900 mb-3">Add Shapes</div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('box')" title="Box">
+                        <i class="fa-solid fa-cube text-xl mb-1"></i>
                         Box
                     </button>
-                    <button class="shape-button" onclick="addShape('sphere')" title="Sphere">
-                        <i class="fa-solid fa-circle"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('sphere')" title="Sphere">
+                        <i class="fa-solid fa-circle text-xl mb-1"></i>
                         Sphere
                     </button>
-                    <button class="shape-button" onclick="addShape('cylinder')" title="Cylinder">
-                        <i class="fa-solid fa-database"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('cylinder')" title="Cylinder">
+                        <i class="fa-solid fa-database text-xl mb-1"></i>
                         Cylinder
                     </button>
-                    <button class="shape-button" onclick="addShape('cone')" title="Cone">
-                        <i class="fa-solid fa-caret-up"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('cone')" title="Cone">
+                        <i class="fa-solid fa-caret-up text-xl mb-1"></i>
                         Cone
                     </button>
-                    <button class="shape-button" onclick="addShape('torus')" title="Torus">
-                        <i class="fa-solid fa-ring"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('torus')" title="Torus">
+                        <i class="fa-solid fa-ring text-xl mb-1"></i>
                         Torus
                     </button>
-                    <button class="shape-button" onclick="addShape('plane')" title="Plane">
-                        <i class="fa-solid fa-square"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('plane')" title="Plane">
+                        <i class="fa-solid fa-square text-xl mb-1"></i>
                         Plane
                     </button>
-                    <button class="shape-button" onclick="addShape('capsule')" title="Capsule">
-                        <i class="fa-solid fa-capsules"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('capsule')" title="Capsule">
+                        <i class="fa-solid fa-capsules text-xl mb-1"></i>
                         Capsule
                     </button>
-                    <button class="shape-button" onclick="addShape('torusknot')" title="Torus Knot">
-                        <i class="fa-solid fa-code-branch"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('torusknot')" title="Torus Knot">
+                        <i class="fa-solid fa-code-branch text-xl mb-1"></i>
                         Knot
                     </button>
-                    <button class="shape-button" onclick="addShape('tetrahedron')" title="Tetrahedron">
-                        <i class="fa-solid fa-pyramid"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('tetrahedron')" title="Tetrahedron">
+                        <i class="fa-solid fa-pyramid text-xl mb-1"></i>
                         Tetra
                     </button>
-                    <button class="shape-button" onclick="addShape('octahedron')" title="Octahedron">
-                        <i class="fa-solid fa-gem"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('octahedron')" title="Octahedron">
+                        <i class="fa-solid fa-gem text-xl mb-1"></i>
                         Octa
                     </button>
-                    <button class="shape-button" onclick="addShape('icosahedron')" title="Icosahedron">
-                        <i class="fa-solid fa-ball"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('icosahedron')" title="Icosahedron">
+                        <i class="fa-solid fa-ball text-xl mb-1"></i>
                         Icosa
                     </button>
-                    <button class="shape-button" onclick="addShape('dodecahedron')" title="Dodecahedron">
-                        <i class="fa-solid fa-dice"></i>
+                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('dodecahedron')" title="Dodecahedron">
+                        <i class="fa-solid fa-dice text-xl mb-1"></i>
                         Dodeca
                     </button>
                 </div>
             </div>
 
-            <div id="outliner-content" class="tab-content">
-                <div class="panel-title">Scene Outliner</div>
-                <ul id="outliner-list" class="outliner-list"></ul>
+            <div id="outliner-content" class="tab-content hidden">
+                <div class="text-base font-bold text-gray-900 mb-3">Scene Outliner</div>
+                <ul id="outliner-list" class="flex flex-col gap-2"></ul>
             </div>
         </div>
 
         <!-- Controls Panel -->
-        <div class="controls-panel">
-            <div class="control-group">
-                <label for="snap-unit-select">Unit</label>
-                <select id="snap-unit-select" onchange="updateSnapSettings()">
+        <div class="controls-panel absolute bottom-5 left-1/2 -translate-x-1/2 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 flex gap-3 flex-wrap justify-center items-center">
+            <div class="control-group flex items-center gap-2">
+                <label for="snap-unit-select" class="text-xs text-gray-600 font-medium">Unit</label>
+                <select id="snap-unit-select" onchange="updateSnapSettings()" class="px-2.5 py-2 border border-gray-300 rounded text-xs bg-white cursor-pointer">
                     <option value="0.5">0.5</option>
                     <option value="0.2">0.2</option>
                     <option value="0.1" selected>0.1</option>
@@ -581,99 +101,99 @@
                 </select>
             </div>
 
-            <div class="button-group camera-group">
-                <button id="perspective-btn" onclick="setCameraMode('perspective')">Perspective</button>
-                <button id="orthographic-btn" onclick="setCameraMode('orthographic')">Orthographic</button>
+            <div class="button-group flex rounded overflow-hidden border border-gray-300">
+                <button id="perspective-btn" onclick="setCameraMode('perspective')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-900 hover:bg-blue-800">Perspective</button>
+                <button id="orthographic-btn" onclick="setCameraMode('orthographic')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all bg-blue-500 hover:bg-blue-600">Orthographic</button>
             </div>
 
-            <div class="button-group transform-group">
-                <button id="translate-btn" onclick="setTransformMode('translate')">Translate (T)</button>
-                <button id="rotate-btn" onclick="setTransformMode('rotate')">Rotate (R)</button>
-                <button id="scale-btn" onclick="setTransformMode('scale')">Scale (S)</button>
+            <div class="button-group flex rounded overflow-hidden border border-gray-300">
+                <button id="translate-btn" onclick="setTransformMode('translate')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-900 hover:bg-blue-800">Translate (T)</button>
+                <button id="rotate-btn" onclick="setTransformMode('rotate')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-500 hover:bg-blue-600">Rotate (R)</button>
+                <button id="scale-btn" onclick="setTransformMode('scale')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all bg-blue-500 hover:bg-blue-600">Scale (S)</button>
             </div>
 
-            <div style="display: flex; gap: 8px;">
-                <button class="action-button copy" onclick="duplicateSelected()">Copy</button>
-                <button class="action-button delete" onclick="deleteSelected()">Delete</button>
-                <button id="group-btn" class="action-button group" onclick="groupSelected()" title="Group selected shapes">📦 Group</button>
-                <button id="ungroup-btn" class="action-button ungroup" onclick="ungroupSelected()" title="Ungroup selected group">📂 Ungroup</button>
-                <button id="undo-btn" class="action-button undo" onclick="undo()" title="Undo (Ctrl+Z)">↶ Undo</button>
-                <button id="redo-btn" class="action-button redo" onclick="redo()" title="Redo (Ctrl+Y)">↷ Redo</button>
+            <div class="flex gap-2">
+                <button class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-cyan-500 hover:bg-cyan-600" onclick="duplicateSelected()">Copy</button>
+                <button class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-red-500 hover:bg-red-600" onclick="deleteSelected()">Delete</button>
+                <button id="group-btn" class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-orange-500 hover:bg-orange-600" onclick="groupSelected()" title="Group selected shapes">📦 Group</button>
+                <button id="ungroup-btn" class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-orange-500 hover:bg-orange-600" onclick="ungroupSelected()" title="Ungroup selected group">📂 Ungroup</button>
+                <button id="undo-btn" class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed" onclick="undo()" title="Undo (Ctrl+Z)">↶ Undo</button>
+                <button id="redo-btn" class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed" onclick="redo()" title="Redo (Ctrl+Y)">↷ Redo</button>
             </div>
         </div>
 
         <!-- Property Pane -->
-        <div id="property-pane">
-            <div class="property-header">
-                <h3>Properties</h3>
-                <span class="property-close" onclick="closePropertyPane()">&times;</span>
+        <div id="property-pane" class="absolute top-5 right-5 w-72 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-gray-900">Properties</h3>
+                <span class="property-close text-2xl font-bold text-gray-400 cursor-pointer w-6 h-6 flex justify-center items-center transition-colors hover:text-gray-700" onclick="closePropertyPane()">&times;</span>
             </div>
 
-            <div class="property-section">
-                <h4>Material</h4>
-                <div class="property-row">
-                    <label for="colorPicker">Color</label>
-                    <input type="color" id="colorPicker" value="#ff6b6b" onchange="updateColor()">
+            <div class="mb-4">
+                <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Material</h4>
+                <div class="flex justify-between items-center mb-3">
+                    <label for="colorPicker" class="text-xs font-medium text-gray-600">Color</label>
+                    <input type="color" id="colorPicker" value="#ff6b6b" onchange="updateColor()" class="w-32 h-8 border border-gray-300 rounded-sm p-0.5 cursor-pointer">
                 </div>
-                <div class="property-row">
-                    <label for="shapeTypeToggle">Type</label>
-                    <div class="type-button-group">
-                        <button id="solid-btn" class="type-button solid active" onclick="setShapeType('solid')" title="Set as Solid">🟦 Solid</button>
-                        <button id="hole-btn" class="type-button hole" onclick="setShapeType('hole')" title="Set as Hole">⚫ Hole</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="property-section">
-                <h4>Position (m)</h4>
-                <div class="property-coords">
-                    <div class="property-coord-input">
-                        <label>X</label>
-                        <input type="number" step="0.1" id="prop-pos-x" onchange="updateObjectFromPane()">
-                    </div>
-                    <div class="property-coord-input">
-                        <label>Y</label>
-                        <input type="number" step="0.1" id="prop-pos-y" onchange="updateObjectFromPane()">
-                    </div>
-                    <div class="property-coord-input">
-                        <label>Z</label>
-                        <input type="number" step="0.1" id="prop-pos-z" onchange="updateObjectFromPane()">
+                <div class="flex justify-between items-center mb-3">
+                    <label for="shapeTypeToggle" class="text-xs font-medium text-gray-600">Type</label>
+                    <div class="flex gap-2">
+                        <button id="solid-btn" class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-blue-500 hover:bg-blue-600 active:bg-blue-900" onclick="setShapeType('solid')" title="Set as Solid">🟦 Solid</button>
+                        <button id="hole-btn" class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-gray-400 hover:bg-gray-500 active:bg-gray-600" onclick="setShapeType('hole')" title="Set as Hole">⚫ Hole</button>
                     </div>
                 </div>
             </div>
 
-            <div class="property-section">
-                <h4>Rotation (°)</h4>
-                <div class="property-coords">
-                    <div class="property-coord-input">
-                        <label>X</label>
-                        <input type="number" id="prop-rot-x" onchange="updateObjectFromPane()">
+            <div class="mb-4">
+                <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Position (m)</h4>
+                <div class="grid grid-cols-3 gap-2 w-full">
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-pos-x">X</label>
+                        <input type="number" step="0.1" id="prop-pos-x" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
-                    <div class="property-coord-input">
-                        <label>Y</label>
-                        <input type="number" id="prop-rot-y" onchange="updateObjectFromPane()">
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-pos-y">Y</label>
+                        <input type="number" step="0.1" id="prop-pos-y" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
-                    <div class="property-coord-input">
-                        <label>Z</label>
-                        <input type="number" id="prop-rot-z" onchange="updateObjectFromPane()">
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-pos-z">Z</label>
+                        <input type="number" step="0.1" id="prop-pos-z" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                 </div>
             </div>
 
-            <div class="property-section">
-                <h4>Scale</h4>
-                <div class="property-coords">
-                    <div class="property-coord-input">
-                        <label>X</label>
-                        <input type="number" step="0.1" id="prop-scale-x" onchange="updateObjectFromPane()">
+            <div class="mb-4">
+                <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Rotation (°)</h4>
+                <div class="grid grid-cols-3 gap-2 w-full">
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-rot-x">X</label>
+                        <input type="number" id="prop-rot-x" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
-                    <div class="property-coord-input">
-                        <label>Y</label>
-                        <input type="number" step="0.1" id="prop-scale-y" onchange="updateObjectFromPane()">
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-rot-y">Y</label>
+                        <input type="number" id="prop-rot-y" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
-                    <div class="property-coord-input">
-                        <label>Z</label>
-                        <input type="number" step="0.1" id="prop-scale-z" onchange="updateObjectFromPane()">
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-rot-z">Z</label>
+                        <input type="number" id="prop-rot-z" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Scale</h4>
+                <div class="grid grid-cols-3 gap-2 w-full">
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-scale-x">X</label>
+                        <input type="number" step="0.1" id="prop-scale-x" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-scale-y">Y</label>
+                        <input type="number" step="0.1" id="prop-scale-y" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-500 mb-1 text-center" for="prop-scale-z">Z</label>
+                        <input type="number" step="0.1" id="prop-scale-z" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                 </div>
             </div>
@@ -716,20 +236,29 @@
         // Tab switching function
         function switchTab(tabName) {
             // Hide all tabs
-            document.getElementById('shapes-content').classList.remove('active');
-            document.getElementById('outliner-content').classList.remove('active');
+            document.getElementById('shapes-content').classList.remove('block');
+            document.getElementById('shapes-content').classList.add('hidden');
+            document.getElementById('outliner-content').classList.remove('block');
+            document.getElementById('outliner-content').classList.add('hidden');
             
             // Remove active class from all buttons
             const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(btn => btn.classList.remove('active'));
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
             
             // Show selected tab
             if (tabName === 'shapes') {
-                document.getElementById('shapes-content').classList.add('active');
-                buttons[0].classList.add('active');
+                document.getElementById('shapes-content').classList.remove('hidden');
+                document.getElementById('shapes-content').classList.add('block');
+                buttons[0].classList.remove('bg-gray-200', 'text-gray-700');
+                buttons[0].classList.add('bg-blue-500', 'text-white');
             } else if (tabName === 'outliner') {
-                document.getElementById('outliner-content').classList.add('active');
-                buttons[1].classList.add('active');
+                document.getElementById('outliner-content').classList.remove('hidden');
+                document.getElementById('outliner-content').classList.add('block');
+                buttons[1].classList.remove('bg-gray-200', 'text-gray-700');
+                buttons[1].classList.add('bg-blue-500', 'text-white');
             }
         }
 
@@ -950,11 +479,13 @@
                 selectedObject = selectedObjects.length > 0 ? selectedObjects[0] : null;
                 
                 if (selectedObjects.length === 1) {
-                    document.getElementById('property-pane').classList.add('visible');
+                    document.getElementById('property-pane').classList.remove('hidden');
+                    document.getElementById('property-pane').classList.add('block');
                     updatePropertyPane();
                     transformControls.attach(selectedObject);
                 } else if (selectedObjects.length > 1) {
-                    document.getElementById('property-pane').classList.remove('visible');
+                    document.getElementById('property-pane').classList.add('hidden');
+                    document.getElementById('property-pane').classList.remove('block');
                     transformControls.detach();
                 }
             } else {
@@ -988,7 +519,7 @@
             redoBtn.disabled = historyIndex >= history.length - 1;
         }
 
-        // Boolean CSG Computation
+        // Group Container - keeps shapes together with relative positions
         function computeGroupResult(group) {
             if (group.resultMesh) {
                 scene.remove(group.resultMesh);
@@ -996,45 +527,21 @@
             
             if (group.children.length === 0) return;
             
-            try {
-                let resultGeometry = null;
-                
-                for (let i = 0; i < group.children.length; i++) {
-                    const child = group.children[i];
-                    const childBSP = new ThreeBSP(child);
-                    
-                    if (resultGeometry === null) {
-                        resultGeometry = childBSP;
-                    } else {
-                        const resultBSP = new ThreeBSP(resultGeometry.toMesh());
-                        
-                        if (child.userData.shapeType === 'hole') {
-                            resultGeometry = resultBSP.subtract(childBSP);
-                        } else {
-                            resultGeometry = resultBSP.union(childBSP);
-                        }
-                    }
-                }
-                
-                if (resultGeometry) {
-                    const resultMesh = resultGeometry.toMesh();
-                    resultMesh.material = new THREE.MeshStandardMaterial({
-                        color: '#ff9800',
-                        roughness: 0.5,
-                        metalness: 0.3
-                    });
-                    resultMesh.castShadow = true;
-                    resultMesh.receiveShadow = true;
-                    resultMesh.userData.isGroupResult = true;
-                    resultMesh.userData.groupId = group.id;
-                    
-                    scene.add(resultMesh);
-                    group.resultMesh = resultMesh;
-                    group.isDirty = false;
-                }
-            } catch (e) {
-                console.error("Error computing Boolean result:", e);
-            }
+            // Create a THREE.Group container as the visual representation
+            const groupContainer = new THREE.Group();
+            groupContainer.userData.isGroupResult = true;
+            groupContainer.userData.groupId = group.id;
+            groupContainer.name = group.name;
+            
+            // Add all children to the container (they're already in the scene but now parented to container)
+            group.children.forEach(child => {
+                groupContainer.add(child);
+            });
+            
+            scene.add(groupContainer);
+            group.resultMesh = groupContainer;
+            group.isDirty = false;
+            console.log(`Group container created: ${group.name} with ${group.children.length} children`);
         }
 
         function groupSelected() {
@@ -1054,19 +561,13 @@
                 isDirty: true
             };
             
-            // Mark objects as part of group
+            // Mark objects as part of group (they stay in scene, just parented)
             selectedObjects.forEach(obj => {
                 obj.userData.groupId = groupId;
-                scene.remove(obj);
             });
             
             groups.push(group);
             computeGroupResult(group);
-            
-            // Hide original objects, show result
-            selectedObjects.forEach(obj => {
-                obj.visible = false;
-            });
             
             deselectObject();
             selectObject(group.resultMesh);
@@ -1084,13 +585,27 @@
             
             const group = groups[groupIndex];
             
-            // Show original objects
+            // Unparent objects and restore them to scene
             group.children.forEach(obj => {
-                obj.visible = true;
+                // Preserve world position when unparenting
+                const worldPosition = new THREE.Vector3();
+                const worldRotation = new THREE.Quaternion();
+                const worldScale = new THREE.Vector3();
+                obj.getWorldPosition(worldPosition);
+                obj.getWorldQuaternion(worldRotation);
+                obj.getWorldScale(worldScale);
+                
+                group.resultMesh.remove(obj);
+                scene.add(obj);
+                
+                obj.position.copy(worldPosition);
+                obj.quaternion.copy(worldRotation);
+                obj.scale.copy(worldScale);
+                
                 obj.userData.groupId = null;
             });
             
-            // Remove result mesh
+            // Remove group container
             scene.remove(group.resultMesh);
             groups.splice(groupIndex, 1);
             
@@ -1290,10 +805,18 @@
                     selectedObject.material.emissive.setHex(0x000000);
                 }
             }
+            if (selectedObjects.length > 0) {
+                selectedObjects.forEach(sel => {
+                    if (sel.material && sel.material.emissive) {
+                        sel.material.emissive.setHex(0x000000);
+                    }
+                });
+            }
             selectedObject = null;
             selectedObjects = [];
             transformControls.detach();
-            document.getElementById('property-pane').classList.remove('visible');
+            document.getElementById('property-pane').classList.add('hidden');
+            document.getElementById('property-pane').classList.remove('block');
             updateOutliner();
         }
 
@@ -1321,16 +844,19 @@
             
             // Show property pane only if 1 object selected
             if (selectedObjects.length === 1) {
-                document.getElementById('property-pane').classList.add('visible');
+                document.getElementById('property-pane').classList.remove('hidden');
+                document.getElementById('property-pane').classList.add('block');
                 updatePropertyPane();
                 transformControls.attach(selectedObject);
             } else if (selectedObjects.length > 1) {
                 // Multiple selection - hide property pane
-                document.getElementById('property-pane').classList.remove('visible');
+                document.getElementById('property-pane').classList.add('hidden');
+                document.getElementById('property-pane').classList.remove('block');
                 transformControls.detach();
             } else {
                 // No selection
-                document.getElementById('property-pane').classList.remove('visible');
+                document.getElementById('property-pane').classList.add('hidden');
+                document.getElementById('property-pane').classList.remove('block');
                 transformControls.detach();
             }
             
@@ -1339,6 +865,16 @@
 
         function selectObject(obj) {
             if (!obj) return;
+            
+            // If object is part of a group, select the group container instead
+            if (obj.userData.groupId) {
+                const groupId = obj.userData.groupId;
+                const group = groups.find(g => g.id === groupId);
+                if (group && group.resultMesh) {
+                    obj = group.resultMesh;
+                    console.log(`Object is part of group, selecting group container instead`);
+                }
+            }
             
             // Clear previous selection and start fresh
             selectedObjects.forEach(sel => {
@@ -1356,7 +892,8 @@
             }
             
             transformControls.attach(selectedObject);
-            document.getElementById('property-pane').classList.add('visible');
+            document.getElementById('property-pane').classList.remove('hidden');
+            document.getElementById('property-pane').classList.add('block');
             updatePropertyPane();
             updateOutliner();
             console.log(`Single selected: ${obj.name}`);
@@ -1370,10 +907,11 @@
             objects.forEach(obj => {
                 if (obj.visible) {
                     const li = document.createElement('li');
-                    li.className = 'outliner-item';
+                    li.className = 'text-sm p-3 rounded-md cursor-pointer transition-all bg-transparent text-gray-900 flex items-center gap-2 border border-transparent';
                     if (selectedObjects.includes(obj)) {
-                        li.classList.add('selected');
+                        li.classList.add('bg-blue-200', 'font-semibold');
                     }
+                    li.classList.add('hover:bg-sky-100');
                     
                     const icon = obj.userData.shapeType === 'hole' ? '⚫' : '🟦';
                     li.innerHTML = `<span>${icon}</span><span>${obj.name}</span>`;
@@ -1391,9 +929,9 @@
             // Show groups
             groups.forEach(group => {
                 const li = document.createElement('li');
-                li.className = 'outliner-item group';
+                li.className = 'text-sm p-3 rounded-md cursor-pointer transition-all bg-amber-100 text-gray-900 flex items-center gap-2 border border-transparent';
                 if (selectedObjects.includes(group.resultMesh)) {
-                    li.classList.add('selected');
+                    li.classList.add('bg-amber-300', 'font-semibold');
                 }
                 
                 li.innerHTML = `<span>📦</span><span>${group.name}</span>`;
@@ -1529,11 +1067,13 @@
             selectedObject = clones.length > 0 ? clones[0] : null;
             
             if (clones.length === 1) {
-                document.getElementById('property-pane').classList.add('visible');
+                document.getElementById('property-pane').classList.remove('hidden');
+                document.getElementById('property-pane').classList.add('block');
                 updatePropertyPane();
                 transformControls.attach(selectedObject);
             } else if (clones.length > 1) {
-                document.getElementById('property-pane').classList.remove('visible');
+                document.getElementById('property-pane').classList.add('hidden');
+                document.getElementById('property-pane').classList.remove('block');
             }
             
             updateOutliner();
