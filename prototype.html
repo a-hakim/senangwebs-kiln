@@ -71,9 +71,9 @@
                     </button>
                     <button
                         class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
-                        onclick="addShape('capsule')" title="Capsule">
+                        onclick="addShape('pyramid')" title="Pyramid">
                         <i class="fa-solid fa-shapes text-xl mb-1"></i>
-                        Capsule
+                        Pyramid
                     </button>
                     <button
                         class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
@@ -292,7 +292,7 @@
             cone: 0,
             torus: 0,
             plane: 0,
-            capsule: 0,
+            pyramid: 0,
             torusknot: 0,
             tetrahedron: 0,
             octahedron: 0,
@@ -460,8 +460,8 @@
                     case 'plane':
                         geometry = new THREE.PlaneGeometry(1, 1);
                         break;
-                    case 'capsule':
-                        geometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+                    case 'pyramid':
+                        geometry = new THREE.ConeGeometry(0.7, 1, 4);
                         break;
                     case 'torusknot':
                         geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16);
@@ -833,8 +833,8 @@
                 case 'plane':
                     geometry = new THREE.PlaneGeometry(1, 1);
                     break;
-                case 'capsule':
-                    geometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+                case 'pyramid':
+                    geometry = new THREE.ConeGeometry(0.7, 1, 4);
                     break;
                 case 'torusknot':
                     geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16);
