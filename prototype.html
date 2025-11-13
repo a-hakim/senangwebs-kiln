@@ -14,67 +14,95 @@
 
 </head>
 
-<body class="overflow-hidden bg-slate-800 font-system"
-    <!-- Layer 0: The 3D Canvas. Sits at the very back (z-0). -->
+<body class="overflow-hidden bg-slate-800 font-system" <!-- Layer 0: The 3D Canvas. Sits at the very back (z-0). -->
     <div id="canvas-container" class="fixed top-0 left-0 w-full h-full z-0 pointer-events-auto"></div>
 
     <div id="ui-container" class="fixed top-0 left-0 w-full h-full z-10 pointer-events-none">
 
-        <div class="shapes-panel absolute top-5 left-5 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 min-w-80">
+        <div
+            class="shapes-panel absolute top-5 left-5 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 min-w-80">
             <div class="panel-tabs grid grid-cols-2 gap-2 mb-3">
-                <button class="tab-button px-3 py-2 border-none rounded bg-gray-200 text-gray-700 text-sm font-medium cursor-pointer transition-all hover:bg-gray-300 active bg-blue-500 text-white" onclick="switchTab('shapes')">Shapes</button>
-                <button class="tab-button px-3 py-2 border-none rounded bg-gray-200 text-gray-700 text-sm font-medium cursor-pointer transition-all hover:bg-gray-300" onclick="switchTab('outliner')">Outliner</button>
+                <button
+                    class="tab-button px-3 py-2 border-none rounded text-gray-700 text-sm font-medium cursor-pointer transition-all hover:bg-gray-300 active bg-blue-500 text-white"
+                    onclick="switchTab('shapes')">Shapes</button>
+                <button
+                    class="tab-button px-3 py-2 border-none rounded bg-gray-200 text-gray-700 text-sm font-medium cursor-pointer transition-all hover:bg-gray-300"
+                    onclick="switchTab('outliner')">Outliner</button>
             </div>
 
             <div id="shapes-content" class="tab-content">
                 <div class="text-base font-bold text-gray-900 mb-3">Add Shapes</div>
                 <div class="grid grid-cols-3 gap-2">
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('box')" title="Box">
-                        <i class="fa-solid fa-cube text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('box')" title="Box">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Box
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('sphere')" title="Sphere">
-                        <i class="fa-solid fa-circle text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('sphere')" title="Sphere">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Sphere
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('cylinder')" title="Cylinder">
-                        <i class="fa-solid fa-database text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('cylinder')" title="Cylinder">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Cylinder
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('cone')" title="Cone">
-                        <i class="fa-solid fa-caret-up text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('cone')" title="Cone">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Cone
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('torus')" title="Torus">
-                        <i class="fa-solid fa-ring text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('torus')" title="Torus">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Torus
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('plane')" title="Plane">
-                        <i class="fa-solid fa-square text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('plane')" title="Plane">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Plane
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('capsule')" title="Capsule">
-                        <i class="fa-solid fa-capsules text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('capsule')" title="Capsule">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Capsule
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('torusknot')" title="Torus Knot">
-                        <i class="fa-solid fa-code-branch text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('torusknot')" title="Torus Knot">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Knot
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('tetrahedron')" title="Tetrahedron">
-                        <i class="fa-solid fa-pyramid text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('tetrahedron')" title="Tetrahedron">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Tetra
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('octahedron')" title="Octahedron">
-                        <i class="fa-solid fa-gem text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('octahedron')" title="Octahedron">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Octa
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('icosahedron')" title="Icosahedron">
-                        <i class="fa-solid fa-ball text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('icosahedron')" title="Icosahedron">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Icosa
                     </button>
-                    <button class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0" onclick="addShape('dodecahedron')" title="Dodecahedron">
-                        <i class="fa-solid fa-dice text-xl mb-1"></i>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('dodecahedron')" title="Dodecahedron">
+                        <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Dodeca
                     </button>
                 </div>
@@ -87,10 +115,12 @@
         </div>
 
         <!-- Controls Panel -->
-        <div class="controls-panel absolute bottom-5 left-1/2 -translate-x-1/2 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 flex gap-3 flex-wrap justify-center items-center">
+        <div
+            class="controls-panel absolute bottom-5 left-1/2 -translate-x-1/2 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 flex gap-3 flex-wrap justify-center items-center">
             <div class="control-group flex items-center gap-2">
                 <label for="snap-unit-select" class="text-xs text-gray-600 font-medium">Unit</label>
-                <select id="snap-unit-select" onchange="updateSnapSettings()" class="px-2.5 py-2 border border-gray-300 rounded text-xs bg-white cursor-pointer">
+                <select id="snap-unit-select" onchange="updateSnapSettings()"
+                    class="px-2.5 py-2 border border-gray-300 rounded text-xs bg-white cursor-pointer">
                     <option value="0.5">0.5</option>
                     <option value="0.2">0.2</option>
                     <option value="0.1" selected>0.1</option>
@@ -102,98 +132,140 @@
             </div>
 
             <div class="button-group flex rounded overflow-hidden border border-gray-300">
-                <button id="perspective-btn" onclick="setCameraMode('perspective')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-900 hover:bg-blue-800">Perspective</button>
-                <button id="orthographic-btn" onclick="setCameraMode('orthographic')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all bg-blue-500 hover:bg-blue-600">Orthographic</button>
+                <button id="perspective-btn" onclick="setCameraMode('perspective')"
+                    class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-900 hover:bg-blue-800">Perspective</button>
+                <button id="orthographic-btn" onclick="setCameraMode('orthographic')"
+                    class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all bg-blue-500 hover:bg-blue-600">Orthographic</button>
             </div>
 
             <div class="button-group flex rounded overflow-hidden border border-gray-300">
-                <button id="translate-btn" onclick="setTransformMode('translate')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-900 hover:bg-blue-800">Translate (T)</button>
-                <button id="rotate-btn" onclick="setTransformMode('rotate')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-500 hover:bg-blue-600">Rotate (R)</button>
-                <button id="scale-btn" onclick="setTransformMode('scale')" class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all bg-blue-500 hover:bg-blue-600">Scale (S)</button>
+                <button id="translate-btn" onclick="setTransformMode('translate')"
+                    class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-900 hover:bg-blue-800"><i
+                        class="fa-solid fa-arrows-up-down-left-right"></i></button>
+                <button id="rotate-btn" onclick="setTransformMode('rotate')"
+                    class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all border-r border-white border-opacity-20 bg-blue-500 hover:bg-blue-600"><i
+                        class="fa-solid fa-rotate-right"></i></button>
+                <button id="scale-btn" onclick="setTransformMode('scale')"
+                    class="px-3 py-2 text-white text-center text-xs flex-grow border-none cursor-pointer transition-all bg-blue-500 hover:bg-blue-600"><i
+                        class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
             </div>
 
-            <div class="flex gap-2">
-                <button class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-cyan-500 hover:bg-cyan-600" onclick="duplicateSelected()">Copy</button>
-                <button class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-red-500 hover:bg-red-600" onclick="deleteSelected()">Delete</button>
-                <button id="group-btn" class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-orange-500 hover:bg-orange-600" onclick="groupSelected()" title="Group selected shapes">📦 Group</button>
-                <button id="ungroup-btn" class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-orange-500 hover:bg-orange-600" onclick="ungroupSelected()" title="Ungroup selected group">📂 Ungroup</button>
-                <button id="undo-btn" class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed" onclick="undo()" title="Undo (Ctrl+Z)">↶ Undo</button>
-                <button id="redo-btn" class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed" onclick="redo()" title="Redo (Ctrl+Y)">↷ Redo</button>
+            <div class="flex gap-1">
+                <button
+                    class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-cyan-500 hover:bg-cyan-600"
+                    onclick="duplicateSelected()">Copy</button>
+                <button
+                    class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-red-500 hover:bg-red-600"
+                    onclick="deleteSelected()">Delete</button>
+                <button id="group-btn"
+                    class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-orange-500 hover:bg-orange-600"
+                    onclick="groupSelected()" title="Group selected shapes"><i
+                        class="fa-regular fa-object-group"></i></button>
+                <button id="ungroup-btn"
+                    class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-orange-500 hover:bg-orange-600"
+                    onclick="ungroupSelected()" title="Ungroup selected group"><i
+                        class="fa-regular fa-object-ungroup"></i></button>
+                <button id="undo-btn"
+                    class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onclick="undo()" title="Undo (Ctrl+Z)"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                <button id="redo-btn"
+                    class="action-button px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onclick="redo()" title="Redo (Ctrl+Y)"><i class="fa-solid fa-arrow-rotate-right"></i></button>
             </div>
         </div>
 
         <!-- Property Pane -->
-        <div id="property-pane" class="absolute top-5 right-5 w-72 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 hidden">
-            <div class="flex justify-between items-center mb-4">
+        <div id="property-pane"
+            class="absolute top-5 right-5 w-72 bg-white bg-opacity-95 p-3 rounded-lg shadow-lg pointer-events-auto z-20 hidden flex flex-col gap-4">
+            <div class="flex justify-between items-center">
                 <h3 class="text-base font-bold text-gray-900">Properties</h3>
-                <span class="property-close text-2xl font-bold text-gray-400 cursor-pointer w-6 h-6 flex justify-center items-center transition-colors hover:text-gray-700" onclick="closePropertyPane()">&times;</span>
+                <span
+                    class="property-close text-2xl font-bold text-gray-400 cursor-pointer w-6 h-6 flex justify-center items-center transition-colors hover:text-gray-700"
+                    onclick="closePropertyPane()">&times;</span>
             </div>
 
-            <div class="mb-4">
+            <div id="property-material-section">
                 <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Material</h4>
-                <div class="flex justify-between items-center mb-3">
-                    <label for="colorPicker" class="text-xs font-medium text-gray-600">Color</label>
-                    <input type="color" id="colorPicker" value="#ff6b6b" onchange="updateColor()" class="w-32 h-8 border border-gray-300 rounded-sm p-0.5 cursor-pointer">
+                <div class="flex justify-between items-center mb-3 gap-2">
+                    <label for="colorPicker" class="text-xs font-medium text-gray-600 flex-grow">Color</label>
+                    <input type="color" id="colorPicker" value="#ff6b6b" onchange="updateColor()"
+                        class="w-8 h-8 border border-gray-300 rounded-sm p-0.5 cursor-pointer">
+                    <input type="text" id="hexInput" value="ff6b6b" maxlength="7" placeholder="#000000" 
+                        onchange="updateColorFromHex()" 
+                        class="flex-1 px-2 py-1 border border-gray-300 rounded text-xs font-mono w-20 h-8">
                 </div>
                 <div class="flex justify-between items-center mb-3">
                     <label for="shapeTypeToggle" class="text-xs font-medium text-gray-600">Type</label>
                     <div class="flex gap-2">
-                        <button id="solid-btn" class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-blue-500 hover:bg-blue-600 active:bg-blue-900" onclick="setShapeType('solid')" title="Set as Solid">🟦 Solid</button>
-                        <button id="hole-btn" class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-gray-400 hover:bg-gray-500 active:bg-gray-600" onclick="setShapeType('hole')" title="Set as Hole">⚫ Hole</button>
+                        <button id="solid-btn"
+                            class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-blue-500 hover:bg-blue-600 active:bg-blue-900"
+                            onclick="setShapeType('solid')" title="Set as Solid">Solid</button>
+                        <button id="hole-btn"
+                            class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-gray-400 hover:bg-gray-500 active:bg-gray-600"
+                            onclick="setShapeType('hole')" title="Set as Hole">Hole</button>
                     </div>
                 </div>
             </div>
 
-            <div class="mb-4">
+            <div id="property-position-section">
                 <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Position (m)</h4>
                 <div class="grid grid-cols-3 gap-2 w-full">
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-pos-x">X</label>
-                        <input type="number" step="0.1" id="prop-pos-x" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" step="0.1" id="prop-pos-x" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-pos-y">Y</label>
-                        <input type="number" step="0.1" id="prop-pos-y" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" step="0.1" id="prop-pos-y" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-pos-z">Z</label>
-                        <input type="number" step="0.1" id="prop-pos-z" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" step="0.1" id="prop-pos-z" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                 </div>
             </div>
 
-            <div class="mb-4">
+            <div id="property-rotation-section">
                 <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Rotation (°)</h4>
                 <div class="grid grid-cols-3 gap-2 w-full">
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-rot-x">X</label>
-                        <input type="number" id="prop-rot-x" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" id="prop-rot-x" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-rot-y">Y</label>
-                        <input type="number" id="prop-rot-y" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" id="prop-rot-y" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-rot-z">Z</label>
-                        <input type="number" id="prop-rot-z" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" id="prop-rot-z" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                 </div>
             </div>
 
-            <div class="mb-4">
+            <div id="property-scale-section">
                 <h4 class="text-xs font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2">Scale</h4>
                 <div class="grid grid-cols-3 gap-2 w-full">
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-scale-x">X</label>
-                        <input type="number" step="0.1" id="prop-scale-x" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" step="0.1" id="prop-scale-x" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-scale-y">Y</label>
-                        <input type="number" step="0.1" id="prop-scale-y" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" step="0.1" id="prop-scale-y" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-xs text-gray-500 mb-1 text-center" for="prop-scale-z">Z</label>
-                        <input type="number" step="0.1" id="prop-scale-z" onchange="updateObjectFromPane()" class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
+                        <input type="number" step="0.1" id="prop-scale-z" onchange="updateObjectFromPane()"
+                            class="px-1 py-2 border border-gray-300 rounded text-center text-xs">
                     </div>
                 </div>
             </div>
@@ -210,7 +282,7 @@
 
         let objects = [];
         let selectedObject = null;
-        let selectedObjects = [];  // For multi-selection
+        let selectedObjects = []; // For multi-selection
         let groups = [];
         let groupIdCounter = 0;
         let shapeCounters = {
@@ -240,14 +312,14 @@
             document.getElementById('shapes-content').classList.add('hidden');
             document.getElementById('outliner-content').classList.remove('block');
             document.getElementById('outliner-content').classList.add('hidden');
-            
+
             // Remove active class from all buttons
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => {
                 btn.classList.remove('bg-blue-500', 'text-white');
                 btn.classList.add('bg-gray-200', 'text-gray-700');
             });
-            
+
             // Show selected tab
             if (tabName === 'shapes') {
                 document.getElementById('shapes-content').classList.remove('hidden');
@@ -275,9 +347,9 @@
                 });
             } else {
                 // Solid - use original color if available
-                const color = selectedObject && selectedObject.userData.color
-                    ? selectedObject.userData.color
-                    : '#ff6b6b';
+                const color = selectedObject && selectedObject.userData.color ?
+                    selectedObject.userData.color :
+                    '#ff6b6b';
                 return new THREE.MeshStandardMaterial({
                     color: color,
                     roughness: 0.5,
@@ -291,7 +363,7 @@
         function setShapeType(type) {
             if (!selectedObject) return;
             selectedObject.userData.shapeType = type;
-            
+
             // Update material based on type
             if (type === 'hole') {
                 selectedObject.material = new THREE.MeshStandardMaterial({
@@ -310,7 +382,7 @@
                     opacity: 1.0
                 });
             }
-            
+
             updatePropertyPane();
             updateOutliner();
             captureState();
@@ -319,7 +391,7 @@
         function captureState() {
             // Remove any forward history if we made a new change
             history = history.slice(0, historyIndex + 1);
-            
+
             // Create a snapshot of current state
             const state = {
                 objects: objects.map(obj => ({
@@ -338,22 +410,24 @@
                     children: g.children.map(c => c.uuid)
                 })),
                 selectedObjectUuids: selectedObjects.map(obj => obj.uuid),
-                shapeCounters: { ...shapeCounters }
+                shapeCounters: {
+                    ...shapeCounters
+                }
             };
-            
+
             history.push(state);
             if (history.length > MAX_HISTORY) {
                 history.shift();
             } else {
                 historyIndex++;
             }
-            
+
             updateHistoryButtons();
         }
 
         function restoreState(state) {
             if (!state) return;
-            
+
             // Remove objects not in state
             objects.forEach(obj => scene.remove(obj));
             groups.forEach(g => {
@@ -361,7 +435,7 @@
             });
             objects = [];
             groups = [];
-            
+
             // Recreate objects from state
             state.objects.forEach(objState => {
                 // Find geometry type from name
@@ -405,12 +479,12 @@
                         geometry = new THREE.DodecahedronGeometry(0.7);
                         break;
                 }
-                
+
                 // Ensure geometry has proper bounds
                 geometry.computeBoundingBox();
                 geometry.computeBoundingSphere();
                 geometry.center();
-                
+
                 // Determine material based on shape type
                 let material;
                 if (objState.shapeType === 'hole') {
@@ -430,7 +504,7 @@
                         opacity: 1.0
                     });
                 }
-                
+
                 const mesh = new THREE.Mesh(geometry, material);
                 mesh.name = objState.name;
                 mesh.uuid = objState.uuid;
@@ -442,17 +516,18 @@
                 mesh.scale.copy(objState.scale);
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
-                
+
                 scene.add(mesh);
                 objects.push(mesh);
             });
-            
+
             // Restore groups
             state.groups.forEach(groupState => {
                 const group = {
                     id: groupState.id,
                     name: groupState.name,
-                    children: groupState.children.map(uuid => objects.find(o => o.uuid === uuid)).filter(o => o),
+                    children: groupState.children.map(uuid => objects.find(o => o.uuid === uuid)).filter(o =>
+                        o),
                     resultMesh: null,
                     isDirty: true
                 };
@@ -461,9 +536,11 @@
                     computeGroupResult(group);
                 }
             });
-            
-            shapeCounters = { ...state.shapeCounters };
-            
+
+            shapeCounters = {
+                ...state.shapeCounters
+            };
+
             // Restore selection
             if (state.selectedObjectUuids && state.selectedObjectUuids.length > 0) {
                 selectedObjects = [];
@@ -477,7 +554,7 @@
                     }
                 });
                 selectedObject = selectedObjects.length > 0 ? selectedObjects[0] : null;
-                
+
                 if (selectedObjects.length === 1) {
                     document.getElementById('property-pane').classList.remove('hidden');
                     document.getElementById('property-pane').classList.add('block');
@@ -491,7 +568,7 @@
             } else {
                 deselectObject();
             }
-            
+
             updateOutliner();
         }
 
@@ -514,7 +591,7 @@
         function updateHistoryButtons() {
             const undoBtn = document.getElementById('undo-btn');
             const redoBtn = document.getElementById('redo-btn');
-            
+
             undoBtn.disabled = historyIndex <= 0;
             redoBtn.disabled = historyIndex >= history.length - 1;
         }
@@ -524,20 +601,20 @@
             if (group.resultMesh) {
                 scene.remove(group.resultMesh);
             }
-            
+
             if (group.children.length === 0) return;
-            
+
             // Create a THREE.Group container as the visual representation
             const groupContainer = new THREE.Group();
             groupContainer.userData.isGroupResult = true;
             groupContainer.userData.groupId = group.id;
             groupContainer.name = group.name;
-            
+
             // Add all children to the container (they're already in the scene but now parented to container)
             group.children.forEach(child => {
                 groupContainer.add(child);
             });
-            
+
             scene.add(groupContainer);
             group.resultMesh = groupContainer;
             group.isDirty = false;
@@ -549,9 +626,9 @@
                 console.log("No objects selected for grouping");
                 return;
             }
-            
+
             console.log(`Grouping ${selectedObjects.length} objects`);
-            
+
             const groupId = `group_${groupIdCounter++}`;
             const group = {
                 id: groupId,
@@ -560,15 +637,15 @@
                 resultMesh: null,
                 isDirty: true
             };
-            
+
             // Mark objects as part of group (they stay in scene, just parented)
             selectedObjects.forEach(obj => {
                 obj.userData.groupId = groupId;
             });
-            
+
             groups.push(group);
             computeGroupResult(group);
-            
+
             deselectObject();
             selectObject(group.resultMesh);
             updateOutliner();
@@ -577,14 +654,14 @@
 
         function ungroupSelected() {
             if (!selectedObject || !selectedObject.userData.isGroupResult) return;
-            
+
             const groupId = selectedObject.userData.groupId;
             const groupIndex = groups.findIndex(g => g.id === groupId);
-            
+
             if (groupIndex === -1) return;
-            
+
             const group = groups[groupIndex];
-            
+
             // Unparent objects and restore them to scene
             group.children.forEach(obj => {
                 // Preserve world position when unparenting
@@ -594,27 +671,27 @@
                 obj.getWorldPosition(worldPosition);
                 obj.getWorldQuaternion(worldRotation);
                 obj.getWorldScale(worldScale);
-                
+
                 group.resultMesh.remove(obj);
                 scene.add(obj);
-                
+
                 obj.position.copy(worldPosition);
                 obj.quaternion.copy(worldRotation);
                 obj.scale.copy(worldScale);
-                
+
                 obj.userData.groupId = null;
             });
-            
+
             // Remove group container
             scene.remove(group.resultMesh);
             groups.splice(groupIndex, 1);
-            
+
             if (group.children.length > 0) {
                 selectObject(group.children[0]);
             } else {
                 deselectObject();
             }
-            
+
             updateOutliner();
             captureState();
         }
@@ -641,7 +718,7 @@
             const container = document.getElementById('canvas-container');
             container.appendChild(renderer.domElement);
             canvasElement = renderer.domElement;
-            
+
             // Ensure canvas is clickable
             canvasElement.style.pointerEvents = 'auto';
             console.log("Canvas initialized:", canvasElement);
@@ -696,9 +773,9 @@
             const rect = canvasElement.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-            
+
             raycaster.setFromCamera(mouse, camera);
-            
+
             // Collect all selectable objects
             const selectableObjects = [];
             objects.forEach(obj => {
@@ -711,15 +788,15 @@
                     selectableObjects.push(group.resultMesh);
                 }
             });
-            
+
             const intersects = raycaster.intersectObjects(selectableObjects);
-            
+
             console.log("🖱️ Click - Objects:", selectableObjects.length, "Hits:", intersects.length);
-            
+
             if (intersects.length > 0) {
                 const clickedObject = intersects[0].object;
                 console.log("✅ Hit:", clickedObject.name);
-                
+
                 // Ctrl/Cmd + click for multi-select
                 if (event.ctrlKey || event.metaKey) {
                     console.log("Ctrl+Click - Multi-select mode");
@@ -774,12 +851,12 @@
                     geometry = new THREE.DodecahedronGeometry(0.7);
                     break;
             }
-            
+
             // Ensure geometry has proper bounds
             geometry.computeBoundingBox();
             geometry.computeBoundingSphere();
             geometry.center();
-            
+
             const material = new THREE.MeshStandardMaterial({
                 color: '#ff6b6b',
                 roughness: 0.5,
@@ -838,10 +915,10 @@
                 }
                 console.log(`Selected: ${obj.name}, Total selected: ${selectedObjects.length}`);
             }
-            
+
             // Update references
             selectedObject = selectedObjects.length > 0 ? selectedObjects[0] : null;
-            
+
             // Show property pane only if 1 object selected
             if (selectedObjects.length === 1) {
                 document.getElementById('property-pane').classList.remove('hidden');
@@ -859,13 +936,13 @@
                 document.getElementById('property-pane').classList.remove('block');
                 transformControls.detach();
             }
-            
+
             updateOutliner();
         }
 
         function selectObject(obj) {
             if (!obj) return;
-            
+
             // If object is part of a group, select the group container instead
             if (obj.userData.groupId) {
                 const groupId = obj.userData.groupId;
@@ -875,22 +952,22 @@
                     console.log(`Object is part of group, selecting group container instead`);
                 }
             }
-            
+
             // Clear previous selection and start fresh
             selectedObjects.forEach(sel => {
                 if (sel.material && sel.material.emissive) {
                     sel.material.emissive.setHex(0x000000);
                 }
             });
-            
+
             selectedObjects = [obj];
             selectedObject = obj;
-            
+
             // Set emissive highlight
             if (selectedObject.material && selectedObject.material.emissive) {
                 selectedObject.material.emissive.setHex(0x555555);
             }
-            
+
             transformControls.attach(selectedObject);
             document.getElementById('property-pane').classList.remove('hidden');
             document.getElementById('property-pane').classList.add('block');
@@ -902,17 +979,76 @@
         function updateOutliner() {
             const outlinerList = document.getElementById('outliner-list');
             outlinerList.innerHTML = '';
-            
-            // Show regular objects
+
+            // Track which objects are already in groups
+            const objectsInGroups = new Set();
+            groups.forEach(group => {
+                group.children.forEach(child => {
+                    objectsInGroups.add(child.uuid);
+                });
+            });
+
+            // Show groups with their children
+            groups.forEach(group => {
+                // Create group container item
+                const groupLi = document.createElement('li');
+                groupLi.className =
+                    'text-sm rounded-md cursor-pointer transition-all bg-amber-100 text-gray-900 border border-transparent';
+                if (selectedObjects.includes(group.resultMesh)) {
+                    groupLi.classList.add('bg-amber-300', 'font-semibold');
+                }
+
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'flex items-center gap-2 p-3 hover:bg-amber-200 rounded-md';
+                groupHeader.innerHTML =
+                    `<span>📦</span><span>${group.name}</span> <span class="text-xs text-gray-600 ml-auto">(${group.children.length})</span>`;
+                groupHeader.onclick = () => {
+                    selectObject(group.resultMesh);
+                };
+                groupLi.appendChild(groupHeader);
+
+                // Create collapsible children container
+                const childrenUl = document.createElement('ul');
+                childrenUl.className = 'ml-4 border-l-2 border-amber-300 pl-2 space-y-1';
+
+                group.children.forEach(child => {
+                    if (child.visible) {
+                        const childLi = document.createElement('li');
+                        childLi.className =
+                            'text-sm p-2 rounded-md cursor-pointer transition-all bg-transparent text-gray-800 flex items-center gap-2 border border-transparent';
+                        if (selectedObjects.includes(child)) {
+                            childLi.classList.add('bg-blue-100', 'font-semibold');
+                        }
+                        childLi.classList.add('hover:bg-sky-100');
+
+                        const icon = child.userData.shapeType === 'hole' ? '⚫' : '🟦';
+                        childLi.innerHTML = `<span>${icon}</span><span>${child.name}</span>`;
+                        childLi.onclick = (e) => {
+                            if (e.ctrlKey || e.metaKey) {
+                                toggleObjectSelection(child);
+                            } else {
+                                selectObject(child);
+                            }
+                        };
+                        childrenUl.appendChild(childLi);
+                    }
+                });
+
+                groupLi.appendChild(childrenUl);
+                outlinerList.appendChild(groupLi);
+            });
+
+            // Show ungrouped objects
             objects.forEach(obj => {
-                if (obj.visible) {
+                if (obj.visible && !objectsInGroups.has(obj.uuid)) {
                     const li = document.createElement('li');
-                    li.className = 'text-sm p-3 rounded-md cursor-pointer transition-all bg-transparent text-gray-900 flex items-center gap-2 border border-transparent';
+                    li.className =
+                        'text-sm p-3 rounded-md cursor-pointer transition-all bg-transparent text-gray-900 flex items-center gap-2 border border-transparent';
                     if (selectedObjects.includes(obj)) {
                         li.classList.add('bg-blue-200', 'font-semibold');
                     }
                     li.classList.add('hover:bg-sky-100');
-                    
+
                     const icon = obj.userData.shapeType === 'hole' ? '⚫' : '🟦';
                     li.innerHTML = `<span>${icon}</span><span>${obj.name}</span>`;
                     li.onclick = (e) => {
@@ -924,21 +1060,6 @@
                     };
                     outlinerList.appendChild(li);
                 }
-            });
-            
-            // Show groups
-            groups.forEach(group => {
-                const li = document.createElement('li');
-                li.className = 'text-sm p-3 rounded-md cursor-pointer transition-all bg-amber-100 text-gray-900 flex items-center gap-2 border border-transparent';
-                if (selectedObjects.includes(group.resultMesh)) {
-                    li.classList.add('bg-amber-300', 'font-semibold');
-                }
-                
-                li.innerHTML = `<span>📦</span><span>${group.name}</span>`;
-                li.onclick = () => {
-                    selectObject(group.resultMesh);
-                };
-                outlinerList.appendChild(li);
             });
         }
 
@@ -1019,7 +1140,7 @@
             currentCameraMode = mode;
             const pBtn = document.getElementById('perspective-btn');
             const oBtn = document.getElementById('orthographic-btn');
-            
+
             if (mode === 'perspective') {
                 pBtn.style.backgroundColor = '#1e40af';
                 oBtn.style.backgroundColor = '#3b82f6';
@@ -1034,28 +1155,53 @@
                 const newColor = document.getElementById('colorPicker').value;
                 selectedObject.userData.color = newColor;
                 selectedObject.material.color.set(newColor);
+                // Update hex input to match
+                document.getElementById('hexInput').value = newColor.replace('#', '');
                 captureState();
+            }
+        }
+
+        function updateColorFromHex() {
+            if (selectedObject) {
+                let hexValue = document.getElementById('hexInput').value;
+                // Add # if not present
+                if (!hexValue.startsWith('#')) {
+                    hexValue = '#' + hexValue;
+                }
+                // Validate hex color format
+                if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
+                    selectedObject.userData.color = hexValue;
+                    selectedObject.material.color.set(hexValue);
+                    // Update color picker to match
+                    document.getElementById('colorPicker').value = hexValue;
+                    captureState();
+                } else {
+                    // Invalid hex, revert to current color
+                    const currentColor = document.getElementById('colorPicker').value;
+                    document.getElementById('hexInput').value = currentColor.replace('#', '');
+                }
             }
         }
 
         function duplicateSelected() {
             if (selectedObjects.length === 0) return;
-            
+
             console.log(`Duplicating ${selectedObjects.length} objects`);
             const clones = [];
-            
+
             selectedObjects.forEach(obj => {
                 const clone = obj.clone();
                 clone.material = obj.material.clone();
                 clone.position.x += 1.5;
                 let originalType = obj.name.split(' ')[0].toLowerCase();
                 shapeCounters[originalType]++;
-                clone.name = `${originalType.charAt(0).toUpperCase() + originalType.slice(1)} ${shapeCounters[originalType]}`;
+                clone.name =
+                    `${originalType.charAt(0).toUpperCase() + originalType.slice(1)} ${shapeCounters[originalType]}`;
                 scene.add(clone);
                 objects.push(clone);
                 clones.push(clone);
             });
-            
+
             // Select all the clones
             deselectObject();
             clones.forEach(clone => {
@@ -1065,7 +1211,7 @@
                 }
             });
             selectedObject = clones.length > 0 ? clones[0] : null;
-            
+
             if (clones.length === 1) {
                 document.getElementById('property-pane').classList.remove('hidden');
                 document.getElementById('property-pane').classList.add('block');
@@ -1075,20 +1221,37 @@
                 document.getElementById('property-pane').classList.add('hidden');
                 document.getElementById('property-pane').classList.remove('block');
             }
-            
+
             updateOutliner();
             captureState();
         }
 
         function deleteSelected() {
             if (selectedObjects.length === 0) return;
-            
+
             console.log(`Deleting ${selectedObjects.length} objects`);
             selectedObjects.forEach(objToRemove => {
-                scene.remove(objToRemove);
-                objects = objects.filter(obj => obj !== objToRemove);
+                // Check if this is a group container being deleted
+                const groupIndex = groups.findIndex(g => g.resultMesh === objToRemove);
+                if (groupIndex !== -1) {
+                    // Delete the entire group
+                    const group = groups[groupIndex];
+                    // Remove group container from scene
+                    scene.remove(group.resultMesh);
+                    // Remove all children from objects array
+                    group.children.forEach(child => {
+                        objects = objects.filter(obj => obj !== child);
+                    });
+                    // Remove group from groups array
+                    groups.splice(groupIndex, 1);
+                    console.log(`Deleted group: ${group.name}`);
+                } else {
+                    // Regular object deletion
+                    scene.remove(objToRemove);
+                    objects = objects.filter(obj => obj !== objToRemove);
+                }
             });
-            
+
             deselectObject();
             updateOutliner();
             captureState();
@@ -1100,7 +1263,7 @@
 
         function updatePropertyPane() {
             if (!selectedObject) return;
-            
+
             // Handle color - check userData or material
             let colorValue = '#ff6b6b';
             if (selectedObject.userData && selectedObject.userData.color) {
@@ -1108,27 +1271,30 @@
             } else if (selectedObject.material && selectedObject.material.color) {
                 colorValue = '#' + selectedObject.material.color.getHexString();
             }
-            
+
             // Ensure color value starts with #
             if (typeof colorValue === 'string' && !colorValue.startsWith('#')) {
                 colorValue = '#' + colorValue;
             }
             document.getElementById('colorPicker').value = colorValue;
-            
+            // Update hex input to match
+            document.getElementById('hexInput').value = colorValue.replace('#', '');
+
             // Update solid/hole buttons
-            const shapeType = (selectedObject.userData && selectedObject.userData.shapeType) ? selectedObject.userData.shapeType : 'solid';
+            const shapeType = (selectedObject.userData && selectedObject.userData.shapeType) ? selectedObject.userData
+                .shapeType : 'solid';
             const solidBtn = document.getElementById('solid-btn');
             const holeBtn = document.getElementById('hole-btn');
-            
+
             solidBtn.classList.remove('active');
             holeBtn.classList.remove('active');
-            
+
             if (shapeType === 'solid') {
                 solidBtn.classList.add('active');
             } else {
                 holeBtn.classList.add('active');
             }
-            
+
             document.getElementById('prop-pos-x').value = selectedObject.position.x.toFixed(3);
             document.getElementById('prop-pos-y').value = selectedObject.position.y.toFixed(3);
             document.getElementById('prop-pos-z').value = selectedObject.position.z.toFixed(3);
