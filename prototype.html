@@ -110,7 +110,7 @@
 
             <div id="outliner-content" class="tab-content hidden">
                 <div class="text-base font-bold text-gray-900 mb-3">Scene Outliner</div>
-                <ul id="outliner-list" class="flex flex-col gap-2"></ul>
+                <ul id="outliner-list" class="flex flex-col"></ul>
             </div>
         </div>
 
@@ -648,6 +648,7 @@
 
             deselectObject();
             selectObject(group.resultMesh);
+
             updateOutliner();
             captureState();
         }
@@ -881,11 +882,29 @@
                 if (selectedObject.material && selectedObject.material.emissive) {
                     selectedObject.material.emissive.setHex(0x000000);
                 }
+                // Clear highlights from group children if deselecting a group
+                const selGroup = groups.find(g => g.resultMesh === selectedObject);
+                if (selGroup) {
+                    selGroup.children.forEach(child => {
+                        if (child.material && child.material.emissive) {
+                            child.material.emissive.setHex(0x000000);
+                        }
+                    });
+                }
             }
             if (selectedObjects.length > 0) {
                 selectedObjects.forEach(sel => {
                     if (sel.material && sel.material.emissive) {
                         sel.material.emissive.setHex(0x000000);
+                    }
+                    // Clear highlights from group children if deselecting a group
+                    const selGroup = groups.find(g => g.resultMesh === sel);
+                    if (selGroup) {
+                        selGroup.children.forEach(child => {
+                            if (child.material && child.material.emissive) {
+                                child.material.emissive.setHex(0x000000);
+                            }
+                        });
                     }
                 });
             }
@@ -903,14 +922,14 @@
             if (index > -1) {
                 // Remove from selection
                 selectedObjects.splice(index, 1);
-                if (obj.material && obj.material.emissive) {
+                if (obj.material && obj.material.emissive && !obj.userData.isGroupResult) {
                     obj.material.emissive.setHex(0x000000);
                 }
                 console.log(`Deselected: ${obj.name}, Total selected: ${selectedObjects.length}`);
             } else {
                 // Add to selection
                 selectedObjects.push(obj);
-                if (obj.material && obj.material.emissive) {
+                if (obj.material && obj.material.emissive && !obj.userData.isGroupResult) {
                     obj.material.emissive.setHex(0x555555);
                 }
                 console.log(`Selected: ${obj.name}, Total selected: ${selectedObjects.length}`);
@@ -958,14 +977,37 @@
                 if (sel.material && sel.material.emissive) {
                     sel.material.emissive.setHex(0x000000);
                 }
+                // Also clear highlight from group children
+                const selGroup = groups.find(g => g.resultMesh === sel);
+                if (selGroup) {
+                    selGroup.children.forEach(child => {
+                        if (child.material && child.material.emissive) {
+                            child.material.emissive.setHex(0x000000);
+                        }
+                    });
+                }
             });
 
             selectedObjects = [obj];
             selectedObject = obj;
 
-            // Set emissive highlight
-            if (selectedObject.material && selectedObject.material.emissive) {
-                selectedObject.material.emissive.setHex(0x555555);
+            // If selecting a group, highlight the group container and all its children
+            if (selectedObject.userData.isGroupResult) {
+                const group = groups.find(g => g.resultMesh === selectedObject);
+                if (group) {
+                    // Highlight all children in the group
+                    group.children.forEach(child => {
+                        if (child.material && child.material.emissive) {
+                            child.material.emissive.setHex(0x555555);
+                        }
+                    });
+                    console.log(`Group selected: highlighting ${group.children.length} children`);
+                }
+            } else {
+                // Highlight individual shape
+                if (selectedObject.material && selectedObject.material.emissive) {
+                    selectedObject.material.emissive.setHex(0x555555);
+                }
             }
 
             transformControls.attach(selectedObject);
