@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Modeling Editor - Working Solution</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="//unpkg.com/alpinejs" defer></script>
+
+</head>
+
+<body class="overflow-hidden bg-gray-800 m-0 p-0">
+    <!-- Layer 0: The 3D Canvas. Sits at the very back (z-0). -->
+    <div id="canvas-container" class="fixed inset-0 w-full h-full z-0"></div>
+
+    <div id="ui-container" class="fixed inset-0 z-10 pointer-events-none">
+
+        <div class="absolute top-5 left-5 bg-white/95 p-2 rounded-lg shadow-xl pointer-events-auto flex flex-col gap-2 min-w-80"
+            x-data="{ tab: 'shapes' }">
+            <div class="grid grid-cols-2 gap-2">
+                <button :class="tab === 'shapes' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+                    class="px-3 py-2 rounded-md text-sm font-medium transition duration-200"
+                    @click="tab = 'shapes'">Shapes</button>
+                <button :class="tab === 'outliner' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+                    class="px-3 py-2 rounded-md text-sm font-medium transition duration-200"
+                    @click="tab = 'outliner'">Outliner</button>
+            </div>
+            <div x-show="tab === 'shapes'">
+                <h3 class="text-lg font-bold mb-2 text-gray-800">Add Shapes</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('box')"><i class="fa-solid fa-cube fa-fw text-2xl"></i> Box</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('sphere')"><i class="fa-solid fa-circle fa-fw text-2xl"></i> Sphere</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('cylinder')"><i class="fa-solid fa-database fa-fw text-2xl"></i> Cylinder</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('cone')"><i class="fa-solid fa-caret-up fa-fw text-2xl"></i> Cone</button>
+                    <button
+                        class="flex flex-col items-center p-2 bg-emerald-500 text-white rounded-md text-sm transition duration-200 hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('torus')"><i class="fa-solid fa-ring fa-fw text-2xl"></i> Torus</button>
+                </div>
+            </div>
+            <div x-show="tab === 'outliner'">
+                <h3 class="text-lg font-bold mb-2 text-gray-800">Scene Outliner</h3>
+                <ul id="outliner-list" class="flex flex-col gap-1 mt-2"></ul>
+            </div>
+        </div>
+
+        <!-- Controls Panel -->
+        <div
+            class="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-white/95 p-2 rounded-lg shadow-xl flex gap-3 pointer-events-auto">
+            <div class="flex items-center">
+                <label for="snap-unit-select" class="text-xs text-gray-700 px-2 font-medium whitespace-nowrap">
+                    Unit</label>
+                <select id="snap-unit-select" onchange="updateSnapSettings()"
+                    class="w-full p-1.5 border border-gray-300 rounded-md text-xs bg-white">
+                    <option value="0.5">0.5</option>
+                    <option value="0.2">0.2</option>
+                    <option value="0.1" selected>0.1</option>
+                    <option value="0.05">0.05</option>
+                    <option value="0.025">0.025</option>
+                    <option value="0.01">0.01</option>
+                    <option value="0">Off</option>
+                </select>
+            </div>
+            <div class="flex items-center">
+                <div class="flex rounded-md overflow-hidden border border-gray-300">
+                    <button id="perspective-btn" class="px-3 py-2 bg-blue-700 text-white text-xs flex-grow border-r border-gray-300 last:border-r-0 hover:bg-blue-600 transition-colors"
+                        onclick="setCameraMode('perspective')">Perspective</button>
+                    <button id="orthographic-btn" class="px-3 py-2 bg-blue-500 text-white text-xs flex-grow hover:bg-blue-600 transition-colors"
+                        onclick="setCameraMode('orthographic')">Orthographic</button>
+                </div>
+            </div>
+            <div class="flex rounded-md overflow-hidden border border-gray-300 gap-0">
+                <button id="translate-btn" class="px-3 py-2 text-white text-xs flex-grow bg-blue-700 border-r border-gray-300 hover:bg-blue-600 transition-colors"
+                    onclick="setTransformMode('translate')">Translate (T)</button>
+                <button id="rotate-btn" class="px-3 py-2 text-white text-xs flex-grow bg-blue-500 border-r border-gray-300 hover:bg-blue-600 transition-colors"
+                    onclick="setTransformMode('rotate')">Rotate (R)</button>
+                <button id="scale-btn" class="px-3 py-2 text-white text-xs flex-grow bg-blue-500 hover:bg-blue-600 transition-colors"
+                    onclick="setTransformMode('scale')">Scale (S)</button>
+            </div>
+            <div class="flex gap-1">
+                <button class="px-3 py-2 bg-sky-500 text-white rounded-md text-xs flex-grow"
+                    onclick="duplicateSelected()">Copy</button>
+                <button class="px-3 py-2 bg-red-500 text-white rounded-md text-xs flex-grow"
+                    onclick="deleteSelected()">Delete</button>
+            </div>
+        </div>
+
+        <!-- Property Pane -->
+        <div id="property-pane"
+            class="absolute top-5 right-5 w-72 bg-white/95 p-2 pt-1 rounded-lg shadow-xl hidden pointer-events-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800 h-6">Properties</h3>
+                <span class="text-2xl font-bold text-gray-500 cursor-pointer w-6 h-6 flex justify-center items-center hover:text-gray-700"
+                    onclick="closePropertyPane()">&times;</span>
+            </div>
+            <div class="mb-4">
+                <h4 class="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Material</h4>
+                <div class="flex justify-between items-center mt-2">
+                    <label for="colorPicker" class="text-sm font-medium text-gray-600">Color</label>
+                    <input type="color" id="colorPicker" value="#ff6b6b" onchange="updateColor()"
+                        class="w-32 h-8 border border-gray-300 rounded p-0.5 cursor-pointer">
+                </div>
+            </div>
+            <div class="mb-4">
+                <h4 class="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Position (m)</h4>
+                <div class="flex justify-between gap-2">
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">X</label><input type="number" step="0.1"
+                            id="prop-pos-x" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">Y</label><input type="number" step="0.1"
+                            id="prop-pos-y" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">Z</label><input type="number"
+                            step="0.1" id="prop-pos-z" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <h4 class="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Rotation (°)</h4>
+                <div class="flex justify-between gap-2">
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">X</label><input type="number"
+                            id="prop-rot-x" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">Y</label><input type="number"
+                            id="prop-rot-y" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">Z</label><input type="number"
+                            id="prop-rot-z" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-sm font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Scale</h4>
+                <div class="flex justify-between gap-2">
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">X</label><input type="number"
+                            step="0.1" id="prop-scale-x" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">Y</label><input type="number"
+                            step="0.1" id="prop-scale-y" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                    <div class="flex flex-col w-1/3"><label
+                            class="text-xs text-gray-500 mb-1 text-center">Z</label><input type="number"
+                            step="0.1" id="prop-scale-z" onchange="updateObjectFromPane()"
+                            class="w-full p-1.5 border border-gray-300 rounded-md text-center"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let scene, renderer, raycaster, mouse;
+        let perspectiveCamera, orthographicCamera, camera;
+        let controls, transformControls;
+        let currentCameraMode = 'perspective';
+        let canvasElement;
+
+        let objects = [];
+        let selectedObject = null;
+        let shapeCounters = {
+            box: 0,
+            sphere: 0,
+            cylinder: 0,
+            cone: 0,
+            torus: 0
+        };
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x334155);
+
+            const aspect = window.innerWidth / window.innerHeight;
+            perspectiveCamera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+            const frustumSize = 10;
+            orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / -2, frustumSize * aspect / 2,
+                frustumSize / 2, frustumSize / -2, 0.1, 1000);
+
+            camera = perspectiveCamera;
+            camera.position.set(5, 5, 5);
+
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+            const container = document.getElementById('canvas-container');
+            container.appendChild(renderer.domElement);
+            canvasElement = renderer.domElement;
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+            directionalLight.position.set(5, 10, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            scene.add(new THREE.GridHelper(20, 20, 0x475569, 0x64748b));
+
+            transformControls = new THREE.TransformControls(camera, renderer.domElement);
+            transformControls.addEventListener('dragging-changed', event => {
+                controls.enabled = !event.value;
+            });
+            transformControls.addEventListener('objectChange', updatePropertyPane);
+            scene.add(transformControls);
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // The listener is on the canvas. The CSS structure now ensures it can be reached.
+            canvasElement.addEventListener('mousedown', onMouseDown, false);
+
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('keydown', onKeyDown);
+
+            updateSnapSettings();
+            setTransformMode('translate');
+            updateOutliner();
+            animate();
+        }
+
+        function onMouseDown(event) {
+            // This function will now ONLY fire when the canvas itself is clicked.
+            console.log("--- Mouse Click Detected on CANVAS ---");
+
+            if (transformControls.dragging) {
+                console.log("DEBUG: Transform controls are dragging. Aborting selection.");
+                return;
+            }
+
+            const rect = canvasElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(objects, false);
+
+            if (intersects.length > 0) {
+                console.log("✅ SUCCESS: Object hit!", intersects[0].object.name);
+                selectObject(intersects[0].object);
+            } else {
+                console.log("⭕️ INFO: No object was hit. Deselecting.");
+                deselectObject();
+            }
+            console.log("---------------------------\n");
+        }
+
+        function addShape(type) {
+            let geometry;
+            switch (type) {
+                case 'box':
+                    geometry = new THREE.BoxGeometry(1, 1, 1);
+                    break;
+                case 'sphere':
+                    geometry = new THREE.SphereGeometry(0.5, 32, 32);
+                    break;
+                case 'cylinder':
+                    geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
+                    break;
+                case 'cone':
+                    geometry = new THREE.ConeGeometry(0.5, 1, 32);
+                    break;
+                case 'torus':
+                    geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+                    break;
+            }
+            const material = new THREE.MeshStandardMaterial({
+                color: '#ff6b6b',
+                roughness: 0.5,
+                metalness: 0.3
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            shapeCounters[type]++;
+            mesh.name = `${type.charAt(0).toUpperCase() + type.slice(1)} ${shapeCounters[type]}`;
+            mesh.position.y = 0.5;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+            objects.push(mesh);
+            selectObject(mesh);
+        }
+
+        function selectObject(obj) {
+            if (selectedObject === obj) return;
+            deselectObject();
+            selectedObject = obj;
+            selectedObject.material.emissive = new THREE.Color(0x555555);
+            transformControls.attach(selectedObject);
+            document.getElementById('property-pane').classList.remove('hidden');
+            updatePropertyPane();
+            updateOutliner();
+        }
+
+        function deselectObject() {
+            if (selectedObject) {
+                selectedObject.material.emissive = new THREE.Color(0x000000);
+            }
+            selectedObject = null;
+            transformControls.detach();
+            document.getElementById('property-pane').classList.add('hidden');
+            updateOutliner();
+        }
+
+        function updateOutliner() {
+            const outlinerList = document.getElementById('outliner-list');
+            outlinerList.innerHTML = '';
+            objects.forEach(obj => {
+                const li = document.createElement('li');
+                li.className = 'text-sm p-1.5 rounded-md cursor-pointer hover:bg-sky-100';
+                if (obj === selectedObject) {
+                    li.classList.add('bg-sky-200', 'font-semibold');
+                }
+                li.textContent = obj.name;
+                li.onclick = () => {
+                    selectObject(obj);
+                };
+                outlinerList.appendChild(li);
+            });
+        }
+
+        function onKeyDown(e) {
+            if (e.target.tagName === 'INPUT') return;
+            switch (e.key.toLowerCase()) {
+                case 't':
+                    setTransformMode('translate');
+                    break;
+                case 'r':
+                    setTransformMode('rotate');
+                    break;
+                case 's':
+                    setTransformMode('scale');
+                    break;
+                case 'delete':
+                case 'backspace':
+                    deleteSelected();
+                    e.preventDefault();
+                    break;
+            }
+        }
+
+        function updateSnapSettings() {
+            const selectElement = document.getElementById('snap-unit-select');
+            const newSnapValue = parseFloat(selectElement.value);
+            if (newSnapValue === 0) {
+                transformControls.setTranslationSnap(null);
+                transformControls.setRotationSnap(null);
+                transformControls.setScaleSnap(null);
+            } else {
+                transformControls.setTranslationSnap(newSnapValue);
+                transformControls.setRotationSnap(THREE.MathUtils.degToRad(15));
+                transformControls.setScaleSnap(newSnapValue);
+            }
+        }
+
+        function setTransformMode(mode) {
+            transformControls.setMode(mode);
+            const buttons = {
+                translate: document.getElementById('translate-btn'),
+                rotate: document.getElementById('rotate-btn'),
+                scale: document.getElementById('scale-btn')
+            };
+            for (const key in buttons) {
+                const button = buttons[key];
+                if (key === mode) {
+                    button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                    button.classList.add('bg-blue-700');
+                } else {
+                    button.classList.remove('bg-blue-700');
+                    button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                }
+            }
+        }
+
+        function setCameraMode(mode) {
+            if (mode === currentCameraMode) return;
+            const newCam = (mode === 'perspective') ? perspectiveCamera : orthographicCamera;
+            newCam.position.copy(camera.position);
+            newCam.rotation.copy(camera.rotation);
+            newCam.zoom = camera.zoom;
+            camera = newCam;
+            controls.object = camera;
+            transformControls.camera = camera;
+            camera.updateProjectionMatrix();
+            controls.update();
+            currentCameraMode = mode;
+            const pBtn = document.getElementById('perspective-btn'),
+                oBtn = document.getElementById('orthographic-btn');
+            pBtn.classList.toggle('bg-blue-700', mode === 'perspective');
+            pBtn.classList.toggle('bg-blue-500', mode !== 'perspective');
+            oBtn.classList.toggle('bg-blue-700', mode === 'orthographic');
+            oBtn.classList.toggle('bg-blue-500', mode !== 'orthographic');
+        }
+
+        function updateColor() {
+            if (selectedObject) selectedObject.material.color.set(document.getElementById('colorPicker').value);
+        }
+
+        function duplicateSelected() {
+            if (!selectedObject) return;
+            const clone = selectedObject.clone();
+            clone.material = selectedObject.material.clone();
+            clone.position.x += 1.5;
+            let originalType = selectedObject.name.split(' ')[0].toLowerCase();
+            shapeCounters[originalType]++;
+            clone.name = `${originalType.charAt(0).toUpperCase() + originalType.slice(1)} ${shapeCounters[originalType]}`;
+            scene.add(clone);
+            objects.push(clone);
+            selectObject(clone);
+        }
+
+        function deleteSelected() {
+            if (!selectedObject) return;
+            const objectToRemove = selectedObject;
+            deselectObject();
+            scene.remove(objectToRemove);
+            objects = objects.filter(obj => obj !== objectToRemove);
+            updateOutliner();
+        }
+
+        function closePropertyPane() {
+            deselectObject();
+        }
+
+        function updatePropertyPane() {
+            if (!selectedObject) return;
+            document.getElementById('colorPicker').value = '#' + selectedObject.material.color.getHexString();
+            document.getElementById('prop-pos-x').value = selectedObject.position.x.toFixed(3);
+            document.getElementById('prop-pos-y').value = selectedObject.position.y.toFixed(3);
+            document.getElementById('prop-pos-z').value = selectedObject.position.z.toFixed(3);
+            document.getElementById('prop-rot-x').value = THREE.MathUtils.radToDeg(selectedObject.rotation.x).toFixed(1);
+            document.getElementById('prop-rot-y').value = THREE.MathUtils.radToDeg(selectedObject.rotation.y).toFixed(1);
+            document.getElementById('prop-rot-z').value = THREE.MathUtils.radToDeg(selectedObject.rotation.z).toFixed(1);
+            document.getElementById('prop-scale-x').value = selectedObject.scale.x.toFixed(3);
+            document.getElementById('prop-scale-y').value = selectedObject.scale.y.toFixed(3);
+            document.getElementById('prop-scale-z').value = selectedObject.scale.z.toFixed(3);
+        }
+
+        function updateObjectFromPane() {
+            if (!selectedObject) return;
+            selectedObject.position.set(parseFloat(document.getElementById('prop-pos-x').value), parseFloat(document
+                .getElementById('prop-pos-y').value), parseFloat(document.getElementById('prop-pos-z').value));
+            selectedObject.rotation.set(THREE.MathUtils.degToRad(parseFloat(document.getElementById('prop-rot-x').value)),
+                THREE.MathUtils.degToRad(parseFloat(document.getElementById('prop-rot-y').value)), THREE.MathUtils
+                .degToRad(parseFloat(document.getElementById('prop-rot-z').value)));
+            selectedObject.scale.set(parseFloat(document.getElementById('prop-scale-x').value), parseFloat(document
+                .getElementById('prop-scale-y').value), parseFloat(document.getElementById('prop-scale-z').value));
+        }
+
+        function onWindowResize() {
+            const aspect = window.innerWidth / window.innerHeight;
+            camera.aspect = aspect;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
