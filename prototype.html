@@ -274,17 +274,24 @@
     </div>
 
     <script>
+        // Color configuration
+        const VIEWPORT_BG_COLOR = 0xe2e8f0;
+        const GRID_COLOR_CENTER = 0x45556c;
+        const GRID_COLOR_LINES = 0x90a1b9;
+
         let scene, renderer, raycaster, mouse;
         let perspectiveCamera, orthographicCamera, camera;
         let controls, transformControls;
         let currentCameraMode = 'perspective';
         let canvasElement;
+        let gridHelper;
 
         let objects = [];
         let selectedObject = null;
         let selectedObjects = []; // For multi-selection
         let groups = [];
         let groupIdCounter = 0;
+        let outlineMap = new Map(); // Maps meshes to their outline data (use Map instead of WeakMap for iteration)
         let shapeCounters = {
             box: 0,
             sphere: 0,
@@ -596,6 +603,58 @@
             redoBtn.disabled = historyIndex >= history.length - 1;
         }
 
+        function createOutline(mesh) {
+            if (!mesh.geometry) return null;
+            
+            // Create a silhouette outline using backface rendering
+            // Clone the mesh and scale it slightly larger
+            const outlineGeometry = mesh.geometry.clone();
+            
+            // Create outline material - black, rendered on back
+            const outlineMaterial = new THREE.MeshBasicMaterial({
+                color: 0x000000,
+                side: THREE.BackSide,
+                depthWrite: false,
+                polygonOffset: true,
+                polygonOffsetFactor: 1,
+                polygonOffsetUnits: 1
+            });
+            
+            // Create outline mesh slightly scaled up
+            const outlineObject = new THREE.Mesh(outlineGeometry, outlineMaterial);
+            outlineObject.scale.multiplyScalar(1.05); // 5% larger to create silhouette
+            outlineObject.position.copy(mesh.position);
+            outlineObject.rotation.copy(mesh.rotation);
+            
+            // Add to scene
+            scene.add(outlineObject);
+            
+            // Store reference with mesh reference for syncing
+            outlineMap.set(mesh, { outline: outlineObject, mesh: mesh });
+            
+            return outlineObject;
+        }
+
+        function removeOutline(mesh) {
+            const outlineData = outlineMap.get(mesh);
+            if (outlineData) {
+                scene.remove(outlineData.outline);
+                outlineMap.delete(mesh);
+            }
+        }
+
+        function syncOutlines() {
+            // Sync all outline positions, rotations, and scales with their meshes
+            for (let [mesh, outlineData] of outlineMap.entries()) {
+                if (outlineData && outlineData.outline) {
+                    outlineData.outline.position.copy(mesh.position);
+                    outlineData.outline.rotation.copy(mesh.rotation);
+                    // Scale: 1.05x of the original mesh scale
+                    outlineData.outline.scale.copy(mesh.scale).multiplyScalar(1.05);
+                }
+            }
+        }
+
         // Group Container - keeps shapes together with relative positions
         function computeGroupResult(group) {
             if (group.resultMesh) {
@@ -699,7 +758,7 @@
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x334155);
+            scene.background = new THREE.Color(VIEWPORT_BG_COLOR);
 
             const aspect = window.innerWidth / window.innerHeight;
             perspectiveCamera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
@@ -733,7 +792,8 @@
             directionalLight.castShadow = true;
             scene.add(directionalLight);
 
-            scene.add(new THREE.GridHelper(20, 20, 0x475569, 0x64748b));
+            gridHelper = new THREE.GridHelper(20, 20, GRID_COLOR_CENTER, GRID_COLOR_LINES);
+            scene.add(gridHelper);
 
             transformControls = new THREE.TransformControls(camera, renderer.domElement);
             transformControls.addEventListener('dragging-changed', event => {
@@ -879,31 +939,23 @@
 
         function deselectObject() {
             if (selectedObject) {
-                if (selectedObject.material && selectedObject.material.emissive) {
-                    selectedObject.material.emissive.setHex(0x000000);
-                }
-                // Clear highlights from group children if deselecting a group
+                removeOutline(selectedObject);
+                // Also remove outlines from group children if deselecting a group
                 const selGroup = groups.find(g => g.resultMesh === selectedObject);
                 if (selGroup) {
                     selGroup.children.forEach(child => {
-                        if (child.material && child.material.emissive) {
-                            child.material.emissive.setHex(0x000000);
-                        }
+                        removeOutline(child);
                     });
                 }
             }
             if (selectedObjects.length > 0) {
                 selectedObjects.forEach(sel => {
-                    if (sel.material && sel.material.emissive) {
-                        sel.material.emissive.setHex(0x000000);
-                    }
-                    // Clear highlights from group children if deselecting a group
+                    removeOutline(sel);
+                    // Remove outlines from group children if deselecting a group
                     const selGroup = groups.find(g => g.resultMesh === sel);
                     if (selGroup) {
                         selGroup.children.forEach(child => {
-                            if (child.material && child.material.emissive) {
-                                child.material.emissive.setHex(0x000000);
-                            }
+                            removeOutline(child);
                         });
                     }
                 });
@@ -922,15 +974,15 @@
             if (index > -1) {
                 // Remove from selection
                 selectedObjects.splice(index, 1);
-                if (obj.material && obj.material.emissive && !obj.userData.isGroupResult) {
-                    obj.material.emissive.setHex(0x000000);
+                if (!obj.userData.isGroupResult) {
+                    removeOutline(obj);
                 }
                 console.log(`Deselected: ${obj.name}, Total selected: ${selectedObjects.length}`);
             } else {
                 // Add to selection
                 selectedObjects.push(obj);
-                if (obj.material && obj.material.emissive && !obj.userData.isGroupResult) {
-                    obj.material.emissive.setHex(0x555555);
+                if (!obj.userData.isGroupResult) {
+                    createOutline(obj);
                 }
                 console.log(`Selected: ${obj.name}, Total selected: ${selectedObjects.length}`);
             }
@@ -974,16 +1026,12 @@
 
             // Clear previous selection and start fresh
             selectedObjects.forEach(sel => {
-                if (sel.material && sel.material.emissive) {
-                    sel.material.emissive.setHex(0x000000);
-                }
-                // Also clear highlight from group children
+                removeOutline(sel);
+                // Also remove outlines from group children
                 const selGroup = groups.find(g => g.resultMesh === sel);
                 if (selGroup) {
                     selGroup.children.forEach(child => {
-                        if (child.material && child.material.emissive) {
-                            child.material.emissive.setHex(0x000000);
-                        }
+                        removeOutline(child);
                     });
                 }
             });
@@ -991,23 +1039,19 @@
             selectedObjects = [obj];
             selectedObject = obj;
 
-            // If selecting a group, highlight the group container and all its children
+            // If selecting a group, add outlines to the group container and all its children
             if (selectedObject.userData.isGroupResult) {
                 const group = groups.find(g => g.resultMesh === selectedObject);
                 if (group) {
-                    // Highlight all children in the group
+                    // Add outlines to all children in the group
                     group.children.forEach(child => {
-                        if (child.material && child.material.emissive) {
-                            child.material.emissive.setHex(0x555555);
-                        }
+                        createOutline(child);
                     });
-                    console.log(`Group selected: highlighting ${group.children.length} children`);
+                    console.log(`Group selected: outlining ${group.children.length} children`);
                 }
             } else {
-                // Highlight individual shape
-                if (selectedObject.material && selectedObject.material.emissive) {
-                    selectedObject.material.emissive.setHex(0x555555);
-                }
+                // Add outline to individual shape
+                createOutline(selectedObject);
             }
 
             transformControls.attach(selectedObject);
@@ -1248,9 +1292,7 @@
             deselectObject();
             clones.forEach(clone => {
                 selectedObjects.push(clone);
-                if (clone.material && clone.material.emissive) {
-                    clone.material.emissive.setHex(0x555555);
-                }
+                createOutline(clone);
             });
             selectedObject = clones.length > 0 ? clones[0] : null;
 
@@ -1382,6 +1424,7 @@
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
+            syncOutlines();
             renderer.render(scene, camera);
         }
 
