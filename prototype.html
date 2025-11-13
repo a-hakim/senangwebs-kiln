@@ -1264,35 +1264,47 @@
         function updatePropertyPane() {
             if (!selectedObject) return;
 
-            // Handle color - check userData or material
-            let colorValue = '#ff6b6b';
-            if (selectedObject.userData && selectedObject.userData.color) {
-                colorValue = selectedObject.userData.color;
-            } else if (selectedObject.material && selectedObject.material.color) {
-                colorValue = '#' + selectedObject.material.color.getHexString();
-            }
-
-            // Ensure color value starts with #
-            if (typeof colorValue === 'string' && !colorValue.startsWith('#')) {
-                colorValue = '#' + colorValue;
-            }
-            document.getElementById('colorPicker').value = colorValue;
-            // Update hex input to match
-            document.getElementById('hexInput').value = colorValue.replace('#', '');
-
-            // Update solid/hole buttons
-            const shapeType = (selectedObject.userData && selectedObject.userData.shapeType) ? selectedObject.userData
-                .shapeType : 'solid';
-            const solidBtn = document.getElementById('solid-btn');
-            const holeBtn = document.getElementById('hole-btn');
-
-            solidBtn.classList.remove('active');
-            holeBtn.classList.remove('active');
-
-            if (shapeType === 'solid') {
-                solidBtn.classList.add('active');
+            // Check if selected object is a group
+            const isGroup = selectedObject.userData.isGroupResult === true;
+            const materialSection = document.getElementById('property-material-section');
+            
+            if (isGroup) {
+                // Hide material section for groups
+                materialSection.classList.add('hidden');
             } else {
-                holeBtn.classList.add('active');
+                // Show material section for regular shapes
+                materialSection.classList.remove('hidden');
+                
+                // Handle color - check userData or material
+                let colorValue = '#ff6b6b';
+                if (selectedObject.userData && selectedObject.userData.color) {
+                    colorValue = selectedObject.userData.color;
+                } else if (selectedObject.material && selectedObject.material.color) {
+                    colorValue = '#' + selectedObject.material.color.getHexString();
+                }
+
+                // Ensure color value starts with #
+                if (typeof colorValue === 'string' && !colorValue.startsWith('#')) {
+                    colorValue = '#' + colorValue;
+                }
+                document.getElementById('colorPicker').value = colorValue;
+                // Update hex input to match
+                document.getElementById('hexInput').value = colorValue.replace('#', '');
+
+                // Update solid/hole buttons
+                const shapeType = (selectedObject.userData && selectedObject.userData.shapeType) ? selectedObject.userData
+                    .shapeType : 'solid';
+                const solidBtn = document.getElementById('solid-btn');
+                const holeBtn = document.getElementById('hole-btn');
+
+                solidBtn.classList.remove('active');
+                holeBtn.classList.remove('active');
+
+                if (shapeType === 'solid') {
+                    solidBtn.classList.add('active');
+                } else {
+                    holeBtn.classList.add('active');
+                }
             }
 
             document.getElementById('prop-pos-x').value = selectedObject.position.x.toFixed(3);
