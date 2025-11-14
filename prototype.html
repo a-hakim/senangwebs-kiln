@@ -9,6 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/threebsp@1.0.4/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -170,6 +172,12 @@
                 <button id="redo-btn"
                     class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     onclick="redo()" title="Redo (Ctrl+Y)"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+                <button
+                    class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-green-500 hover:bg-green-600"
+                    onclick="exportGLTF()" title="Export as GLTF"><i class="fa-solid fa-download"></i> GLTF</button>
+                <button
+                    class="px-3 py-2 border-none rounded text-xs cursor-pointer text-white transition-all bg-green-500 hover:bg-green-600"
+                    onclick="exportSTL()" title="Export as STL"><i class="fa-solid fa-download"></i> STL</button>
             </div>
         </div>
 
@@ -1323,6 +1331,64 @@
             camera.aspect = aspect;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function exportGLTF() {
+            if (objects.length === 0) {
+                alert('No objects to export');
+                return;
+            }
+
+            // Create a temporary group to hold all objects
+            const exportGroup = new THREE.Group();
+            objects.forEach(obj => {
+                // Clone the object to avoid modifying the original scene
+                const clonedObj = obj.clone();
+                if (clonedObj.material) {
+                    clonedObj.material = clonedObj.material.clone();
+                }
+                exportGroup.add(clonedObj);
+            });
+
+            const exporter = new THREE.GLTFExporter();
+            exporter.parse(exportGroup, function (result) {
+                const output = JSON.stringify(result, null, 2);
+                const blob = new Blob([output], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `scene_${new Date().getTime()}.gltf`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                console.log('GLTF exported successfully');
+            });
+        }
+
+        function exportSTL() {
+            if (objects.length === 0) {
+                alert('No objects to export');
+                return;
+            }
+
+            // Create a temporary group to hold all objects
+            const exportGroup = new THREE.Group();
+            objects.forEach(obj => {
+                // Clone the object to avoid modifying the original scene
+                const clonedObj = obj.clone();
+                if (clonedObj.material) {
+                    clonedObj.material = clonedObj.material.clone();
+                }
+                exportGroup.add(clonedObj);
+            });
+
+            const exporter = new THREE.STLExporter();
+            const stlString = exporter.parse(exportGroup);
+            const blob = new Blob([stlString], { type: 'application/octet-stream' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `scene_${new Date().getTime()}.stl`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            console.log('STL exported successfully');
         }
 
         function animate() {
