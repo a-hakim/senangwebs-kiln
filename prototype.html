@@ -893,6 +893,7 @@
             scene.add(gridHelper);
 
             transformControls = new THREE.TransformControls(camera, renderer.domElement);
+            transformControls.setSpace('local'); // Align gizmo with object's local axes
             transformControls.addEventListener('dragging-changed', event => {
                 controls.enabled = !event.value;
                 if (!event.value) {
@@ -1037,10 +1038,24 @@
             const mesh = new THREE.Mesh(geometry, material);
             shapeCounters[type]++;
             mesh.name = `${type.charAt(0).toUpperCase() + type.slice(1)} ${shapeCounters[type]}`;
-            mesh.position.y = 0.5;
+            
+            // Set default y-position based on shape type
+            if (type === 'plane') {
+                mesh.position.y = 0;
+            } else if (type === 'text') {
+                mesh.position.y = 0.1;
+            } else {
+                mesh.position.y = 0.5;
+            }
+            
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             mesh.userData.color = '#007370';
+            
+            // Set default rotation for plane and text to lay flat
+            if (type === 'plane' || type === 'text') {
+                mesh.rotation.x = THREE.MathUtils.degToRad(-90);
+            }
             
             // Store text-specific properties
             if (type === 'text') {
