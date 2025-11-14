@@ -495,9 +495,6 @@
                     const obj = objects.find(o => o.uuid === uuid);
                     if (obj) {
                         selectedObjects.push(obj);
-                        if (obj.material && obj.material.emissive) {
-                            obj.material.emissive.setHex(0x555555);
-                        }
                     }
                 });
                 selectedObject = selectedObjects.length > 0 ? selectedObjects[0] : null;
