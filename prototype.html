@@ -623,21 +623,41 @@
 
             if (group.children.length === 0) return;
 
+            // Calculate bounding box of all children to find center
+            const boundingBox = new THREE.Box3();
+            group.children.forEach(child => {
+                boundingBox.expandByObject(child);
+            });
+            
+            // Get the center of the bounding box
+            const center = boundingBox.getCenter(new THREE.Vector3());
+
             // Create a THREE.Group container as the visual representation
             const groupContainer = new THREE.Group();
             groupContainer.userData.isGroupResult = true;
             groupContainer.userData.groupId = group.id;
             groupContainer.name = group.name;
+            
+            // Position the group container at the center of all children
+            groupContainer.position.copy(center);
 
-            // Add all children to the container (they're already in the scene but now parented to container)
+            // Add all children to the container, adjusting their positions to maintain world positions
             group.children.forEach(child => {
+                // Store world position before parenting
+                const worldPos = new THREE.Vector3();
+                child.getWorldPosition(worldPos);
+                
+                // Parent to group
                 groupContainer.add(child);
+                
+                // Restore world position by adjusting local position relative to group center
+                child.position.copy(worldPos).sub(center);
             });
 
             scene.add(groupContainer);
             group.resultMesh = groupContainer;
             group.isDirty = false;
-            console.log(`Group container created: ${group.name} with ${group.children.length} children`);
+            console.log(`Group container created: ${group.name} with ${group.children.length} children at center:`, center);
         }
 
         function groupSelected() {
