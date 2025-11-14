@@ -635,9 +635,11 @@
                 polygonOffsetUnits: 1
             });
             
-            // Create outline mesh slightly scaled up
+            // Create outline mesh
             const outlineObject = new THREE.Mesh(outlineGeometry, outlineMaterial);
-            outlineObject.scale.multiplyScalar(1.05); // 5% larger to create silhouette
+            
+            // Check if this is a text object
+            const isText = mesh.userData.textContent !== undefined;
             
             // Use world position/rotation/scale to handle grouped objects correctly
             const worldPosition = new THREE.Vector3();
@@ -648,15 +650,28 @@
             mesh.getWorldQuaternion(worldQuaternion);
             mesh.getWorldScale(worldScale);
             
-            outlineObject.position.copy(worldPosition);
-            outlineObject.quaternion.copy(worldQuaternion);
-            outlineObject.scale.copy(worldScale).multiplyScalar(1.05);
+            if (isText) {
+                // For text geometry, use offset instead of scaling
+                // Apply horizontal and vertical offset
+                const offsetAmount = 0.04;
+                outlineObject.position.copy(worldPosition);
+                outlineObject.position.x += offsetAmount;
+                outlineObject.position.y += offsetAmount;
+                outlineObject.quaternion.copy(worldQuaternion);
+                outlineObject.scale.copy(worldScale);
+            } else {
+                // For other geometries, scale as before
+                outlineObject.scale.multiplyScalar(1.05); // 5% larger to create silhouette
+                outlineObject.position.copy(worldPosition);
+                outlineObject.quaternion.copy(worldQuaternion);
+                outlineObject.scale.copy(worldScale).multiplyScalar(1.05);
+            }
             
             // Add to scene
             scene.add(outlineObject);
             
             // Store reference with mesh reference for syncing
-            outlineMap.set(mesh, { outline: outlineObject, mesh: mesh });
+            outlineMap.set(mesh, { outline: outlineObject, mesh: mesh, isText: isText });
             
             return outlineObject;
         }
@@ -684,10 +699,21 @@
                     mesh.getWorldQuaternion(worldQuaternion);
                     mesh.getWorldScale(worldScale);
                     
-                    outlineData.outline.position.copy(worldPosition);
-                    outlineData.outline.quaternion.copy(worldQuaternion);
-                    // Scale: 1.05x of the original mesh scale
-                    outlineData.outline.scale.copy(worldScale).multiplyScalar(1.05);
+                    if (outlineData.isText) {
+                        // For text, apply offset instead of scaling
+                        const offsetAmount = 0.04;
+                        outlineData.outline.position.copy(worldPosition);
+                        outlineData.outline.position.x += offsetAmount;
+                        outlineData.outline.position.y += offsetAmount;
+                        outlineData.outline.quaternion.copy(worldQuaternion);
+                        outlineData.outline.scale.copy(worldScale);
+                    } else {
+                        // For other shapes, use scaling
+                        outlineData.outline.position.copy(worldPosition);
+                        outlineData.outline.quaternion.copy(worldQuaternion);
+                        // Scale: 1.05x of the original mesh scale
+                        outlineData.outline.scale.copy(worldScale).multiplyScalar(1.05);
+                    }
                 }
             }
         }
