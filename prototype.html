@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/threebsp@1.0.4/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
@@ -106,6 +108,12 @@
                         onclick="addShape('dodecahedron')" title="Dodecahedron">
                         <i class="fa-solid fa-shapes text-xl mb-1"></i>
                         Dodeca
+                    </button>
+                    <button
+                        class="shape-button flex flex-col items-center p-3 bg-emerald-500 text-white border-none rounded text-xs cursor-pointer transition-all hover:bg-emerald-600 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+                        onclick="addShape('text')" title="3D Text">
+                        <i class="fa-solid fa-font text-xl mb-1"></i>
+                        Text
                     </button>
                 </div>
             </div>
@@ -265,6 +273,36 @@
                     </div>
                 </div>
             </div>
+
+            <div id="property-text-section" class="hidden">
+                <h4 class="text-xs font-bold text-gray-700 mb-3">Text Properties</h4>
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-600 mb-1" for="prop-text-content">Text</label>
+                        <input type="text" id="prop-text-content" onchange="updateTextContent()" placeholder="Enter text"
+                            class="px-2 py-1 border border-gray-300 rounded text-xs w-full">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-600 mb-1" for="prop-text-font">Font</label>
+                        <select id="prop-text-font" onchange="updateTextFont()"
+                            class="px-2 py-1 border border-gray-300 rounded text-xs w-full">
+                            <option value="sans">Sans-serif</option>
+                            <option value="mono">Monospace</option>
+                            <option value="serif">Serif</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-600 mb-1" for="prop-text-height">Height</label>
+                        <input type="number" step="0.1" id="prop-text-height" onchange="updateTextHeight()" min="0.1"
+                            class="px-2 py-1 border border-gray-300 rounded text-center text-xs">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-xs text-gray-600 mb-1" for="prop-text-bevel">Bevel</label>
+                        <input type="number" step="0.01" id="prop-text-bevel" onchange="updateTextBevel()" min="0"
+                            class="px-2 py-1 border border-gray-300 rounded text-center text-xs">
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -289,6 +327,8 @@
         let groups = [];
         let groupIdCounter = 0;
         let outlineMap = new Map(); // Maps meshes to their outline data (use Map instead of WeakMap for iteration)
+        let fontLoader = new THREE.FontLoader();
+        let fonts = {}; // Cache loaded fonts
         let shapeCounters = {
             box: 0,
             sphere: 0,
@@ -301,7 +341,8 @@
             tetrahedron: 0,
             octahedron: 0,
             icosahedron: 0,
-            dodecahedron: 0
+            dodecahedron: 0,
+            text: 0
         };
 
         // Undo/Redo History
@@ -344,15 +385,27 @@
 
             // Create a snapshot of current state
             const state = {
-                objects: objects.map(obj => ({
-                    name: obj.name,
-                    position: obj.position.clone(),
-                    rotation: obj.rotation.clone(),
-                    scale: obj.scale.clone(),
-                    color: obj.userData.color || obj.material.color.getHex(),
-                    uuid: obj.uuid,
-                    groupId: obj.userData.groupId || null
-                })),
+                objects: objects.map(obj => {
+                    const objState = {
+                        name: obj.name,
+                        position: obj.position.clone(),
+                        rotation: obj.rotation.clone(),
+                        scale: obj.scale.clone(),
+                        color: obj.userData.color || obj.material.color.getHex(),
+                        uuid: obj.uuid,
+                        groupId: obj.userData.groupId || null
+                    };
+                    
+                    // Store text-specific properties if present
+                    if (obj.userData.textContent !== undefined) {
+                        objState.textContent = obj.userData.textContent;
+                        objState.textFont = obj.userData.textFont;
+                        objState.textHeight = obj.userData.textHeight;
+                        objState.textBevel = obj.userData.textBevel;
+                    }
+                    
+                    return objState;
+                }),
                 groups: groups.map(g => ({
                     id: g.id,
                     name: g.name,
@@ -400,49 +453,64 @@
                 // Find geometry type from name
                 const type = objState.name.split(' ')[0].toLowerCase();
                 let geometry;
-                switch (type) {
-                    case 'box':
-                        geometry = new THREE.BoxGeometry(1, 1, 1);
-                        break;
-                    case 'sphere':
-                        geometry = new THREE.SphereGeometry(0.5, 32, 32);
-                        break;
-                    case 'cylinder':
-                        geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
-                        break;
-                    case 'cone':
-                        geometry = new THREE.ConeGeometry(0.5, 1, 32);
-                        break;
-                    case 'torus':
-                        geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
-                        break;
-                    case 'plane':
-                        geometry = new THREE.PlaneGeometry(1, 1);
-                        break;
-                    case 'pyramid':
-                        geometry = new THREE.ConeGeometry(0.7, 1, 4);
-                        break;
-                    case 'torusknot':
-                        geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16);
-                        break;
-                    case 'tetrahedron':
-                        geometry = new THREE.TetrahedronGeometry(0.7);
-                        break;
-                    case 'octahedron':
-                        geometry = new THREE.OctahedronGeometry(0.7);
-                        break;
-                    case 'icosahedron':
-                        geometry = new THREE.IcosahedronGeometry(0.7);
-                        break;
-                    case 'dodecahedron':
-                        geometry = new THREE.DodecahedronGeometry(0.7);
-                        break;
-                }
+                
+                if (type === 'text') {
+                    // Recreate text geometry
+                    geometry = createTextGeometry(
+                        objState.textContent || 'Text',
+                        objState.textFont || 'sans',
+                        objState.textHeight || 0.2,
+                        objState.textBevel || 0.01
+                    );
+                    if (!geometry) {
+                        console.warn('Text geometry not ready, skipping text object');
+                        return;
+                    }
+                } else {
+                    switch (type) {
+                        case 'box':
+                            geometry = new THREE.BoxGeometry(1, 1, 1);
+                            break;
+                        case 'sphere':
+                            geometry = new THREE.SphereGeometry(0.5, 32, 32);
+                            break;
+                        case 'cylinder':
+                            geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
+                            break;
+                        case 'cone':
+                            geometry = new THREE.ConeGeometry(0.5, 1, 32);
+                            break;
+                        case 'torus':
+                            geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+                            break;
+                        case 'plane':
+                            geometry = new THREE.PlaneGeometry(1, 1);
+                            break;
+                        case 'pyramid':
+                            geometry = new THREE.ConeGeometry(0.7, 1, 4);
+                            break;
+                        case 'torusknot':
+                            geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16);
+                            break;
+                        case 'tetrahedron':
+                            geometry = new THREE.TetrahedronGeometry(0.7);
+                            break;
+                        case 'octahedron':
+                            geometry = new THREE.OctahedronGeometry(0.7);
+                            break;
+                        case 'icosahedron':
+                            geometry = new THREE.IcosahedronGeometry(0.7);
+                            break;
+                        case 'dodecahedron':
+                            geometry = new THREE.DodecahedronGeometry(0.7);
+                            break;
+                    }
 
-                // Ensure geometry has proper bounds
-                geometry.computeBoundingBox();
-                geometry.computeBoundingSphere();
-                geometry.center();
+                    // Ensure geometry has proper bounds
+                    geometry.computeBoundingBox();
+                    geometry.computeBoundingSphere();
+                    geometry.center();
+                }
 
                 // Create material
                 const material = new THREE.MeshStandardMaterial({
@@ -458,6 +526,15 @@
                 mesh.uuid = objState.uuid;
                 mesh.userData.color = objState.color;
                 mesh.userData.groupId = objState.groupId || null;
+                
+                // Restore text properties if present
+                if (objState.textContent !== undefined) {
+                    mesh.userData.textContent = objState.textContent;
+                    mesh.userData.textFont = objState.textFont;
+                    mesh.userData.textHeight = objState.textHeight;
+                    mesh.userData.textBevel = objState.textBevel;
+                }
+                
                 mesh.position.copy(objState.position);
                 mesh.rotation.copy(objState.rotation);
                 mesh.scale.copy(objState.scale);
@@ -733,6 +810,49 @@
             captureState();
         }
 
+        function loadFonts() {
+            // Load default fonts for text shapes
+            const fontUrls = {
+                sans: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_regular.typeface.json',
+                mono: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/courier_new_regular.typeface.json',
+                serif: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/optimer_regular.typeface.json'
+            };
+
+            for (const [fontName, url] of Object.entries(fontUrls)) {
+                fontLoader.load(url, (font) => {
+                    fonts[fontName] = font;
+                    console.log(`Font loaded: ${fontName}`);
+                });
+            }
+        }
+
+        function createTextGeometry(text, fontName = 'sans', height = 0.2, bevel = 0.01) {
+            if (!fonts[fontName]) {
+                console.warn(`Font ${fontName} not loaded yet, using sans-serif`);
+                fontName = 'sans';
+                if (!fonts[fontName]) {
+                    return null; // Font not ready
+                }
+            }
+
+            const geometry = new THREE.TextGeometry(text, {
+                font: fonts[fontName],
+                size: 1,
+                height: height,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: bevel,
+                bevelSize: bevel,
+                bevelSegments: 5
+            });
+
+            geometry.computeBoundingBox();
+            geometry.computeBoundingSphere();
+            geometry.center();
+
+            return geometry;
+        }
+
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(VIEWPORT_BG_COLOR);
@@ -797,6 +917,10 @@
             setTransformMode('translate');
             updateOutliner();
             updateHistoryButtons();
+            
+            // Load fonts for text shapes
+            loadFonts();
+            
             animate();
         }
 
@@ -851,49 +975,59 @@
 
         function addShape(type) {
             let geometry;
-            switch (type) {
-                case 'box':
-                    geometry = new THREE.BoxGeometry(1, 1, 1);
-                    break;
-                case 'sphere':
-                    geometry = new THREE.SphereGeometry(0.5, 32, 32);
-                    break;
-                case 'cylinder':
-                    geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
-                    break;
-                case 'cone':
-                    geometry = new THREE.ConeGeometry(0.5, 1, 32);
-                    break;
-                case 'torus':
-                    geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
-                    break;
-                case 'plane':
-                    geometry = new THREE.PlaneGeometry(1, 1);
-                    break;
-                case 'pyramid':
-                    geometry = new THREE.ConeGeometry(0.7, 1, 4);
-                    break;
-                case 'torusknot':
-                    geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16);
-                    break;
-                case 'tetrahedron':
-                    geometry = new THREE.TetrahedronGeometry(0.7);
-                    break;
-                case 'octahedron':
-                    geometry = new THREE.OctahedronGeometry(0.7);
-                    break;
-                case 'icosahedron':
-                    geometry = new THREE.IcosahedronGeometry(0.7);
-                    break;
-                case 'dodecahedron':
-                    geometry = new THREE.DodecahedronGeometry(0.7);
-                    break;
-            }
+            
+            if (type === 'text') {
+                // Special handling for text shapes
+                geometry = createTextGeometry('Text', 'sans', 0.2, 0.01);
+                if (!geometry) {
+                    alert('Text fonts are still loading. Please try again in a moment.');
+                    return;
+                }
+            } else {
+                switch (type) {
+                    case 'box':
+                        geometry = new THREE.BoxGeometry(1, 1, 1);
+                        break;
+                    case 'sphere':
+                        geometry = new THREE.SphereGeometry(0.5, 32, 32);
+                        break;
+                    case 'cylinder':
+                        geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
+                        break;
+                    case 'cone':
+                        geometry = new THREE.ConeGeometry(0.5, 1, 32);
+                        break;
+                    case 'torus':
+                        geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+                        break;
+                    case 'plane':
+                        geometry = new THREE.PlaneGeometry(1, 1);
+                        break;
+                    case 'pyramid':
+                        geometry = new THREE.ConeGeometry(0.7, 1, 4);
+                        break;
+                    case 'torusknot':
+                        geometry = new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16);
+                        break;
+                    case 'tetrahedron':
+                        geometry = new THREE.TetrahedronGeometry(0.7);
+                        break;
+                    case 'octahedron':
+                        geometry = new THREE.OctahedronGeometry(0.7);
+                        break;
+                    case 'icosahedron':
+                        geometry = new THREE.IcosahedronGeometry(0.7);
+                        break;
+                    case 'dodecahedron':
+                        geometry = new THREE.DodecahedronGeometry(0.7);
+                        break;
+                }
 
-            // Ensure geometry has proper bounds
-            geometry.computeBoundingBox();
-            geometry.computeBoundingSphere();
-            geometry.center();
+                // Ensure geometry has proper bounds
+                geometry.computeBoundingBox();
+                geometry.computeBoundingSphere();
+                geometry.center();
+            }
 
             const material = new THREE.MeshStandardMaterial({
                 color: '#007370',
@@ -907,6 +1041,15 @@
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             mesh.userData.color = '#007370';
+            
+            // Store text-specific properties
+            if (type === 'text') {
+                mesh.userData.textContent = 'Text';
+                mesh.userData.textFont = 'sans';
+                mesh.userData.textHeight = 0.2;
+                mesh.userData.textBevel = 0.01;
+            }
+            
             scene.add(mesh);
             objects.push(mesh);
             selectObject(mesh);
@@ -1325,29 +1468,44 @@
             // Check if selected object is a group
             const isGroup = selectedObject.userData.isGroupResult === true;
             const materialSection = document.getElementById('property-material-section');
+            const textSection = document.getElementById('property-text-section');
+            const isText = selectedObject.userData.textContent !== undefined;
             
             if (isGroup) {
                 // Hide material section for groups
                 materialSection.classList.add('hidden');
+                textSection.classList.add('hidden');
             } else {
-                // Show material section for regular shapes
-                materialSection.classList.remove('hidden');
-                
-                // Handle color - check userData or material
-                let colorValue = '#007370';
-                if (selectedObject.userData && selectedObject.userData.color) {
-                    colorValue = selectedObject.userData.color;
-                } else if (selectedObject.material && selectedObject.material.color) {
-                    colorValue = '#' + selectedObject.material.color.getHexString();
-                }
+                // Show material section for regular shapes (except text)
+                if (isText) {
+                    materialSection.classList.add('hidden');
+                    textSection.classList.remove('hidden');
+                    
+                    // Populate text properties
+                    document.getElementById('prop-text-content').value = selectedObject.userData.textContent || 'Text';
+                    document.getElementById('prop-text-font').value = selectedObject.userData.textFont || 'sans';
+                    document.getElementById('prop-text-height').value = selectedObject.userData.textHeight || 0.2;
+                    document.getElementById('prop-text-bevel').value = selectedObject.userData.textBevel || 0.01;
+                } else {
+                    materialSection.classList.remove('hidden');
+                    textSection.classList.add('hidden');
+                    
+                    // Handle color - check userData or material
+                    let colorValue = '#007370';
+                    if (selectedObject.userData && selectedObject.userData.color) {
+                        colorValue = selectedObject.userData.color;
+                    } else if (selectedObject.material && selectedObject.material.color) {
+                        colorValue = '#' + selectedObject.material.color.getHexString();
+                    }
 
-                // Ensure color value starts with #
-                if (typeof colorValue === 'string' && !colorValue.startsWith('#')) {
-                    colorValue = '#' + colorValue;
+                    // Ensure color value starts with #
+                    if (typeof colorValue === 'string' && !colorValue.startsWith('#')) {
+                        colorValue = '#' + colorValue;
+                    }
+                    document.getElementById('colorPicker').value = colorValue;
+                    // Update hex input to match
+                    document.getElementById('hexInput').value = colorValue.replace('#', '');
                 }
-                document.getElementById('colorPicker').value = colorValue;
-                // Update hex input to match
-                document.getElementById('hexInput').value = colorValue.replace('#', '');
             }
 
             document.getElementById('prop-pos-x').value = selectedObject.position.x.toFixed(3);
@@ -1359,6 +1517,68 @@
             document.getElementById('prop-scale-x').value = selectedObject.scale.x.toFixed(3);
             document.getElementById('prop-scale-y').value = selectedObject.scale.y.toFixed(3);
             document.getElementById('prop-scale-z').value = selectedObject.scale.z.toFixed(3);
+        }
+
+        function updateTextContent() {
+            if (!selectedObject || !selectedObject.userData.textContent) return;
+            
+            const newContent = document.getElementById('prop-text-content').value || 'Text';
+            selectedObject.userData.textContent = newContent;
+            updateTextGeometry();
+            captureState();
+        }
+
+        function updateTextFont() {
+            if (!selectedObject || !selectedObject.userData.textContent) return;
+            
+            const newFont = document.getElementById('prop-text-font').value || 'sans';
+            selectedObject.userData.textFont = newFont;
+            updateTextGeometry();
+            captureState();
+        }
+
+        function updateTextHeight() {
+            if (!selectedObject || !selectedObject.userData.textContent) return;
+            
+            const newHeight = parseFloat(document.getElementById('prop-text-height').value) || 0.2;
+            selectedObject.userData.textHeight = newHeight;
+            updateTextGeometry();
+            captureState();
+        }
+
+        function updateTextBevel() {
+            if (!selectedObject || !selectedObject.userData.textContent) return;
+            
+            const newBevel = parseFloat(document.getElementById('prop-text-bevel').value) || 0.01;
+            selectedObject.userData.textBevel = newBevel;
+            updateTextGeometry();
+            captureState();
+        }
+
+        function updateTextGeometry() {
+            if (!selectedObject || !selectedObject.userData.textContent) return;
+            
+            const newGeometry = createTextGeometry(
+                selectedObject.userData.textContent,
+                selectedObject.userData.textFont,
+                selectedObject.userData.textHeight,
+                selectedObject.userData.textBevel
+            );
+
+            if (newGeometry) {
+                // Dispose old geometry
+                selectedObject.geometry.dispose();
+                
+                // Update geometry
+                selectedObject.geometry = newGeometry;
+                
+                // Sync outline if it exists
+                const outlineData = outlineMap.get(selectedObject);
+                if (outlineData && outlineData.outline) {
+                    removeOutline(selectedObject);
+                    createOutline(selectedObject);
+                }
+            }
         }
 
         function updateObjectFromPane() {
