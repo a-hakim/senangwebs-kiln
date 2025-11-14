@@ -377,6 +377,16 @@
         function restoreState(state) {
             if (!state) return;
 
+            // Clear all outlines before restoring state
+            for (let [mesh, outlineData] of outlineMap.entries()) {
+                if (outlineData && outlineData.outline) {
+                    scene.remove(outlineData.outline);
+                    outlineData.outline.geometry.dispose();
+                    outlineData.outline.material.dispose();
+                }
+            }
+            outlineMap.clear();
+
             // Remove objects not in state
             objects.forEach(obj => scene.remove(obj));
             groups.forEach(g => {
@@ -497,6 +507,7 @@
                     document.getElementById('property-pane').classList.add('block');
                     updatePropertyPane();
                     transformControls.attach(selectedObject);
+                    createOutline(selectedObject);
                 } else if (selectedObjects.length > 1) {
                     document.getElementById('property-pane').classList.add('hidden');
                     document.getElementById('property-pane').classList.remove('block');
@@ -553,8 +564,19 @@
             // Create outline mesh slightly scaled up
             const outlineObject = new THREE.Mesh(outlineGeometry, outlineMaterial);
             outlineObject.scale.multiplyScalar(1.05); // 5% larger to create silhouette
-            outlineObject.position.copy(mesh.position);
-            outlineObject.rotation.copy(mesh.rotation);
+            
+            // Use world position/rotation/scale to handle grouped objects correctly
+            const worldPosition = new THREE.Vector3();
+            const worldQuaternion = new THREE.Quaternion();
+            const worldScale = new THREE.Vector3();
+            
+            mesh.getWorldPosition(worldPosition);
+            mesh.getWorldQuaternion(worldQuaternion);
+            mesh.getWorldScale(worldScale);
+            
+            outlineObject.position.copy(worldPosition);
+            outlineObject.quaternion.copy(worldQuaternion);
+            outlineObject.scale.copy(worldScale).multiplyScalar(1.05);
             
             // Add to scene
             scene.add(outlineObject);
@@ -569,6 +591,8 @@
             const outlineData = outlineMap.get(mesh);
             if (outlineData) {
                 scene.remove(outlineData.outline);
+                outlineData.outline.geometry.dispose();
+                outlineData.outline.material.dispose();
                 outlineMap.delete(mesh);
             }
         }
@@ -577,10 +601,19 @@
             // Sync all outline positions, rotations, and scales with their meshes
             for (let [mesh, outlineData] of outlineMap.entries()) {
                 if (outlineData && outlineData.outline) {
-                    outlineData.outline.position.copy(mesh.position);
-                    outlineData.outline.rotation.copy(mesh.rotation);
+                    // Use world position, rotation, and scale to handle grouped objects
+                    const worldPosition = new THREE.Vector3();
+                    const worldQuaternion = new THREE.Quaternion();
+                    const worldScale = new THREE.Vector3();
+                    
+                    mesh.getWorldPosition(worldPosition);
+                    mesh.getWorldQuaternion(worldQuaternion);
+                    mesh.getWorldScale(worldScale);
+                    
+                    outlineData.outline.position.copy(worldPosition);
+                    outlineData.outline.quaternion.copy(worldQuaternion);
                     // Scale: 1.05x of the original mesh scale
-                    outlineData.outline.scale.copy(mesh.scale).multiplyScalar(1.05);
+                    outlineData.outline.scale.copy(worldScale).multiplyScalar(1.05);
                 }
             }
         }
@@ -628,8 +661,10 @@
             };
 
             // Mark objects as part of group (they stay in scene, just parented)
+            // Also remove any outlines from the objects being grouped
             selectedObjects.forEach(obj => {
                 obj.userData.groupId = groupId;
+                removeOutline(obj);
             });
 
             groups.push(group);
@@ -670,17 +705,12 @@
                 obj.scale.copy(worldScale);
 
                 obj.userData.groupId = null;
+                deselectObject();
             });
 
             // Remove group container
             scene.remove(group.resultMesh);
             groups.splice(groupIndex, 1);
-
-            if (group.children.length > 0) {
-                selectObject(group.children[0]);
-            } else {
-                deselectObject();
-            }
 
             updateOutliner();
             captureState();
