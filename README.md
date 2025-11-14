@@ -15,7 +15,7 @@ examples/js-init.html
 <div id="cad"></div>
 <script src="dist/swk.min.js"></script>
 <script>
-    const roll = new swk('#cad', {
+    const roll = new SWK('#cad', {
         viewportBackground: '#f0f0f0',
         grid: {
             show: true,
