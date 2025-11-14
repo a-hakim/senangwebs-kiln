@@ -813,15 +813,17 @@
         function loadFonts() {
             // Load default fonts for text shapes
             const fontUrls = {
-                sans: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_regular.typeface.json',
-                mono: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/courier_new_regular.typeface.json',
-                serif: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/optimer_regular.typeface.json'
+                sans:  'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_regular.typeface.json',
+                mono:  './DM_Mono_Regular.json',
+                serif: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/gentilis_regular.typeface.json'
             };
 
             for (const [fontName, url] of Object.entries(fontUrls)) {
                 fontLoader.load(url, (font) => {
                     fonts[fontName] = font;
                     console.log(`Font loaded: ${fontName}`);
+                }, undefined, (error) => {
+                    console.error(`Failed to load font ${fontName}:`, error);
                 });
             }
         }
