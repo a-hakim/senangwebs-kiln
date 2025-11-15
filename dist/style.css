@@ -48,18 +48,28 @@
 }
 
 .swk-sidebar-left {
-    left: 0px;
-    border-radius: 8px 8px 0 0;
+    left: 8px;
+    top: 8px;
+    border-radius: 8px;
+    height: calc(100% - 68px);
 }
 
 .swk-sidebar-right {
-    right: 0px;
-    border-radius: 8px 8px 0 0;
+    right: 8px;
+    top: 8px;
+    border-radius: 8px;
+    max-height: min-content;
 }
 
 /* ====================
    Toolbar
    ==================== */
+
+#swk-controls-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .swk-toolbar {
     position: absolute;
@@ -68,25 +78,29 @@
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid #e2e8f0;
     border-radius: 8px;
+    overflow: hidden;
 }
 
 .swk-toolbar-bottom {
-    bottom: 0px;
-    height: auto;
+    bottom: 8px;
+    height: 68px;
+    width: max-content;
+    margin: 0 auto;
 }
 
 .swk-controls-toolbar {
     display: flex;
     align-items: center;
-    padding: 8px 12px;
-    gap: 16px;
+    padding: 4px 12px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .swk-control-group {
     display: flex;
-    align-items: center;
-    gap: 6px;
+    flex-direction: column;
+    align-items: start;
+    gap: 4px;
 }
 
 .swk-control-label {

@@ -28,7 +28,7 @@ class ControlsPanel extends EventEmitter {
             <div class="swk-controls-toolbar">
                 <!-- Transform Modes -->
                 <div class="swk-control-group">
-                    <span class="swk-control-label">Transform:</span>
+                    <span class="swk-control-label">Transform</span>
                     <div class="swk-button-group">
                         <button class="swk-control-button active" data-mode="translate" title="Translate (T)">
                             <span>⇄</span>
@@ -44,7 +44,7 @@ class ControlsPanel extends EventEmitter {
                 
                 <!-- Camera Modes -->
                 <div class="swk-control-group">
-                    <span class="swk-control-label">Camera:</span>
+                    <span class="swk-control-label">Camera</span>
                     <div class="swk-button-group">
                         <button class="swk-control-button active" data-camera="perspective" title="Perspective">
                             <span>🎥</span>
@@ -57,7 +57,7 @@ class ControlsPanel extends EventEmitter {
                 
                 <!-- Snap Settings -->
                 <div class="swk-control-group">
-                    <span class="swk-control-label">Snap:</span>
+                    <span class="swk-control-label">Snap</span>
                     <select class="swk-control-select" id="swk-snap-select">
                         <option value="0">Off</option>
                         <option value="0.01">0.01</option>
@@ -71,7 +71,7 @@ class ControlsPanel extends EventEmitter {
                 
                 <!-- History -->
                 <div class="swk-control-group">
-                    <span class="swk-control-label">History:</span>
+                    <span class="swk-control-label">History</span>
                     <div class="swk-button-group">
                         <button class="swk-control-button" id="swk-undo-btn" title="Undo (Ctrl+Z)" disabled>
                             <span>↶</span>
@@ -84,7 +84,7 @@ class ControlsPanel extends EventEmitter {
                 
                 <!-- Actions -->
                 <div class="swk-control-group">
-                    <span class="swk-control-label">Actions:</span>
+                    <span class="swk-control-label">Actions</span>
                     <div class="swk-button-group">
                         <button class="swk-control-button" id="swk-group-btn" title="Group Selected">
                             <span>⊞</span>
@@ -103,7 +103,7 @@ class ControlsPanel extends EventEmitter {
                 
                 <!-- Export -->
                 <div class="swk-control-group">
-                    <span class="swk-control-label">Export:</span>
+                    <span class="swk-control-label">Export</span>
                     <div class="swk-button-group">
                         <button class="swk-control-button" id="swk-export-gltf-btn" title="Export GLTF">
                             <span>GLTF</span>

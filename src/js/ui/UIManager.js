@@ -81,14 +81,14 @@ class UIManager extends EventEmitter {
         leftSidebar.className = 'swk-sidebar swk-sidebar-left';
         leftSidebar.innerHTML = `
             <div id="swk-shapes-panel" class="swk-panel"></div>
-            <div id="swk-property-panel" class="swk-panel"></div>
+            <div id="swk-outliner-panel" class="swk-panel"></div>
         `;
         
         // Create right sidebar
         const rightSidebar = document.createElement('div');
         rightSidebar.className = 'swk-sidebar swk-sidebar-right';
         rightSidebar.innerHTML = `
-            <div id="swk-outliner-panel" class="swk-panel"></div>
+            <div id="swk-property-panel" class="swk-panel"></div>
         `;
         
         // Create bottom toolbar
