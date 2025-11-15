@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenangWebs Kiln - JavaScript Init Example</title>
+    <link rel="stylesheet" href="../dist/style.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        header {
+            background: #0f172a;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        #editor-container {
+            width: 100%;
+            height: 100vh;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .controls h2 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .controls button {
+            display: block;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background 0.2s;
+        }
+
+        .controls button:hover {
+            background: #059669;
+        }
+
+        .controls button:active {
+            transform: scale(0.98);
+        }
+
+        .controls .button-group {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .controls .button-group button {
+            margin: 0;
+            border-radius: 0;
+            flex: 1;
+        }
+
+        .controls .button-group button:first-child {
+            border-radius: 6px 0 0 6px;
+        }
+
+        .controls .button-group button:last-child {
+            border-radius: 0 6px 6px 0;
+        }
+
+        .controls .button-group button.active {
+            background: #059669;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="editor-container"></div>
+
+    <!-- Load Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
+
+    <!-- Load SWK library -->
+    <script src="../dist/swk.min.js"></script>
+
+    <script>
+        // Debug: Check container dimensions before initialization
+        const container = document.querySelector('#editor-container');
+        console.log('Container dimensions:', {
+            width: container.clientWidth,
+            height: container.clientHeight,
+            offsetWidth: container.offsetWidth,
+            offsetHeight: container.offsetHeight,
+            computedStyle: window.getComputedStyle(container).height
+        });
+
+        // Initialize editor with UI panels enabled
+        const editor = new SWK('#editor-container', {
+            viewportBackground: '#e2e8f0',
+            camera: {
+                mode: 'perspective',
+                position: [5, 5, 5]
+            },
+            grid: {
+                show: true
+            },
+            ui: {
+                enabled: true,
+                panels: {
+                    shapes: true,
+                    properties: true,
+                    outliner: true,
+                    controls: true
+                }
+            }
+        });
+
+        // Event listeners
+        editor.on('initialized', () => {
+            console.log('Editor initialized!');
+        });
+
+        editor.on('objectAdded', (mesh) => {
+            console.log('Object added:', mesh.name);
+        });
+
+        editor.on('selectionChanged', (selected, deselected) => {
+            console.log('Selection changed:', selected.map(m => m.name));
+            if (selected.length > 0) {
+                console.log('Selected:', selected.length, 'object(s)');
+            } else {
+                console.log('Nothing selected');
+            }
+        });
+
+        editor.on('transformModeChanged', (mode) => {
+            console.log('Transform mode:', mode);
+            updateModeButtons(mode);
+        });
+
+        editor.on('snapUnitChanged', (value) => {
+            console.log('Snap unit:', value);
+        });
+
+        editor.on('groupCreated', (group) => {
+            console.log('Group created:', group.name);
+        });
+
+        editor.on('groupRemoved', (group) => {
+            console.log('Group removed:', group.name);
+        });
+
+        editor.on('historyChanged', (data) => {
+            updateHistoryUI(data);
+        });
+
+        editor.on('historyRestored', (data) => {
+            console.log('History restored:', data.action, data.description);
+        });
+
+        // Control functions
+        function addBox() {
+            const box = editor.addShape('box');
+            if (box) editor.selectObject(box);
+        }
+
+        function addSphere() {
+            const sphere = editor.addShape('sphere');
+            if (sphere) editor.selectObject(sphere);
+        }
+
+        function addCylinder() {
+            const cylinder = editor.addShape('cylinder');
+            if (cylinder) editor.selectObject(cylinder);
+        }
+
+        function addText() {
+            const text = editor.addShape('text', { text: 'Hello' });
+            if (text) editor.selectObject(text);
+        }
+
+        function deleteSelected() {
+            const selected = editor.getSelectedObjects();
+            selected.forEach(obj => editor.deleteObject(obj));
+        }
+
+        function duplicateSelected() {
+            const selected = editor.getSelectedObject();
+            if (selected) {
+                const duplicate = editor.duplicateObject(selected);
+                if (duplicate) editor.selectObject(duplicate);
+            }
+        }
+
+        function deselectAll() {
+            editor.deselectAll();
+        }
+
+        function setMode(mode) {
+            editor.setTransformMode(mode);
+        }
+
+        function updateModeButtons(mode) {
+            document.querySelectorAll('.button-group button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${mode}-btn`)?.classList.add('active');
+        }
+
+        function changeSnap() {
+            const value = parseFloat(document.getElementById('snap-select').value);
+            editor.setSnapUnit(value);
+        }
+
+        function groupSelected() {
+            const group = editor.groupSelected();
+            if (group) {
+                console.log('Created group with', editor.getGroupChildren(group).length, 'objects');
+            }
+        }
+
+        function ungroupSelected() {
+            const ungrouped = editor.ungroupSelected();
+            if (ungrouped && ungrouped.length > 0) {
+                console.log('Ungrouped', ungrouped.length, 'objects');
+            }
+        }
+
+        function undoAction() {
+            const success = editor.undo();
+            if (!success) {
+                console.log('Nothing to undo');
+            }
+        }
+
+        function redoAction() {
+            const success = editor.redo();
+            if (!success) {
+                console.log('Nothing to redo');
+            }
+        }
+
+        function updateHistoryUI(data) {
+            const undoBtn = document.getElementById('undo-btn');
+            const redoBtn = document.getElementById('redo-btn');
+            const statusDiv = document.getElementById('history-status');
+
+            if (undoBtn) {
+                undoBtn.disabled = !data.canUndo;
+                undoBtn.style.opacity = data.canUndo ? '1' : '0.5';
+                undoBtn.style.cursor = data.canUndo ? 'pointer' : 'not-allowed';
+            }
+            
+            if (redoBtn) {
+                redoBtn.disabled = !data.canRedo;
+                redoBtn.style.opacity = data.canRedo ? '1' : '0.5';
+                redoBtn.style.cursor = data.canRedo ? 'pointer' : 'not-allowed';
+            }
+            
+            if (statusDiv) {
+                statusDiv.textContent = `Undo: ${data.undoCount - 1} | Redo: ${data.redoCount}`;
+            }
+        }
+
+        // Initialize history UI after a short delay to ensure DOM is ready
+        setTimeout(() => {
+            updateHistoryUI({
+                canUndo: editor.canUndo(),
+                canRedo: editor.canRedo(),
+                undoCount: 1,
+                redoCount: 0
+            });
+        }, 100);
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWK - HTML Initialization Example</title>
+    
+    <!-- Load SWK CSS -->
+    <link rel="stylesheet" href="../dist/style.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1e293b;
+            color: #f1f5f9;
+            overflow: hidden;
+        }
+
+        #editor-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Editor Container with HTML Attributes -->
+    <div id="editor-container"
+         data-swk="true"
+         data-swk-viewport-background="#e2e8f0"
+         data-swk-grid-show="true"
+         data-swk-camera-mode="perspective"
+         data-swk-camera-position="5,5,5"
+         data-swk-ui-enabled="true"
+         data-swk-history-enabled="true">
+    </div>
+
+    <!-- Load Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
+
+    <!-- Load SWK library -->
+    <script src="../dist/swk.min.js"></script>
+
+    <!-- Auto-initialize SWK from HTML attributes -->
+    <script>
+        // Initialize SWK from HTML data attributes
+        window.addEventListener('DOMContentLoaded', function() {
+            if (window.SWK && window.SWK.autoInit) {
+                window.SWK.autoInit();
+            }
+        });
+    </script>
+
+</body>
+</html>
