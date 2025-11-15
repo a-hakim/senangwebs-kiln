@@ -30,7 +30,7 @@ class SWK extends EventEmitter {
         
         // Initialize from selector
         const { container, config } = Initializer.fromAPI(selector, options);
-        
+
         // Set up configuration
         this.config = new Config({ container, ...config });
         this.container = container;
@@ -137,7 +137,8 @@ class SWK extends EventEmitter {
                             }
                             return this.config.get(key);
                         }
-                    }
+                    },
+                    this.transformManager  // Pass transformManager for proper detach/attach during undo/redo
                 );
                 
                 // Listen to history events
@@ -256,6 +257,7 @@ class SWK extends EventEmitter {
         // Transform events for history
         let isTransforming = false;
         this.on('transformDragging', (dragging) => {
+            console.log('Transform dragging:', dragging);
             if (!dragging && isTransforming) {
                 // Transform ended, capture state
                 this.captureState('Transform object');
@@ -581,10 +583,27 @@ class SWK extends EventEmitter {
     }
 
     /**
-     * Get all objects
+     * Get all objects from the scene (including those in groups)
      */
     getAllObjects() {
-        return [...this.objects];
+        // Get all user objects from scene
+        const scene = this.sceneManager.getScene();
+        const allObjects = [];
+        
+        scene.children.forEach(obj => {
+            if (obj.userData && obj.userData.isUserObject) {
+                if (this.groupManager.isGroupContainer(obj)) {
+                    // This is a group - get its children
+                    const children = this.groupManager.getGroupChildren(obj);
+                    allObjects.push(...children);
+                } else {
+                    // Regular object
+                    allObjects.push(obj);
+                }
+            }
+        });
+        
+        return allObjects;
     }
 
     /**

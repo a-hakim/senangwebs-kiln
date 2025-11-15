@@ -380,6 +380,7 @@
         }
 
         function captureState() {
+            console.log('Capturing state for undo/redo');
             // Remove any forward history if we made a new change
             history = history.slice(0, historyIndex + 1);
 
@@ -423,6 +424,8 @@
             } else {
                 historyIndex++;
             }
+
+            console.log('history captured:', history);
 
             updateHistoryButtons();
         }
@@ -840,7 +843,7 @@
             // Load default fonts for text shapes
             const fontUrls = {
                 sans:  'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_regular.typeface.json',
-                mono:  '.src/font/DM_Mono_Regular.json',
+                mono:  './src/font/DM_Mono_Regular.json',
                 serif: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/gentilis_regular.typeface.json'
             };
 

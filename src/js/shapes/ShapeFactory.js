@@ -194,6 +194,8 @@ export default class ShapeFactory {
         // Store color in userData
         mesh.userData.color = color;
         mesh.userData.shapeType = shapeType;
+        mesh.userData.isUserObject = true;  
+        mesh.userData.id = mesh.uuid;
 
         // Position the shape
         if (isFlat || shapeType === SHAPE_TYPES.TEXT) {
@@ -211,6 +213,17 @@ export default class ShapeFactory {
             mesh.userData.textFont = options.font || 'sans';
             mesh.userData.textHeight = options.height || 0.2;
             mesh.userData.textBevel = options.bevel || 0.01;
+        }
+
+        // Apply options (for restoring from history)
+        if (options.position) {
+            mesh.position.fromArray(options.position);
+        }
+        if (options.rotation) {
+            mesh.rotation.fromArray(options.rotation);
+        }
+        if (options.scale) {
+            mesh.scale.fromArray(options.scale);
         }
 
         return mesh;

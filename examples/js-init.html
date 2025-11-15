@@ -113,22 +113,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
 
     <!-- Load SWK library -->
-    <script src="../dist/swk.min.js"></script>
+    <script src="../dist/swk.js"></script>
 
     <script>
         // Debug: Check container dimensions before initialization
         const container = document.querySelector('#editor-container');
-        console.log('Container dimensions:', {
-            width: container.clientWidth,
-            height: container.clientHeight,
-            offsetWidth: container.offsetWidth,
-            offsetHeight: container.offsetHeight,
-            computedStyle: window.getComputedStyle(container).height
-        });
 
         // Initialize editor with UI panels enabled
         const editor = new SWK('#editor-container', {

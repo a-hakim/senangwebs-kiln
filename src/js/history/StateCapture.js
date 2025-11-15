@@ -39,7 +39,7 @@ class StateCapture {
             if (groupManager && groupManager.isGroupContainer(obj)) {
                 // This is a group container
                 state.groups.push(this.serializeGroup(obj, groupManager));
-            } else if (!obj.parent || obj.parent.type !== 'Group') {
+            } else if (!groupManager || !groupManager.isGrouped(obj)) {
                 // This is a standalone object (not inside a group)
                 state.objects.push(this.serializeObject(obj));
             }
@@ -121,11 +121,17 @@ class StateCapture {
      * @param {SelectionManager} selectionManager - Selection manager instance
      * @param {GroupManager} groupManager - Group manager instance
      * @param {ShapeFactory} shapeFactory - Shape factory instance
+     * @param {TransformManager} transformManager - Transform manager instance (optional)
      * @returns {Array} Array of restored objects
      */
-    static restoreState(state, scene, selectionManager, groupManager, shapeFactory) {
+    static restoreState(state, scene, selectionManager, groupManager, shapeFactory, transformManager = null) {
         const restoredObjects = [];
         const uuidMap = new Map(); // Map old UUIDs to new objects
+
+        // Detach transform controls before clearing scene to avoid errors
+        if (transformManager) {
+            transformManager.detach();
+        }
 
         // Clear current scene (remove all user objects)
         const userObjects = scene.children.filter(obj => 
@@ -189,6 +195,14 @@ class StateCapture {
                     selectionManager.addToSelection(obj);
                 }
             });
+            
+            // Re-attach transform controls if single selection
+            if (transformManager && state.selection.length === 1) {
+                const selectedObj = uuidMap.get(state.selection[0]);
+                if (selectedObj) {
+                    transformManager.attach(selectedObj);
+                }
+            }
         }
 
         return restoredObjects;
@@ -221,6 +235,7 @@ class StateCapture {
         if (!obj) return null;
 
         // Restore properties
+        obj.uuid = data.uuid; // Preserve UUID for proper selection restoration
         obj.name = data.name;
         obj.visible = data.visible;
         obj.userData = { ...data.userData };

@@ -14,8 +14,9 @@ class HistoryManager extends EventEmitter {
      * @param {GroupManager} groupManager - Group manager
      * @param {ShapeFactory} shapeFactory - Shape factory
      * @param {Object} config - Configuration object
+     * @param {TransformManager} transformManager - Transform manager (optional)
      */
-    constructor(scene, selectionManager, groupManager, shapeFactory, config) {
+    constructor(scene, selectionManager, groupManager, shapeFactory, config, transformManager = null) {
         super();
         
         this.scene = scene;
@@ -23,10 +24,11 @@ class HistoryManager extends EventEmitter {
         this.groupManager = groupManager;
         this.shapeFactory = shapeFactory;
         this.config = config;
+        this.transformManager = transformManager;
 
-        // History stacks
-        this.undoStack = [];
-        this.redoStack = [];
+        // History array (stores all states)
+        this.history = [];
+        this.historyIndex = -1;
         
         // Configuration
         this.maxHistory = config.get('maxHistory') || 50;
@@ -55,34 +57,47 @@ class HistoryManager extends EventEmitter {
                 this.shapeFactory
             );
 
-            // Don't capture if state is identical to the last one
-            if (this.undoStack.length > 0) {
-                const lastState = this.undoStack[this.undoStack.length - 1];
+            // Remove any forward history if we made a new change (do this FIRST)
+            this.history = this.history.slice(0, this.historyIndex + 1);
+
+            // Don't capture if state is identical to the last one in current history
+            if (this.history.length > 0) {
+                const lastState = this.history[this.history.length - 1];
                 if (StateCapture.areStatesEqual(state, lastState.state)) {
+                    console.log('HistoryManager: State unchanged, skipping capture');
                     return false;
                 }
             }
 
-            // Add to undo stack
-            this.undoStack.push({
+            // Add to history array
+            this.history.push({
                 state: state,
                 description: description,
                 timestamp: Date.now()
             });
 
             // Limit history size
-            if (this.undoStack.length > this.maxHistory) {
-                this.undoStack.shift(); // Remove oldest
+            if (this.history.length > this.maxHistory) {
+                this.history.shift(); // Remove oldest, index stays the same (pointing to same logical position)
+            } else {
+                this.historyIndex++;  // Move index forward only if not over limit
             }
-
-            // Clear redo stack when new action is performed
-            this.redoStack = [];
+            
+            console.log(`HistoryManager: State captured "${description}" - history: ${this.history.length} states, historyIndex: ${this.historyIndex}`);
+            console.log('HistoryManager: Current history:', this.history.map((entry, index) => ({
+                index,
+                description: entry.description,
+                isCurrent: index === this.historyIndex,
+                timestamp: entry.timestamp,
+                objectCount: entry.state.objects.length,
+                groupCount: entry.state.groups.length
+            })));
 
             this.emit('stateChanged', {
                 canUndo: this.canUndo(),
                 canRedo: this.canRedo(),
-                undoCount: this.undoStack.length,
-                redoCount: this.redoStack.length
+                historyCount: this.history.length,
+                historyIndex: this.historyIndex
             });
 
             return true;
@@ -102,47 +117,41 @@ class HistoryManager extends EventEmitter {
         }
 
         try {
+            console.log(`HistoryManager: Undo - history: ${this.history.length} states, historyIndex: ${this.historyIndex}`);
+
+            // Move index backward in history
+            this.historyIndex--;
+            
+            console.log(`HistoryManager: After undo - historyIndex: ${this.historyIndex}`);
+
+            // Get the state at the new index
+            const entry = this.history[this.historyIndex];
+
+            // Set restoring flag to prevent capture during restore
             this.isRestoring = true;
 
-            // Move current state to redo stack
-            const currentState = StateCapture.captureState(
-                this.scene,
-                this.selectionManager,
-                this.groupManager,
-                this.shapeFactory
-            );
-            
-            this.redoStack.push({
-                state: currentState,
-                description: 'Current state',
-                timestamp: Date.now()
-            });
-
-            // Get previous state from undo stack
-            this.undoStack.pop(); // Remove current
-            const previousEntry = this.undoStack[this.undoStack.length - 1];
-
-            // Restore previous state
+            // Restore that state
             StateCapture.restoreState(
-                previousEntry.state,
+                entry.state,
                 this.scene,
                 this.selectionManager,
                 this.groupManager,
-                this.shapeFactory
+                this.shapeFactory,
+                this.transformManager
             );
 
             this.isRestoring = false;
 
             this.emit('stateRestored', {
                 action: 'undo',
-                description: previousEntry.description
+                description: entry.description
             });
 
             this.emit('stateChanged', {
                 canUndo: this.canUndo(),
                 canRedo: this.canRedo(),
-                undoCount: this.undoStack.length,
-                redoCount: this.redoStack.length
+                historyCount: this.history.length,
+                historyIndex: this.historyIndex
             });
 
             return true;
@@ -163,46 +172,41 @@ class HistoryManager extends EventEmitter {
         }
 
         try {
+            console.log(`HistoryManager: Redo - history: ${this.history.length} states, historyIndex: ${this.historyIndex}`);
+
+            // Move index forward in history
+            this.historyIndex++;
+            
+            console.log(`HistoryManager: After redo - historyIndex: ${this.historyIndex}`);
+
+            // Get the state at the new index
+            const entry = this.history[this.historyIndex];
+
+            // Set restoring flag to prevent capture during restore
             this.isRestoring = true;
 
-            // Get state from redo stack
-            const redoEntry = this.redoStack.pop();
-
-            // Capture current state for undo stack
-            const currentState = StateCapture.captureState(
-                this.scene,
-                this.selectionManager,
-                this.groupManager,
-                this.shapeFactory
-            );
-
-            this.undoStack.push({
-                state: currentState,
-                description: 'Redo action',
-                timestamp: Date.now()
-            });
-
-            // Restore redo state
+            // Restore that state
             StateCapture.restoreState(
-                redoEntry.state,
+                entry.state,
                 this.scene,
                 this.selectionManager,
                 this.groupManager,
-                this.shapeFactory
+                this.shapeFactory,
+                this.transformManager
             );
 
             this.isRestoring = false;
 
             this.emit('stateRestored', {
                 action: 'redo',
-                description: redoEntry.description
+                description: entry.description
             });
 
             this.emit('stateChanged', {
                 canUndo: this.canUndo(),
                 canRedo: this.canRedo(),
-                undoCount: this.undoStack.length,
-                redoCount: this.redoStack.length
+                historyCount: this.history.length,
+                historyIndex: this.historyIndex
             });
 
             return true;
@@ -218,7 +222,7 @@ class HistoryManager extends EventEmitter {
      * @returns {boolean} True if can undo
      */
     canUndo() {
-        return this.undoStack.length > 1; // Need at least 2 (current + previous)
+        return this.historyIndex > 0;
     }
 
     /**
@@ -226,7 +230,7 @@ class HistoryManager extends EventEmitter {
      * @returns {boolean} True if can redo
      */
     canRedo() {
-        return this.redoStack.length > 0;
+        return this.historyIndex < this.history.length - 1;
     }
 
     /**
@@ -235,7 +239,7 @@ class HistoryManager extends EventEmitter {
      */
     getUndoDescription() {
         if (!this.canUndo()) return null;
-        return this.undoStack[this.undoStack.length - 2]?.description || null;
+        return this.history[this.historyIndex - 1]?.description || null;
     }
 
     /**
@@ -244,15 +248,15 @@ class HistoryManager extends EventEmitter {
      */
     getRedoDescription() {
         if (!this.canRedo()) return null;
-        return this.redoStack[this.redoStack.length - 1]?.description || null;
+        return this.history[this.historyIndex + 1]?.description || null;
     }
 
     /**
      * Clear all history
      */
     clear() {
-        this.undoStack = [];
-        this.redoStack = [];
+        this.history = [];
+        this.historyIndex = -1;
         
         // Capture current state as initial
         this.captureState('History cleared');
@@ -260,8 +264,8 @@ class HistoryManager extends EventEmitter {
         this.emit('stateChanged', {
             canUndo: false,
             canRedo: false,
-            undoCount: this.undoStack.length,
-            redoCount: this.redoStack.length
+            historyCount: this.history.length,
+            historyIndex: this.historyIndex
         });
     }
 
@@ -271,8 +275,8 @@ class HistoryManager extends EventEmitter {
      */
     getStats() {
         return {
-            undoCount: this.undoStack.length,
-            redoCount: this.redoStack.length,
+            historyCount: this.history.length,
+            historyIndex: this.historyIndex,
             maxHistory: this.maxHistory,
             canUndo: this.canUndo(),
             canRedo: this.canRedo(),
@@ -285,9 +289,7 @@ class HistoryManager extends EventEmitter {
      * @returns {number} Estimated size in bytes
      */
     estimateMemoryUsage() {
-        const undoSize = JSON.stringify(this.undoStack).length;
-        const redoSize = JSON.stringify(this.redoStack).length;
-        return undoSize + redoSize;
+        return JSON.stringify(this.history).length;
     }
 
     /**

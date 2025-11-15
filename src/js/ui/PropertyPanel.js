@@ -205,6 +205,7 @@ class PropertyPanel extends EventEmitter {
         if (nameInput) {
             nameInput.addEventListener('change', (e) => {
                 object.name = e.target.value;
+                this.swk.captureState('Change name');
                 this.emit('propertyChanged', { object, property: 'name', value: e.target.value });
             });
         }
@@ -262,6 +263,7 @@ class PropertyPanel extends EventEmitter {
         if (visibleInput) {
             visibleInput.addEventListener('change', (e) => {
                 object.visible = e.target.checked;
+                this.swk.captureState('Change visibility');
                 this.emit('propertyChanged', { object, property: 'visible', value: object.visible });
             });
         }
