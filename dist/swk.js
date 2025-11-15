@@ -5038,7 +5038,7 @@ var ShapesPanel = /*#__PURE__*/function (_EventEmitter) {
       label: 'Pyramid',
       icon: '△'
     }, {
-      type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TORUSKNOT,
+      type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TORUS_KNOT,
       label: 'Torus Knot',
       icon: '⚭'
     }, {

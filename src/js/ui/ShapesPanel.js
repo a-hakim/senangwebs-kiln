@@ -27,7 +27,7 @@ class ShapesPanel extends EventEmitter {
             { type: SHAPE_TYPES.TORUS, label: 'Torus', icon: '◯' },
             { type: SHAPE_TYPES.PLANE, label: 'Plane', icon: '▭' },
             { type: SHAPE_TYPES.PYRAMID, label: 'Pyramid', icon: '△' },
-            { type: SHAPE_TYPES.TORUSKNOT, label: 'Torus Knot', icon: '⚭' },
+            { type: SHAPE_TYPES.TORUS_KNOT, label: 'Torus Knot', icon: '⚭' },
             { type: SHAPE_TYPES.TETRAHEDRON, label: 'Tetrahedron', icon: '◊' },
             { type: SHAPE_TYPES.OCTAHEDRON, label: 'Octahedron', icon: '◈' },
             { type: SHAPE_TYPES.ICOSAHEDRON, label: 'Icosahedron', icon: '⬟' },
