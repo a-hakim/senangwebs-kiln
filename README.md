@@ -34,11 +34,12 @@ examples/data-attributes.html
 ```html
 <link rel="stylesheet" href="dist/swk.min.css">
 <!-- Automatically initializes on page load - no JavaScript required! -->
-<div data-swk data-swk-viewport-background="#f0f0f0"
-     data-swk-grid-show="true"
-     data-swk-grid-center-color="#cccccc"
-     data-swk-grid-lines-color="#e0e0e0"
-     data-swk-outline-color="#ff0000">
+<div data-swk 
+    data-swk-viewport-background="#f0f0f0" 
+    data-swk-grid-show="true" 
+    data-swk-grid-center-color="#cccccc"
+    data-swk-grid-lines-color="#e0e0e0" 
+    data-swk-outline-color="#ff0000">
 </div>
 <script src="dist/swk.min.js"></script>
 ```
