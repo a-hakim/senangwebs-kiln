@@ -277,26 +277,82 @@ class SWK extends EventEmitter {
             return;
         }
 
-        // Pick object at mouse position
+        // Build selectable objects array: non-grouped objects + group containers
+        const selectableObjects = [];
+        
+        // Add non-grouped objects (objects without groupId or not part of a group)
+        this.objects.forEach(obj => {
+            if (obj.visible && !obj.userData.isGroupResult && !this.groupManager.isGrouped(obj)) {
+                selectableObjects.push(obj);
+            }
+        });
+        
+        // Add group containers (these will be tested recursively to find their children)
+        const groups = this.groupManager.getAllGroups();
+        groups.forEach(group => {
+            if (group.container && group.container.visible) {
+                selectableObjects.push(group.container);
+            }
+        });
+
+        // Pick object at mouse position (recursive = true to test children of groups)
         const canvas = this.renderer.getCanvas();
-        const intersection = this.picker.pickFromEvent(event, canvas, this.objects, false);
+        const intersection = this.picker.pickFromEvent(event, canvas, selectableObjects, true);
 
         if (intersection) {
-            // Object clicked
-            const clickedObject = intersection.object;
+            // Object clicked - check if it's part of a group
+            let clickedObject = intersection.object;
+            
+            // If the clicked object is part of a group, select the group container instead
+            if (this.groupManager.isGrouped(clickedObject)) {
+                const group = this.groupManager.findObjectGroup(clickedObject);
+                if (group && group.container) {
+                    clickedObject = group.container;
+                }
+            }
             
             // Check for multi-select (Ctrl key)
             if (event.ctrlKey || event.metaKey) {
                 // Multi-select mode
                 this.selectionManager.toggle(clickedObject);
+                
+                // If toggling a group, also toggle all its children
+                if (this.groupManager.isGroupContainer(clickedObject)) {
+                    const children = this.groupManager.getGroupChildren(clickedObject);
+                    const isGroupSelected = this.selectionManager.isSelected(clickedObject);
+                    children.forEach(child => {
+                        if (isGroupSelected) {
+                            // Group was just selected, add children
+                            this.selectionManager.addToSelection(child);
+                        } else {
+                            // Group was just deselected, remove children
+                            this.selectionManager.removeFromSelection(child);
+                        }
+                    });
+                }
             } else {
                 // Single select mode
                 this.selectionManager.select(clickedObject);
+                
+                // If selecting a group, also select all its children
+                if (this.groupManager.isGroupContainer(clickedObject)) {
+                    const children = this.groupManager.getGroupChildren(clickedObject);
+                    children.forEach(child => {
+                        this.selectionManager.addToSelection(child);
+                    });
+                }
             }
 
-            // Update transform controls
-            if (this.selectionManager.getSelectionCount() === 1) {
-                this.transformControls.attach(clickedObject);
+            // Update transform controls - attach to the main selected object (group container if it's a group)
+            const selectedObjects = this.selectionManager.getSelectedObjects();
+            if (selectedObjects.length > 0) {
+                // Find the group container if any selected object is part of a group
+                const primarySelection = selectedObjects.find(obj => this.groupManager.isGroupContainer(obj)) || selectedObjects[0];
+                if (selectedObjects.length === 1 || this.groupManager.isGroupContainer(primarySelection)) {
+                    this.transformControls.attach(primarySelection);
+                } else {
+                    this.transformControls.detach();
+                }
             } else {
                 this.transformControls.detach();
             }
@@ -644,7 +700,26 @@ class SWK extends EventEmitter {
         // Create outlines for selected objects
         const selected = this.selectionManager.getSelectedObjects();
         if (selected.length > 0) {
-            this.outliner.createOutlines(selected);
+            // Collect all objects that need outlines (avoiding duplicates)
+            const objectsToOutline = new Set();
+            
+            selected.forEach(obj => {
+                if (this.groupManager.isGroupContainer(obj)) {
+                    // If it's a group, add all children to outline set
+                    const children = this.groupManager.getGroupChildren(obj);
+                    children.forEach(child => objectsToOutline.add(child));
+                } else if (!this.groupManager.isGrouped(obj)) {
+                    // Regular non-grouped object, add it directly
+                    objectsToOutline.add(obj);
+                }
+                // Note: We skip individual children that are already grouped,
+                // as they'll be outlined when their parent group is processed
+            });
+            
+            // Create outlines for all collected objects
+            objectsToOutline.forEach(obj => {
+                this.outliner.createOutline(obj);
+            });
         }
 
         // Update internal references for compatibility
@@ -842,9 +917,32 @@ class SWK extends EventEmitter {
         if (this.historyManager) {
             const success = this.historyManager.undo();
             if (success) {
-                // Refresh objects list
-                this.objects = this.getAllObjects();
-                this.groups = this.getAllGroups();
+                // Rebuild objects array - include ALL meshes for backward compatibility
+                // This includes both ungrouped objects and children within groups
+                this.objects = [];
+                const scene = this.sceneManager.getScene();
+                
+                // Add all standalone objects (not in groups)
+                scene.children.forEach(obj => {
+                    if (obj.userData && obj.userData.isUserObject) {
+                        this.objects.push(obj);
+                    }
+                });
+                
+                // Add all children from groups
+                const groups = this.groupManager.getAllGroups();
+                groups.forEach(group => {
+                    const children = this.groupManager.getGroupChildren(group.container);
+                    this.objects.push(...children);
+                });
+                
+                // Update groups reference
+                this.groups = groups;
+                
+                // Update UI if present
+                if (this.uiManager && this.uiManager.outlinerPanel) {
+                    this.uiManager.outlinerPanel.refresh();
+                }
             }
             return success;
         }
@@ -859,9 +957,32 @@ class SWK extends EventEmitter {
         if (this.historyManager) {
             const success = this.historyManager.redo();
             if (success) {
-                // Refresh objects list
-                this.objects = this.getAllObjects();
-                this.groups = this.getAllGroups();
+                // Rebuild objects array - include ALL meshes for backward compatibility
+                // This includes both ungrouped objects and children within groups
+                this.objects = [];
+                const scene = this.sceneManager.getScene();
+                
+                // Add all standalone objects (not in groups)
+                scene.children.forEach(obj => {
+                    if (obj.userData && obj.userData.isUserObject) {
+                        this.objects.push(obj);
+                    }
+                });
+                
+                // Add all children from groups
+                const groups = this.groupManager.getAllGroups();
+                groups.forEach(group => {
+                    const children = this.groupManager.getGroupChildren(group.container);
+                    this.objects.push(...children);
+                });
+                
+                // Update groups reference
+                this.groups = groups;
+                
+                // Update UI if present
+                if (this.uiManager && this.uiManager.outlinerPanel) {
+                    this.uiManager.outlinerPanel.refresh();
+                }
             }
             return success;
         }

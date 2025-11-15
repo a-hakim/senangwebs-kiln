@@ -51,9 +51,25 @@ class OutlinerPanel extends EventEmitter {
         const tree = document.getElementById('swk-outliner-tree');
         if (!tree) return;
         
-        const objects = this.swk.getAllObjects();
+        // Get all groups
+        const groups = this.swk.getAllGroups();
         
-        if (objects.length === 0) {
+        // Get all objects that are NOT in groups
+        const allObjects = this.swk.objects || [];
+        const groupedObjectIds = new Set();
+        
+        groups.forEach(group => {
+            const children = this.swk.getGroupChildren(group.container);
+            children.forEach(child => {
+                groupedObjectIds.add(child.uuid);
+            });
+        });
+        
+        const ungroupedObjects = allObjects.filter(obj => 
+            !groupedObjectIds.has(obj.uuid) && obj.visible
+        );
+        
+        if (groups.length === 0 && ungroupedObjects.length === 0) {
             tree.innerHTML = `
                 <div class="swk-outliner-empty">
                     <p>No objects in scene</p>
@@ -65,12 +81,14 @@ class OutlinerPanel extends EventEmitter {
         
         tree.innerHTML = '';
         
-        // Get root objects (not in groups)
-        const rootObjects = objects.filter(obj => {
-            return !obj.parent || !this.swk.isGroupContainer(obj.parent);
+        // Show groups first
+        groups.forEach(group => {
+            const item = this.createTreeItem(group.container);
+            tree.appendChild(item);
         });
         
-        rootObjects.forEach(obj => {
+        // Then show ungrouped objects
+        ungroupedObjects.forEach(obj => {
             const item = this.createTreeItem(obj);
             tree.appendChild(item);
         });
@@ -173,6 +191,15 @@ class OutlinerPanel extends EventEmitter {
      * @param {THREE.Object3D} object - Object to select
      */
     selectObject(object) {
+        // If the object is part of a group, select the group instead
+        if (this.swk.isGrouped(object)) {
+            const group = this.swk.groupManager.findObjectGroup(object);
+            if (group && group.container) {
+                this.swk.selectObject(group.container);
+                return;
+            }
+        }
+        
         this.swk.selectObject(object);
     }
 

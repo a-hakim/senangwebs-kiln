@@ -29,9 +29,9 @@ class StateCapture {
             state.counters = { ...shapeFactory.shapeCounters };
         }
 
-        // Get all user objects (exclude grid, lights, etc)
+        // Get all user objects and group containers (exclude grid, lights, etc)
         const userObjects = scene.children.filter(obj => 
-            obj.userData && obj.userData.isUserObject
+            obj.userData && (obj.userData.isUserObject || obj.userData.isGroupResult)
         );
 
         // Capture objects and groups
@@ -133,15 +133,27 @@ class StateCapture {
             transformManager.detach();
         }
 
-        // Clear current scene (remove all user objects)
+        // Clear current scene (remove all user objects and group containers)
         const userObjects = scene.children.filter(obj => 
-            obj.userData && obj.userData.isUserObject
+            obj.userData && (obj.userData.isUserObject || obj.userData.isGroupResult)
         );
         userObjects.forEach(obj => {
             scene.remove(obj);
             if (obj.geometry) obj.geometry.dispose();
-            if (obj.material) obj.material.dispose();
+            if (obj.material) {
+                if (Array.isArray(obj.material)) {
+                    obj.material.forEach(m => m.dispose());
+                } else {
+                    obj.material.dispose();
+                }
+            }
         });
+
+        // Clear GroupManager's internal groups array
+        if (groupManager && groupManager.groups) {
+            groupManager.groups = [];
+            groupManager.groupIdCounter = 0;
+        }
 
         // Clear selection
         selectionManager.clear();
@@ -165,21 +177,29 @@ class StateCapture {
         state.groups.forEach(groupData => {
             const { group, children } = this.deserializeGroup(groupData, shapeFactory);
             if (group && children.length > 0) {
-                // Add children to scene first
+                // Map old UUIDs to new children objects
+                children.forEach(child => {
+                    const originalChildData = groupData.children.find(c => c.uuid === child.uuid);
+                    if (originalChildData) {
+                        uuidMap.set(originalChildData.uuid, child);
+                    }
+                });
+
+                // Add children to scene temporarily (createGroup will reparent them)
                 children.forEach(child => {
                     scene.add(child);
                     restoredObjects.push(child);
                 });
 
-                // Create the group
-                const groupContainer = groupManager.createGroup(children);
+                // Create the group (this will remove children from scene and parent to group)
+                const groupContainer = groupManager.createGroup(children, groupData.name);
                 if (groupContainer) {
                     // Restore group transform
                     groupContainer.position.fromArray(groupData.position);
                     groupContainer.rotation.fromArray(groupData.rotation);
                     groupContainer.scale.fromArray(groupData.scale);
                     groupContainer.visible = groupData.visible;
-                    groupContainer.name = groupData.name;
+                    groupContainer.uuid = groupData.uuid; // Preserve UUID for selection
 
                     restoredObjects.push(groupContainer);
                     uuidMap.set(groupData.uuid, groupContainer);
@@ -189,18 +209,30 @@ class StateCapture {
 
         // Restore selection
         if (state.selection && state.selection.length > 0) {
+            const selectedObjects = [];
             state.selection.forEach(uuid => {
                 const obj = uuidMap.get(uuid);
                 if (obj) {
-                    selectionManager.addToSelection(obj);
+                    selectedObjects.push(obj);
                 }
             });
             
-            // Re-attach transform controls if single selection
-            if (transformManager && state.selection.length === 1) {
-                const selectedObj = uuidMap.get(state.selection[0]);
-                if (selectedObj) {
-                    transformManager.attach(selectedObj);
+            // Apply selection
+            if (selectedObjects.length > 0) {
+                selectionManager.select(selectedObjects[0]);
+                for (let i = 1; i < selectedObjects.length; i++) {
+                    selectionManager.addToSelection(selectedObjects[i]);
+                }
+                
+                // Re-attach transform controls to first selected (or group container if applicable)
+                if (transformManager) {
+                    const primarySelection = selectedObjects.find(obj => 
+                        groupManager.isGroupContainer(obj)
+                    ) || selectedObjects[0];
+                    
+                    if (selectedObjects.length === 1 || groupManager.isGroupContainer(primarySelection)) {
+                        transformManager.attach(primarySelection);
+                    }
                 }
             }
         }

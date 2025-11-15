@@ -2390,9 +2390,9 @@ var StateCapture = /*#__PURE__*/function () {
         state.counters = _objectSpread({}, shapeFactory.shapeCounters);
       }
 
-      // Get all user objects (exclude grid, lights, etc)
+      // Get all user objects and group containers (exclude grid, lights, etc)
       var userObjects = scene.children.filter(function (obj) {
-        return obj.userData && obj.userData.isUserObject;
+        return obj.userData && (obj.userData.isUserObject || obj.userData.isGroupResult);
       });
 
       // Capture objects and groups
@@ -2502,15 +2502,29 @@ var StateCapture = /*#__PURE__*/function () {
         transformManager.detach();
       }
 
-      // Clear current scene (remove all user objects)
+      // Clear current scene (remove all user objects and group containers)
       var userObjects = scene.children.filter(function (obj) {
-        return obj.userData && obj.userData.isUserObject;
+        return obj.userData && (obj.userData.isUserObject || obj.userData.isGroupResult);
       });
       userObjects.forEach(function (obj) {
         scene.remove(obj);
         if (obj.geometry) obj.geometry.dispose();
-        if (obj.material) obj.material.dispose();
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach(function (m) {
+              return m.dispose();
+            });
+          } else {
+            obj.material.dispose();
+          }
+        }
       });
+
+      // Clear GroupManager's internal groups array
+      if (groupManager && groupManager.groups) {
+        groupManager.groups = [];
+        groupManager.groupIdCounter = 0;
+      }
 
       // Clear selection
       selectionManager.clear();
@@ -2536,21 +2550,32 @@ var StateCapture = /*#__PURE__*/function () {
           group = _this3$deserializeGro.group,
           children = _this3$deserializeGro.children;
         if (group && children.length > 0) {
-          // Add children to scene first
+          // Map old UUIDs to new children objects
+          children.forEach(function (child) {
+            var originalChildData = groupData.children.find(function (c) {
+              return c.uuid === child.uuid;
+            });
+            if (originalChildData) {
+              uuidMap.set(originalChildData.uuid, child);
+            }
+          });
+
+          // Add children to scene temporarily (createGroup will reparent them)
           children.forEach(function (child) {
             scene.add(child);
             restoredObjects.push(child);
           });
 
-          // Create the group
-          var groupContainer = groupManager.createGroup(children);
+          // Create the group (this will remove children from scene and parent to group)
+          var groupContainer = groupManager.createGroup(children, groupData.name);
           if (groupContainer) {
             // Restore group transform
             groupContainer.position.fromArray(groupData.position);
             groupContainer.rotation.fromArray(groupData.rotation);
             groupContainer.scale.fromArray(groupData.scale);
             groupContainer.visible = groupData.visible;
-            groupContainer.name = groupData.name;
+            groupContainer.uuid = groupData.uuid; // Preserve UUID for selection
+
             restoredObjects.push(groupContainer);
             uuidMap.set(groupData.uuid, groupContainer);
           }
@@ -2559,18 +2584,29 @@ var StateCapture = /*#__PURE__*/function () {
 
       // Restore selection
       if (state.selection && state.selection.length > 0) {
+        var selectedObjects = [];
         state.selection.forEach(function (uuid) {
           var obj = uuidMap.get(uuid);
           if (obj) {
-            selectionManager.addToSelection(obj);
+            selectedObjects.push(obj);
           }
         });
 
-        // Re-attach transform controls if single selection
-        if (transformManager && state.selection.length === 1) {
-          var selectedObj = uuidMap.get(state.selection[0]);
-          if (selectedObj) {
-            transformManager.attach(selectedObj);
+        // Apply selection
+        if (selectedObjects.length > 0) {
+          selectionManager.select(selectedObjects[0]);
+          for (var i = 1; i < selectedObjects.length; i++) {
+            selectionManager.addToSelection(selectedObjects[i]);
+          }
+
+          // Re-attach transform controls to first selected (or group container if applicable)
+          if (transformManager) {
+            var primarySelection = selectedObjects.find(function (obj) {
+              return groupManager.isGroupContainer(obj);
+            }) || selectedObjects[0];
+            if (selectedObjects.length === 1 || groupManager.isGroupContainer(primarySelection)) {
+              transformManager.attach(primarySelection);
+            }
           }
         }
       }
@@ -4392,18 +4428,36 @@ var OutlinerPanel = /*#__PURE__*/function (_EventEmitter) {
       var _this3 = this;
       var tree = document.getElementById('swk-outliner-tree');
       if (!tree) return;
-      var objects = this.swk.getAllObjects();
-      if (objects.length === 0) {
+
+      // Get all groups
+      var groups = this.swk.getAllGroups();
+
+      // Get all objects that are NOT in groups
+      var allObjects = this.swk.objects || [];
+      var groupedObjectIds = new Set();
+      groups.forEach(function (group) {
+        var children = _this3.swk.getGroupChildren(group.container);
+        children.forEach(function (child) {
+          groupedObjectIds.add(child.uuid);
+        });
+      });
+      var ungroupedObjects = allObjects.filter(function (obj) {
+        return !groupedObjectIds.has(obj.uuid) && obj.visible;
+      });
+      if (groups.length === 0 && ungroupedObjects.length === 0) {
         tree.innerHTML = "\n                <div class=\"swk-outliner-empty\">\n                    <p>No objects in scene</p>\n                    <small>Add shapes to see them here</small>\n                </div>\n            ";
         return;
       }
       tree.innerHTML = '';
 
-      // Get root objects (not in groups)
-      var rootObjects = objects.filter(function (obj) {
-        return !obj.parent || !_this3.swk.isGroupContainer(obj.parent);
+      // Show groups first
+      groups.forEach(function (group) {
+        var item = _this3.createTreeItem(group.container);
+        tree.appendChild(item);
       });
-      rootObjects.forEach(function (obj) {
+
+      // Then show ungrouped objects
+      ungroupedObjects.forEach(function (obj) {
         var item = _this3.createTreeItem(obj);
         tree.appendChild(item);
       });
@@ -4505,6 +4559,14 @@ var OutlinerPanel = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "selectObject",
     value: function selectObject(object) {
+      // If the object is part of a group, select the group instead
+      if (this.swk.isGrouped(object)) {
+        var group = this.swk.groupManager.findObjectGroup(object);
+        if (group && group.container) {
+          this.swk.selectObject(group.container);
+          return;
+        }
+      }
       this.swk.selectObject(object);
     }
 
@@ -6135,30 +6197,89 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "onCanvasClick",
     value: function onCanvasClick(event) {
+      var _this4 = this;
       // Check if clicking on transform controls
       if (this.transformControls && this.transformControls.dragging) {
         return;
       }
 
-      // Pick object at mouse position
+      // Build selectable objects array: non-grouped objects + group containers
+      var selectableObjects = [];
+
+      // Add non-grouped objects (objects without groupId or not part of a group)
+      this.objects.forEach(function (obj) {
+        if (obj.visible && !obj.userData.isGroupResult && !_this4.groupManager.isGrouped(obj)) {
+          selectableObjects.push(obj);
+        }
+      });
+
+      // Add group containers (these will be tested recursively to find their children)
+      var groups = this.groupManager.getAllGroups();
+      groups.forEach(function (group) {
+        if (group.container && group.container.visible) {
+          selectableObjects.push(group.container);
+        }
+      });
+
+      // Pick object at mouse position (recursive = true to test children of groups)
       var canvas = this.renderer.getCanvas();
-      var intersection = this.picker.pickFromEvent(event, canvas, this.objects, false);
+      var intersection = this.picker.pickFromEvent(event, canvas, selectableObjects, true);
       if (intersection) {
-        // Object clicked
+        // Object clicked - check if it's part of a group
         var clickedObject = intersection.object;
+
+        // If the clicked object is part of a group, select the group container instead
+        if (this.groupManager.isGrouped(clickedObject)) {
+          var group = this.groupManager.findObjectGroup(clickedObject);
+          if (group && group.container) {
+            clickedObject = group.container;
+          }
+        }
 
         // Check for multi-select (Ctrl key)
         if (event.ctrlKey || event.metaKey) {
           // Multi-select mode
           this.selectionManager.toggle(clickedObject);
+
+          // If toggling a group, also toggle all its children
+          if (this.groupManager.isGroupContainer(clickedObject)) {
+            var children = this.groupManager.getGroupChildren(clickedObject);
+            var isGroupSelected = this.selectionManager.isSelected(clickedObject);
+            children.forEach(function (child) {
+              if (isGroupSelected) {
+                // Group was just selected, add children
+                _this4.selectionManager.addToSelection(child);
+              } else {
+                // Group was just deselected, remove children
+                _this4.selectionManager.removeFromSelection(child);
+              }
+            });
+          }
         } else {
           // Single select mode
           this.selectionManager.select(clickedObject);
+
+          // If selecting a group, also select all its children
+          if (this.groupManager.isGroupContainer(clickedObject)) {
+            var _children = this.groupManager.getGroupChildren(clickedObject);
+            _children.forEach(function (child) {
+              _this4.selectionManager.addToSelection(child);
+            });
+          }
         }
 
-        // Update transform controls
-        if (this.selectionManager.getSelectionCount() === 1) {
-          this.transformControls.attach(clickedObject);
+        // Update transform controls - attach to the main selected object (group container if it's a group)
+        var selectedObjects = this.selectionManager.getSelectedObjects();
+        if (selectedObjects.length > 0) {
+          // Find the group container if any selected object is part of a group
+          var primarySelection = selectedObjects.find(function (obj) {
+            return _this4.groupManager.isGroupContainer(obj);
+          }) || selectedObjects[0];
+          if (selectedObjects.length === 1 || this.groupManager.isGroupContainer(primarySelection)) {
+            this.transformControls.attach(primarySelection);
+          } else {
+            this.transformControls.detach();
+          }
         } else {
           this.transformControls.detach();
         }
@@ -6184,7 +6305,7 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "onKeyDown",
     value: function onKeyDown(event) {
-      var _this4 = this;
+      var _this5 = this;
       // Undo/Redo shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
       if (event.ctrlKey || event.metaKey) {
         if (event.key.toLowerCase() === 'z') {
@@ -6225,7 +6346,7 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
             // Delete selected objects
             var selected = this.selectionManager.getSelectedObjects();
             selected.forEach(function (obj) {
-              return _this4.deleteObject(obj);
+              return _this5.deleteObject(obj);
             });
             event.preventDefault();
             break;
@@ -6473,15 +6594,15 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "getAllObjects",
     value: function getAllObjects() {
-      var _this5 = this;
+      var _this6 = this;
       // Get all user objects from scene
       var scene = this.sceneManager.getScene();
       var allObjects = [];
       scene.children.forEach(function (obj) {
         if (obj.userData && obj.userData.isUserObject) {
-          if (_this5.groupManager.isGroupContainer(obj)) {
+          if (_this6.groupManager.isGroupContainer(obj)) {
             // This is a group - get its children
-            var children = _this5.groupManager.getGroupChildren(obj);
+            var children = _this6.groupManager.getGroupChildren(obj);
             allObjects.push.apply(allObjects, _toConsumableArray(children));
           } else {
             // Regular object
@@ -6529,13 +6650,34 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "updateSelectionOutlines",
     value: function updateSelectionOutlines() {
+      var _this7 = this;
       // Clear all outlines
       this.outliner.clearAllOutlines();
 
       // Create outlines for selected objects
       var selected = this.selectionManager.getSelectedObjects();
       if (selected.length > 0) {
-        this.outliner.createOutlines(selected);
+        // Collect all objects that need outlines (avoiding duplicates)
+        var objectsToOutline = new Set();
+        selected.forEach(function (obj) {
+          if (_this7.groupManager.isGroupContainer(obj)) {
+            // If it's a group, add all children to outline set
+            var children = _this7.groupManager.getGroupChildren(obj);
+            children.forEach(function (child) {
+              return objectsToOutline.add(child);
+            });
+          } else if (!_this7.groupManager.isGrouped(obj)) {
+            // Regular non-grouped object, add it directly
+            objectsToOutline.add(obj);
+          }
+          // Note: We skip individual children that are already grouped,
+          // as they'll be outlined when their parent group is processed
+        });
+
+        // Create outlines for all collected objects
+        objectsToOutline.forEach(function (obj) {
+          _this7.outliner.createOutline(obj);
+        });
       }
 
       // Update internal references for compatibility
@@ -6757,12 +6899,37 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "undo",
     value: function undo() {
+      var _this8 = this;
       if (this.historyManager) {
         var success = this.historyManager.undo();
         if (success) {
-          // Refresh objects list
-          this.objects = this.getAllObjects();
-          this.groups = this.getAllGroups();
+          // Rebuild objects array - include ALL meshes for backward compatibility
+          // This includes both ungrouped objects and children within groups
+          this.objects = [];
+          var scene = this.sceneManager.getScene();
+
+          // Add all standalone objects (not in groups)
+          scene.children.forEach(function (obj) {
+            if (obj.userData && obj.userData.isUserObject) {
+              _this8.objects.push(obj);
+            }
+          });
+
+          // Add all children from groups
+          var groups = this.groupManager.getAllGroups();
+          groups.forEach(function (group) {
+            var _this8$objects;
+            var children = _this8.groupManager.getGroupChildren(group.container);
+            (_this8$objects = _this8.objects).push.apply(_this8$objects, _toConsumableArray(children));
+          });
+
+          // Update groups reference
+          this.groups = groups;
+
+          // Update UI if present
+          if (this.uiManager && this.uiManager.outlinerPanel) {
+            this.uiManager.outlinerPanel.refresh();
+          }
         }
         return success;
       }
@@ -6776,12 +6943,37 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "redo",
     value: function redo() {
+      var _this9 = this;
       if (this.historyManager) {
         var success = this.historyManager.redo();
         if (success) {
-          // Refresh objects list
-          this.objects = this.getAllObjects();
-          this.groups = this.getAllGroups();
+          // Rebuild objects array - include ALL meshes for backward compatibility
+          // This includes both ungrouped objects and children within groups
+          this.objects = [];
+          var scene = this.sceneManager.getScene();
+
+          // Add all standalone objects (not in groups)
+          scene.children.forEach(function (obj) {
+            if (obj.userData && obj.userData.isUserObject) {
+              _this9.objects.push(obj);
+            }
+          });
+
+          // Add all children from groups
+          var groups = this.groupManager.getAllGroups();
+          groups.forEach(function (group) {
+            var _this9$objects;
+            var children = _this9.groupManager.getGroupChildren(group.container);
+            (_this9$objects = _this9.objects).push.apply(_this9$objects, _toConsumableArray(children));
+          });
+
+          // Update groups reference
+          this.groups = groups;
+
+          // Update UI if present
+          if (this.uiManager && this.uiManager.outlinerPanel) {
+            this.uiManager.outlinerPanel.refresh();
+          }
         }
         return success;
       }
