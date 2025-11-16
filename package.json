@@ -31,6 +31,7 @@
     "npm": ">=6.0.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^7.1.0"
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "three": "^0.128.0"
   }
 }

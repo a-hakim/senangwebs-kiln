@@ -1,6 +1,7 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const webpack = require('webpack');
 
 module.exports = (env, argv) => {
   const isDevelopment = argv.mode === 'development';
@@ -52,6 +53,9 @@ module.exports = (env, argv) => {
       new MiniCssExtractPlugin({
         filename: isDevelopment ? '[name].css' : '[name].min.css',
       }),
+      new webpack.ProvidePlugin({
+        THREE: 'three'
+      })
     ],
     optimization: {
       minimize: !isDevelopment,

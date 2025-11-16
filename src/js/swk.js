@@ -3,6 +3,20 @@
  * A lightweight 3D modeling editor library
  */
 
+// Three.js core and controls
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
+import { STLExporter } from 'three/examples/jsm/exporters/STLExporter.js';
+
+// Make THREE available globally for backward compatibility
+window.THREE = THREE;
+THREE.OrbitControls = OrbitControls;
+THREE.TransformControls = TransformControls;
+THREE.GLTFExporter = GLTFExporter;
+THREE.STLExporter = STLExporter;
+
 import Config from './core/Config.js';
 import EventEmitter from './core/EventEmitter.js';
 import Initializer from './core/Initializer.js';
