@@ -26,11 +26,8 @@ class OutlinerPanel extends EventEmitter {
      */
     render() {
         this.container.innerHTML = `
-            <div class="swk-panel-header">
-                <h3>Outliner</h3>
-                <button class="swk-panel-button" id="swk-outliner-refresh" title="Refresh">↻</button>
-            </div>
             <div class="swk-panel-content">
+                <button class="swk-panel-button" id="swk-outliner-refresh" title="Refresh" style="display:none">↻</button>
                 <div class="swk-outliner-tree" id="swk-outliner-tree"></div>
             </div>
         `;

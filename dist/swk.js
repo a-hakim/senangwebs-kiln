@@ -4407,7 +4407,7 @@ var OutlinerPanel = /*#__PURE__*/function (_EventEmitter) {
     key: "render",
     value: function render() {
       var _this2 = this;
-      this.container.innerHTML = "\n            <div class=\"swk-panel-header\">\n                <h3>Outliner</h3>\n                <button class=\"swk-panel-button\" id=\"swk-outliner-refresh\" title=\"Refresh\">\u21BB</button>\n            </div>\n            <div class=\"swk-panel-content\">\n                <div class=\"swk-outliner-tree\" id=\"swk-outliner-tree\"></div>\n            </div>\n        ";
+      this.container.innerHTML = "\n            <div class=\"swk-panel-content\">\n                <button class=\"swk-panel-button\" id=\"swk-outliner-refresh\" title=\"Refresh\" style=\"display:none\">\u21BB</button>\n                <div class=\"swk-outliner-tree\" id=\"swk-outliner-tree\"></div>\n            </div>\n        ";
 
       // Refresh button
       var refreshBtn = document.getElementById('swk-outliner-refresh');
@@ -5076,7 +5076,7 @@ var ShapesPanel = /*#__PURE__*/function (_EventEmitter) {
     key: "render",
     value: function render() {
       var _this2 = this;
-      this.container.innerHTML = "\n            <div class=\"swk-panel-header\">\n                <h3>Shapes</h3>\n            </div>\n            <div class=\"swk-panel-content\">\n                <div class=\"swk-shapes-grid\" id=\"swk-shapes-grid\"></div>\n            </div>\n        ";
+      this.container.innerHTML = "\n            <div class=\"swk-panel-content\">\n                <div class=\"swk-shapes-grid\" id=\"swk-shapes-grid\"></div>\n            </div>\n        ";
       var grid = document.getElementById('swk-shapes-grid');
 
       // Create shape buttons
@@ -5275,7 +5275,7 @@ var UIManager = /*#__PURE__*/function (_EventEmitter) {
       // Create left sidebar
       var leftSidebar = document.createElement('div');
       leftSidebar.className = 'swk-sidebar swk-sidebar-left';
-      leftSidebar.innerHTML = "\n            <div id=\"swk-shapes-panel\" class=\"swk-panel\"></div>\n            <div id=\"swk-outliner-panel\" class=\"swk-panel\"></div>\n        ";
+      leftSidebar.innerHTML = "\n            <div id=\"swk-tab-header\" class=\"swk-tab-header\">\n                <button class=\"swk-tab-button active\" data-panel=\"swk-shapes-panel\">Shapes</button>\n                <button class=\"swk-tab-button\" data-panel=\"swk-outliner-panel\">Outliner</button>\n            </div>\n            <div id=\"swk-shapes-panel\" class=\"swk-panel active\"></div>\n            <div id=\"swk-outliner-panel\" class=\"swk-panel\"></div>\n        ";
 
       // Create right sidebar (hidden by default)
       var rightSidebar = document.createElement('div');
@@ -5304,8 +5304,59 @@ var UIManager = /*#__PURE__*/function (_EventEmitter) {
         shapesPanel: document.getElementById('swk-shapes-panel'),
         propertyPanel: document.getElementById('swk-property-panel'),
         outlinerPanel: document.getElementById('swk-outliner-panel'),
-        controlsPanel: document.getElementById('swk-controls-panel')
+        controlsPanel: document.getElementById('swk-controls-panel'),
+        tabButtons: leftSidebar.querySelectorAll('.swk-tab-button')
       };
+
+      // Set up tab switching
+      this.setupTabSwitching();
+    }
+
+    /**
+     * Set up tab switching functionality
+     */
+  }, {
+    key: "setupTabSwitching",
+    value: function setupTabSwitching() {
+      var _this2 = this;
+      var tabButtons = this.uiElements.tabButtons;
+      tabButtons.forEach(function (button) {
+        button.addEventListener('click', function (e) {
+          var targetPanelId = button.getAttribute('data-panel');
+          _this2.switchTab(targetPanelId);
+        });
+      });
+    }
+
+    /**
+     * Switch to a specific tab
+     * @param {string} panelId - ID of the panel to show
+     */
+  }, {
+    key: "switchTab",
+    value: function switchTab(panelId) {
+      // Remove active class from all buttons and panels
+      this.uiElements.tabButtons.forEach(function (btn) {
+        btn.classList.remove('active');
+      });
+
+      // Hide all panels in left sidebar
+      var shapesPanel = this.uiElements.shapesPanel;
+      var outlinerPanel = this.uiElements.outlinerPanel;
+      if (shapesPanel) shapesPanel.classList.remove('active');
+      if (outlinerPanel) outlinerPanel.classList.remove('active');
+
+      // Show selected panel and activate button
+      var targetPanel = document.getElementById(panelId);
+      var targetButton = Array.from(this.uiElements.tabButtons).find(function (btn) {
+        return btn.getAttribute('data-panel') === panelId;
+      });
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+      if (targetButton) {
+        targetButton.classList.add('active');
+      }
     }
 
     /**
@@ -5345,69 +5396,69 @@ var UIManager = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "setupEventListeners",
     value: function setupEventListeners() {
-      var _this2 = this;
+      var _this3 = this;
       // Selection changes
       this.swk.on('selectionChanged', function (selected) {
-        if (_this2.propertyPanel) {
-          _this2.propertyPanel.updateSelection(selected);
+        if (_this3.propertyPanel) {
+          _this3.propertyPanel.updateSelection(selected);
           // Show/hide property panel based on selection
-          _this2.togglePropertyPanelVisibility(selected.length > 0);
+          _this3.togglePropertyPanelVisibility(selected.length > 0);
         }
-        if (_this2.outlinerPanel) {
-          _this2.outlinerPanel.updateSelection(selected);
+        if (_this3.outlinerPanel) {
+          _this3.outlinerPanel.updateSelection(selected);
         }
       });
 
       // Object added
       this.swk.on('objectAdded', function (object) {
-        if (_this2.outlinerPanel) {
-          _this2.outlinerPanel.addObject(object);
+        if (_this3.outlinerPanel) {
+          _this3.outlinerPanel.addObject(object);
         }
       });
 
       // Object removed
       this.swk.on('objectRemoved', function (object) {
-        if (_this2.outlinerPanel) {
-          _this2.outlinerPanel.removeObject(object);
+        if (_this3.outlinerPanel) {
+          _this3.outlinerPanel.removeObject(object);
         }
-        if (_this2.propertyPanel) {
-          _this2.propertyPanel.updateSelection([]);
+        if (_this3.propertyPanel) {
+          _this3.propertyPanel.updateSelection([]);
         }
       });
 
       // Transform mode changed
       this.swk.on('transformModeChanged', function (mode) {
-        if (_this2.controlsPanel) {
-          _this2.controlsPanel.updateTransformMode(mode);
+        if (_this3.controlsPanel) {
+          _this3.controlsPanel.updateTransformMode(mode);
         }
       });
 
       // Camera mode changed
       this.swk.on('cameraModeChanged', function (mode) {
-        if (_this2.controlsPanel) {
-          _this2.controlsPanel.updateCameraMode(mode);
+        if (_this3.controlsPanel) {
+          _this3.controlsPanel.updateCameraMode(mode);
         }
       });
 
       // History changed
       this.swk.on('historyChanged', function (data) {
-        if (_this2.controlsPanel) {
-          _this2.controlsPanel.updateHistoryState(data);
+        if (_this3.controlsPanel) {
+          _this3.controlsPanel.updateHistoryState(data);
         }
-        if (_this2.outlinerPanel) {
-          _this2.outlinerPanel.refresh();
+        if (_this3.outlinerPanel) {
+          _this3.outlinerPanel.refresh();
         }
       });
 
       // Group created/removed
       this.swk.on('groupCreated', function () {
-        if (_this2.outlinerPanel) {
-          _this2.outlinerPanel.refresh();
+        if (_this3.outlinerPanel) {
+          _this3.outlinerPanel.refresh();
         }
       });
       this.swk.on('groupRemoved', function () {
-        if (_this2.outlinerPanel) {
-          _this2.outlinerPanel.refresh();
+        if (_this3.outlinerPanel) {
+          _this3.outlinerPanel.refresh();
         }
       });
     }

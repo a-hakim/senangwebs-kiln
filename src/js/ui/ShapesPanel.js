@@ -41,9 +41,6 @@ class ShapesPanel extends EventEmitter {
      */
     render() {
         this.container.innerHTML = `
-            <div class="swk-panel-header">
-                <h3>Shapes</h3>
-            </div>
             <div class="swk-panel-content">
                 <div class="swk-shapes-grid" id="swk-shapes-grid"></div>
             </div>

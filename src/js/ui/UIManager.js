@@ -80,7 +80,11 @@ class UIManager extends EventEmitter {
         const leftSidebar = document.createElement('div');
         leftSidebar.className = 'swk-sidebar swk-sidebar-left';
         leftSidebar.innerHTML = `
-            <div id="swk-shapes-panel" class="swk-panel"></div>
+            <div id="swk-tab-header" class="swk-tab-header">
+                <button class="swk-tab-button active" data-panel="swk-shapes-panel">Shapes</button>
+                <button class="swk-tab-button" data-panel="swk-outliner-panel">Outliner</button>
+            </div>
+            <div id="swk-shapes-panel" class="swk-panel active"></div>
             <div id="swk-outliner-panel" class="swk-panel"></div>
         `;
         
@@ -115,8 +119,58 @@ class UIManager extends EventEmitter {
             shapesPanel: document.getElementById('swk-shapes-panel'),
             propertyPanel: document.getElementById('swk-property-panel'),
             outlinerPanel: document.getElementById('swk-outliner-panel'),
-            controlsPanel: document.getElementById('swk-controls-panel')
+            controlsPanel: document.getElementById('swk-controls-panel'),
+            tabButtons: leftSidebar.querySelectorAll('.swk-tab-button')
         };
+        
+        // Set up tab switching
+        this.setupTabSwitching();
+    }
+
+    /**
+     * Set up tab switching functionality
+     */
+    setupTabSwitching() {
+        const tabButtons = this.uiElements.tabButtons;
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const targetPanelId = button.getAttribute('data-panel');
+                this.switchTab(targetPanelId);
+            });
+        });
+    }
+
+    /**
+     * Switch to a specific tab
+     * @param {string} panelId - ID of the panel to show
+     */
+    switchTab(panelId) {
+        // Remove active class from all buttons and panels
+        this.uiElements.tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Hide all panels in left sidebar
+        const shapesPanel = this.uiElements.shapesPanel;
+        const outlinerPanel = this.uiElements.outlinerPanel;
+        
+        if (shapesPanel) shapesPanel.classList.remove('active');
+        if (outlinerPanel) outlinerPanel.classList.remove('active');
+        
+        // Show selected panel and activate button
+        const targetPanel = document.getElementById(panelId);
+        const targetButton = Array.from(this.uiElements.tabButtons).find(
+            btn => btn.getAttribute('data-panel') === panelId
+        );
+        
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+        }
+        
+        if (targetButton) {
+            targetButton.classList.add('active');
+        }
     }
 
     /**
