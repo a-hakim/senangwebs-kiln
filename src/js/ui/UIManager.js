@@ -232,6 +232,9 @@ class UIManager extends EventEmitter {
             if (this.outlinerPanel) {
                 this.outlinerPanel.updateSelection(selected);
             }
+            if (this.controlsPanel) {
+                this.controlsPanel.updateSelection(selected);
+            }
         });
         
         // Object added

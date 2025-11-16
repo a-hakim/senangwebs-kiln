@@ -100,10 +100,10 @@ class ControlsPanel extends EventEmitter {
                 <div class="swk-control-group">
                     <div class="swk-button-group">
                         <button class="swk-control-button" id="swk-export-gltf-btn" title="Export GLTF">
-                            <span><i class="fas fa-file-export"></i> GLTF</span>
+                            <span>GLTF</span>
                         </button>
                         <button class="swk-control-button" id="swk-export-stl-btn" title="Export STL">
-                            <span><i class="fas fa-file-export"></i> STL</span>
+                            <span>STL</span>
                         </button>
                     </div>
                 </div>
@@ -179,12 +179,12 @@ class ControlsPanel extends EventEmitter {
         // Export buttons
         const exportGltfBtn = document.getElementById('swk-export-gltf-btn');
         if (exportGltfBtn) {
-            exportGltfBtn.addEventListener('click', () => this.exportGLTF());
+            exportGltfBtn.addEventListener('click', () => this.swk.exportGLTF());
         }
         
         const exportStlBtn = document.getElementById('swk-export-stl-btn');
         if (exportStlBtn) {
-            exportStlBtn.addEventListener('click', () => this.exportSTL());
+            exportStlBtn.addEventListener('click', () => this.swk.exportSTL());
         }
     }
 
@@ -236,6 +236,49 @@ class ControlsPanel extends EventEmitter {
     }
 
     /**
+     * Update action button states based on selection
+     * @param {Array} selectedObjects - Currently selected objects
+     */
+    updateActionButtonStates(selectedObjects) {
+        const groupBtn = document.getElementById('swk-group-btn');
+        const ungroupBtn = document.getElementById('swk-ungroup-btn');
+        const duplicateBtn = document.getElementById('swk-duplicate-btn');
+        const deleteBtn = document.getElementById('swk-delete-btn');
+        
+        const selectionCount = selectedObjects.length;
+        
+        // Check if objects are groups or regular shapes
+        const groups = selectedObjects.filter(obj => this.swk.groupManager.isGroupContainer(obj));
+        const shapes = selectedObjects.filter(obj => !this.swk.groupManager.isGroupContainer(obj));
+        const hasGroups = groups.length > 0;
+        const hasShapes = shapes.length > 0;
+        const isMixedSelection = hasGroups && hasShapes;
+        
+        // Group button rules:
+        // - Enabled if 2+ objects selected
+        // - Disabled if selection is mixed (groups + shapes)
+        if (groupBtn) {
+            groupBtn.disabled = selectionCount < 2 || isMixedSelection;
+        }
+        
+        // Ungroup button rules:
+        // - Enabled only if exactly 1 group is selected
+        if (ungroupBtn) {
+            ungroupBtn.disabled = !(selectionCount === 1 && hasGroups);
+        }
+        
+        // Duplicate and delete buttons
+        // - Enabled if at least 1 object is selected
+        if (duplicateBtn) {
+            duplicateBtn.disabled = selectionCount === 0;
+        }
+        
+        if (deleteBtn) {
+            deleteBtn.disabled = selectionCount === 0;
+        }
+    }
+
+    /**
      * Export scene as GLTF
      */
     async exportGLTF() {
@@ -281,6 +324,18 @@ class ControlsPanel extends EventEmitter {
                 canRedo: this.swk.canRedo()
             });
         }
+        
+        // Update action button states based on selection
+        const selectedObjects = this.swk.getSelectedObjects();
+        this.updateActionButtonStates(selectedObjects);
+    }
+
+    /**
+     * Update selection state (called from UIManager)
+     * @param {Array} selectedObjects - Currently selected objects
+     */
+    updateSelection(selectedObjects) {
+        this.updateActionButtonStates(selectedObjects);
     }
 
     /**

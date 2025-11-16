@@ -577,7 +577,7 @@
     }
     
     .swk-shapes-grid {
-        grid-template-columns: 2fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 

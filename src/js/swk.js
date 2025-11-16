@@ -12,10 +12,10 @@ import { STLExporter } from 'three/examples/jsm/exporters/STLExporter.js';
 
 // Make THREE available globally for backward compatibility
 window.THREE = THREE;
-THREE.OrbitControls = OrbitControls;
-THREE.TransformControls = TransformControls;
-THREE.GLTFExporter = GLTFExporter;
-THREE.STLExporter = STLExporter;
+window.THREE.OrbitControls = OrbitControls;
+window.THREE.TransformControls = TransformControls;
+window.THREE.GLTFExporter = GLTFExporter;
+window.THREE.STLExporter = STLExporter;
 
 import Config from './core/Config.js';
 import EventEmitter from './core/EventEmitter.js';
@@ -329,32 +329,9 @@ class SWK extends EventEmitter {
             if (event.ctrlKey || event.metaKey) {
                 // Multi-select mode
                 this.selectionManager.toggle(clickedObject);
-                
-                // If toggling a group, also toggle all its children
-                if (this.groupManager.isGroupContainer(clickedObject)) {
-                    const children = this.groupManager.getGroupChildren(clickedObject);
-                    const isGroupSelected = this.selectionManager.isSelected(clickedObject);
-                    children.forEach(child => {
-                        if (isGroupSelected) {
-                            // Group was just selected, add children
-                            this.selectionManager.addToSelection(child);
-                        } else {
-                            // Group was just deselected, remove children
-                            this.selectionManager.removeFromSelection(child);
-                        }
-                    });
-                }
             } else {
                 // Single select mode
                 this.selectionManager.select(clickedObject);
-                
-                // If selecting a group, also select all its children
-                if (this.groupManager.isGroupContainer(clickedObject)) {
-                    const children = this.groupManager.getGroupChildren(clickedObject);
-                    children.forEach(child => {
-                        this.selectionManager.addToSelection(child);
-                    });
-                }
             }
 
             // Update transform controls - attach to the main selected object (group container if it's a group)

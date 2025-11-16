@@ -42,7 +42,7 @@ class ExportManager extends EventEmitter {
         
         this.scene.children.forEach(child => {
             // Only export user-created objects
-            if (child.userData && child.userData.isShape) {
+            if (child.userData && child.userData.isUserObject) {
                 exportableObjects.push(child);
             }
         });

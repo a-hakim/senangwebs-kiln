@@ -56311,7 +56311,7 @@ var ExportManager = /*#__PURE__*/function (_EventEmitter) {
       var exportableObjects = [];
       this.scene.children.forEach(function (child) {
         // Only export user-created objects
-        if (child.userData && child.userData.isShape) {
+        if (child.userData && child.userData.isUserObject) {
           exportableObjects.push(child);
         }
       });
@@ -59252,7 +59252,7 @@ var ControlsPanel = /*#__PURE__*/function (_EventEmitter) {
   return _createClass(ControlsPanel, [{
     key: "render",
     value: function render() {
-      this.container.innerHTML = "\n            <div class=\"swk-controls-toolbar\">\n                <!-- Transform Modes -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button active\" data-mode=\"translate\" title=\"Translate (T)\">\n                            <span><i class=\"fas fa-arrows-alt\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-mode=\"rotate\" title=\"Rotate (R)\">\n                            <span><i class=\"fas fa-redo\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-mode=\"scale\" title=\"Scale (S)\">\n                            <span><i class=\"fas fa-expand-arrows-alt\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Camera Modes -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button active\" data-camera=\"perspective\" title=\"Perspective\">\n                            <span><i class=\"fas fa-video\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-camera=\"orthographic\" title=\"Orthographic\">\n                            <span><i class=\"fas fa-th\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Snap Settings -->\n                <div class=\"swk-control-group\">\n                    <select class=\"swk-control-select\" id=\"swk-snap-select\">\n                        <option value=\"0\">Off</option>\n                        <option value=\"0.01\">0.01</option>\n                        <option value=\"0.025\">0.025</option>\n                        <option value=\"0.05\">0.05</option>\n                        <option value=\"0.1\" selected>0.1</option>\n                        <option value=\"0.2\">0.2</option>\n                        <option value=\"0.5\">0.5</option>\n                    </select>\n                </div>\n                \n                <!-- History -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-undo-btn\" title=\"Undo (Ctrl+Z)\" disabled>\n                            <span><i class=\"fas fa-undo\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-redo-btn\" title=\"Redo (Ctrl+Y)\" disabled>\n                            <span><i class=\"fas fa-redo\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Actions -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-group-btn\" title=\"Group Selected\">\n                            <span><i class=\"fas fa-object-group\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-ungroup-btn\" title=\"Ungroup\">\n                            <span><i class=\"fas fa-object-ungroup\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-duplicate-btn\" title=\"Duplicate\">\n                            <span><i class=\"fas fa-copy\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button swk-control-button-danger\" id=\"swk-delete-btn\" title=\"Delete\">\n                            <span><i class=\"fas fa-trash\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Export -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-export-gltf-btn\" title=\"Export GLTF\">\n                            <span><i class=\"fas fa-file-export\"></i> GLTF</span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-export-stl-btn\" title=\"Export STL\">\n                            <span><i class=\"fas fa-file-export\"></i> STL</span>\n                        </button>\n                    </div>\n                </div>\n            </div>\n        ";
+      this.container.innerHTML = "\n            <div class=\"swk-controls-toolbar\">\n                <!-- Transform Modes -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button active\" data-mode=\"translate\" title=\"Translate (T)\">\n                            <span><i class=\"fas fa-arrows-alt\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-mode=\"rotate\" title=\"Rotate (R)\">\n                            <span><i class=\"fas fa-redo\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-mode=\"scale\" title=\"Scale (S)\">\n                            <span><i class=\"fas fa-expand-arrows-alt\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Camera Modes -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button active\" data-camera=\"perspective\" title=\"Perspective\">\n                            <span><i class=\"fas fa-video\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-camera=\"orthographic\" title=\"Orthographic\">\n                            <span><i class=\"fas fa-th\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Snap Settings -->\n                <div class=\"swk-control-group\">\n                    <select class=\"swk-control-select\" id=\"swk-snap-select\">\n                        <option value=\"0\">Off</option>\n                        <option value=\"0.01\">0.01</option>\n                        <option value=\"0.025\">0.025</option>\n                        <option value=\"0.05\">0.05</option>\n                        <option value=\"0.1\" selected>0.1</option>\n                        <option value=\"0.2\">0.2</option>\n                        <option value=\"0.5\">0.5</option>\n                    </select>\n                </div>\n                \n                <!-- History -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-undo-btn\" title=\"Undo (Ctrl+Z)\" disabled>\n                            <span><i class=\"fas fa-undo\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-redo-btn\" title=\"Redo (Ctrl+Y)\" disabled>\n                            <span><i class=\"fas fa-redo\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Actions -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-group-btn\" title=\"Group Selected\">\n                            <span><i class=\"fas fa-object-group\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-ungroup-btn\" title=\"Ungroup\">\n                            <span><i class=\"fas fa-object-ungroup\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-duplicate-btn\" title=\"Duplicate\">\n                            <span><i class=\"fas fa-copy\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button swk-control-button-danger\" id=\"swk-delete-btn\" title=\"Delete\">\n                            <span><i class=\"fas fa-trash\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Export -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-export-gltf-btn\" title=\"Export GLTF\">\n                            <span>GLTF</span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-export-stl-btn\" title=\"Export STL\">\n                            <span>STL</span>\n                        </button>\n                    </div>\n                </div>\n            </div>\n        ";
       this.attachEventListeners();
     }
 
@@ -59334,13 +59334,13 @@ var ControlsPanel = /*#__PURE__*/function (_EventEmitter) {
       var exportGltfBtn = document.getElementById('swk-export-gltf-btn');
       if (exportGltfBtn) {
         exportGltfBtn.addEventListener('click', function () {
-          return _this2.exportGLTF();
+          return _this2.swk.exportGLTF();
         });
       }
       var exportStlBtn = document.getElementById('swk-export-stl-btn');
       if (exportStlBtn) {
         exportStlBtn.addEventListener('click', function () {
-          return _this2.exportSTL();
+          return _this2.swk.exportSTL();
         });
       }
     }
@@ -59393,6 +59393,54 @@ var ControlsPanel = /*#__PURE__*/function (_EventEmitter) {
       }
       if (redoBtn) {
         redoBtn.disabled = !data.canRedo;
+      }
+    }
+
+    /**
+     * Update action button states based on selection
+     * @param {Array} selectedObjects - Currently selected objects
+     */
+  }, {
+    key: "updateActionButtonStates",
+    value: function updateActionButtonStates(selectedObjects) {
+      var _this3 = this;
+      var groupBtn = document.getElementById('swk-group-btn');
+      var ungroupBtn = document.getElementById('swk-ungroup-btn');
+      var duplicateBtn = document.getElementById('swk-duplicate-btn');
+      var deleteBtn = document.getElementById('swk-delete-btn');
+      var selectionCount = selectedObjects.length;
+
+      // Check if objects are groups or regular shapes
+      var groups = selectedObjects.filter(function (obj) {
+        return _this3.swk.groupManager.isGroupContainer(obj);
+      });
+      var shapes = selectedObjects.filter(function (obj) {
+        return !_this3.swk.groupManager.isGroupContainer(obj);
+      });
+      var hasGroups = groups.length > 0;
+      var hasShapes = shapes.length > 0;
+      var isMixedSelection = hasGroups && hasShapes;
+
+      // Group button rules:
+      // - Enabled if 2+ objects selected
+      // - Disabled if selection is mixed (groups + shapes)
+      if (groupBtn) {
+        groupBtn.disabled = selectionCount < 2 || isMixedSelection;
+      }
+
+      // Ungroup button rules:
+      // - Enabled only if exactly 1 group is selected
+      if (ungroupBtn) {
+        ungroupBtn.disabled = !(selectionCount === 1 && hasGroups);
+      }
+
+      // Duplicate and delete buttons
+      // - Enabled if at least 1 object is selected
+      if (duplicateBtn) {
+        duplicateBtn.disabled = selectionCount === 0;
+      }
+      if (deleteBtn) {
+        deleteBtn.disabled = selectionCount === 0;
       }
     }
 
@@ -59487,6 +59535,20 @@ var ControlsPanel = /*#__PURE__*/function (_EventEmitter) {
           canRedo: this.swk.canRedo()
         });
       }
+
+      // Update action button states based on selection
+      var selectedObjects = this.swk.getSelectedObjects();
+      this.updateActionButtonStates(selectedObjects);
+    }
+
+    /**
+     * Update selection state (called from UIManager)
+     * @param {Array} selectedObjects - Currently selected objects
+     */
+  }, {
+    key: "updateSelection",
+    value: function updateSelection(selectedObjects) {
+      this.updateActionButtonStates(selectedObjects);
     }
 
     /**
@@ -60593,6 +60655,9 @@ var UIManager = /*#__PURE__*/function (_EventEmitter) {
         if (_this3.outlinerPanel) {
           _this3.outlinerPanel.updateSelection(selected);
         }
+        if (_this3.controlsPanel) {
+          _this3.controlsPanel.updateSelection(selected);
+        }
       });
 
       // Object added
@@ -61214,10 +61279,10 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 
 // Make THREE available globally for backward compatibility
 window.THREE = three__WEBPACK_IMPORTED_MODULE_0__;
-three__WEBPACK_IMPORTED_MODULE_0__.OrbitControls = three_examples_jsm_controls_OrbitControls_js__WEBPACK_IMPORTED_MODULE_1__.OrbitControls;
-three__WEBPACK_IMPORTED_MODULE_0__.TransformControls = three_examples_jsm_controls_TransformControls_js__WEBPACK_IMPORTED_MODULE_2__.TransformControls;
-three__WEBPACK_IMPORTED_MODULE_0__.GLTFExporter = three_examples_jsm_exporters_GLTFExporter_js__WEBPACK_IMPORTED_MODULE_3__.GLTFExporter;
-three__WEBPACK_IMPORTED_MODULE_0__.STLExporter = three_examples_jsm_exporters_STLExporter_js__WEBPACK_IMPORTED_MODULE_4__.STLExporter;
+window.THREE.OrbitControls = three_examples_jsm_controls_OrbitControls_js__WEBPACK_IMPORTED_MODULE_1__.OrbitControls;
+window.THREE.TransformControls = three_examples_jsm_controls_TransformControls_js__WEBPACK_IMPORTED_MODULE_2__.TransformControls;
+window.THREE.GLTFExporter = three_examples_jsm_exporters_GLTFExporter_js__WEBPACK_IMPORTED_MODULE_3__.GLTFExporter;
+window.THREE.STLExporter = three_examples_jsm_exporters_STLExporter_js__WEBPACK_IMPORTED_MODULE_4__.STLExporter;
 
 
 
@@ -61520,32 +61585,9 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
         if (event.ctrlKey || event.metaKey) {
           // Multi-select mode
           this.selectionManager.toggle(clickedObject);
-
-          // If toggling a group, also toggle all its children
-          if (this.groupManager.isGroupContainer(clickedObject)) {
-            var children = this.groupManager.getGroupChildren(clickedObject);
-            var isGroupSelected = this.selectionManager.isSelected(clickedObject);
-            children.forEach(function (child) {
-              if (isGroupSelected) {
-                // Group was just selected, add children
-                _this4.selectionManager.addToSelection(child);
-              } else {
-                // Group was just deselected, remove children
-                _this4.selectionManager.removeFromSelection(child);
-              }
-            });
-          }
         } else {
           // Single select mode
           this.selectionManager.select(clickedObject);
-
-          // If selecting a group, also select all its children
-          if (this.groupManager.isGroupContainer(clickedObject)) {
-            var _children = this.groupManager.getGroupChildren(clickedObject);
-            _children.forEach(function (child) {
-              _this4.selectionManager.addToSelection(child);
-            });
-          }
         }
 
         // Update transform controls - attach to the main selected object (group container if it's a group)
