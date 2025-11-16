@@ -69,6 +69,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 48px;
+    padding: 6px;
 }
 
 .swk-toolbar {
@@ -83,7 +85,6 @@
 
 .swk-toolbar-bottom {
     bottom: 8px;
-    height: 68px;
     width: max-content;
     margin: 0 auto;
 }
@@ -91,9 +92,9 @@
 .swk-controls-toolbar {
     display: flex;
     align-items: center;
-    padding: 4px 12px;
     gap: 12px;
     flex-wrap: wrap;
+    height: 36px;
 }
 
 .swk-control-group {
@@ -387,7 +388,7 @@
 }
 
 .swk-control-button {
-    padding: 8px 12px;
+    padding: 8px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     cursor: pointer;
@@ -395,6 +396,11 @@
     transition: all 0.15s;
     color: #475569;
     font-weight: 500;
+    height: 36px;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .swk-control-button:hover {
@@ -434,6 +440,11 @@
     background: #f8fafc;
     cursor: pointer;
     font-family: inherit;
+    height: 36px;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .swk-control-select:focus {
