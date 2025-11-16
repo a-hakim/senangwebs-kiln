@@ -249,16 +249,13 @@ class ControlsPanel extends EventEmitter {
         
         // Check if objects are groups or regular shapes
         const groups = selectedObjects.filter(obj => this.swk.groupManager.isGroupContainer(obj));
-        const shapes = selectedObjects.filter(obj => !this.swk.groupManager.isGroupContainer(obj));
         const hasGroups = groups.length > 0;
-        const hasShapes = shapes.length > 0;
-        const isMixedSelection = hasGroups && hasShapes;
         
         // Group button rules:
         // - Enabled if 2+ objects selected
-        // - Disabled if selection is mixed (groups + shapes)
+        // - Disabled if any groups are in the selection (prevents nesting)
         if (groupBtn) {
-            groupBtn.disabled = selectionCount < 2 || isMixedSelection;
+            groupBtn.disabled = selectionCount < 2 || hasGroups;
         }
         
         // Ungroup button rules:

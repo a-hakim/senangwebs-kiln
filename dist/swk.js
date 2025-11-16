@@ -59414,18 +59414,13 @@ var ControlsPanel = /*#__PURE__*/function (_EventEmitter) {
       var groups = selectedObjects.filter(function (obj) {
         return _this3.swk.groupManager.isGroupContainer(obj);
       });
-      var shapes = selectedObjects.filter(function (obj) {
-        return !_this3.swk.groupManager.isGroupContainer(obj);
-      });
       var hasGroups = groups.length > 0;
-      var hasShapes = shapes.length > 0;
-      var isMixedSelection = hasGroups && hasShapes;
 
       // Group button rules:
       // - Enabled if 2+ objects selected
-      // - Disabled if selection is mixed (groups + shapes)
+      // - Disabled if any groups are in the selection (prevents nesting)
       if (groupBtn) {
-        groupBtn.disabled = selectionCount < 2 || isMixedSelection;
+        groupBtn.disabled = selectionCount < 2 || hasGroups;
       }
 
       // Ungroup button rules:
