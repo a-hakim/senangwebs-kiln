@@ -384,15 +384,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 MIT License - see [LICENSE.md](LICENSE.md) for details
 
-## Credits
-
-Built with:
-- [Three.js](https://threejs.org/) - 3D graphics library
-- Modern JavaScript (ES6+)
-- Webpack for bundling
-
----
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
