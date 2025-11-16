@@ -258,6 +258,20 @@ class UIManager extends EventEmitter {
             }
         });
         
+        // Object being transformed (real-time updates during drag)
+        this.swk.on('transformDragging', () => {
+            if (this.propertyPanel) {
+                this.propertyPanel.updateTransformFields();
+            }
+        });
+        
+        // Object transformation completed
+        this.swk.on('objectTransformed', () => {
+            if (this.propertyPanel) {
+                this.propertyPanel.updateTransformFields();
+            }
+        });
+        
         // Camera mode changed
         this.swk.on('cameraModeChanged', (mode) => {
             if (this.controlsPanel) {

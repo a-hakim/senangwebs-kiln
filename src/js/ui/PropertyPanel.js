@@ -110,9 +110,9 @@ class PropertyPanel extends EventEmitter {
                 <div class="swk-property-group">
                     <label class="swk-property-label">Position</label>
                     <div class="swk-property-vector">
-                        <input type="number" class="swk-property-input" id="prop-pos-x" value="${object.position.x.toFixed(2)}" step="0.1">
-                        <input type="number" class="swk-property-input" id="prop-pos-y" value="${object.position.y.toFixed(2)}" step="0.1">
-                        <input type="number" class="swk-property-input" id="prop-pos-z" value="${object.position.z.toFixed(2)}" step="0.1">
+                        <input type="number" class="swk-property-input" id="prop-pos-x" value="${object.position.x.toFixed(3)}" step="0.1">
+                        <input type="number" class="swk-property-input" id="prop-pos-y" value="${object.position.y.toFixed(3)}" step="0.1">
+                        <input type="number" class="swk-property-input" id="prop-pos-z" value="${object.position.z.toFixed(3)}" step="0.1">
                     </div>
                 </div>
                 
@@ -128,9 +128,9 @@ class PropertyPanel extends EventEmitter {
                 <div class="swk-property-group">
                     <label class="swk-property-label">Scale</label>
                     <div class="swk-property-vector">
-                        <input type="number" class="swk-property-input" id="prop-scale-x" value="${object.scale.x.toFixed(2)}" step="0.1" min="0.01">
-                        <input type="number" class="swk-property-input" id="prop-scale-y" value="${object.scale.y.toFixed(2)}" step="0.1" min="0.01">
-                        <input type="number" class="swk-property-input" id="prop-scale-z" value="${object.scale.z.toFixed(2)}" step="0.1" min="0.01">
+                        <input type="number" class="swk-property-input" id="prop-scale-x" value="${object.scale.x.toFixed(3)}" step="0.1" min="0.01">
+                        <input type="number" class="swk-property-input" id="prop-scale-y" value="${object.scale.y.toFixed(3)}" step="0.1" min="0.01">
+                        <input type="number" class="swk-property-input" id="prop-scale-z" value="${object.scale.z.toFixed(3)}" step="0.1" min="0.01">
                     </div>
                 </div>
             </div>
@@ -284,6 +284,40 @@ class PropertyPanel extends EventEmitter {
                 this.updateTextGeometry(object, object.userData.textContent, object.userData.textFont, size, object.userData.textBevel);
             });
         }
+    }
+
+    /**
+     * Update transform fields with current object values
+     * Called during real-time transformations
+     */
+    updateTransformFields() {
+        if (this.selectedObjects.length !== 1) return;
+        
+        const object = this.selectedObjects[0];
+        
+        // Update position fields
+        ['x', 'y', 'z'].forEach(axis => {
+            const input = document.getElementById(`prop-pos-${axis}`);
+            if (input) {
+                input.value = object.position[axis].toFixed(3);
+            }
+        });
+        
+        // Update rotation fields (convert radians to degrees)
+        ['x', 'y', 'z'].forEach(axis => {
+            const input = document.getElementById(`prop-rot-${axis}`);
+            if (input) {
+                input.value = (object.rotation[axis] * 180 / Math.PI).toFixed(1);
+            }
+        });
+        
+        // Update scale fields
+        ['x', 'y', 'z'].forEach(axis => {
+            const input = document.getElementById(`prop-scale-${axis}`);
+            if (input) {
+                input.value = object.scale[axis].toFixed(3);
+            }
+        });
     }
 
     /**
