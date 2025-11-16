@@ -141,7 +141,10 @@ class PropertyPanel extends EventEmitter {
                 
                 <div class="swk-property-group">
                     <label class="swk-property-label">Color</label>
-                    <input type="color" class="swk-property-input swk-property-color" id="prop-color" value="#${object.material.color.getHexString()}">
+                    <div class="swk-property-color-inputs">
+                        <input type="color" class="swk-property-input swk-property-color" id="prop-color" value="#${object.material.color.getHexString()}">
+                        <input type="text" class="swk-property-input" id="prop-color-hex" value="#${object.material.color.getHexString()}">
+                    </div>
                 </div>
             </div>
             ` : ''}
