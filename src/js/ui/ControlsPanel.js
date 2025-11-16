@@ -30,13 +30,13 @@ class ControlsPanel extends EventEmitter {
                 <div class="swk-control-group">
                     <div class="swk-button-group">
                         <button class="swk-control-button active" data-mode="translate" title="Translate (T)">
-                            <span>⇄</span>
+                            <span><i class="fas fa-arrows-alt"></i></span>
                         </button>
                         <button class="swk-control-button" data-mode="rotate" title="Rotate (R)">
-                            <span>↻</span>
+                            <span><i class="fas fa-redo"></i></span>
                         </button>
                         <button class="swk-control-button" data-mode="scale" title="Scale (S)">
-                            <span>⇲</span>
+                            <span><i class="fas fa-expand-arrows-alt"></i></span>
                         </button>
                     </div>
                 </div>
@@ -45,10 +45,10 @@ class ControlsPanel extends EventEmitter {
                 <div class="swk-control-group">
                     <div class="swk-button-group">
                         <button class="swk-control-button active" data-camera="perspective" title="Perspective">
-                            <span>🎥</span>
+                            <span><i class="fas fa-video"></i></span>
                         </button>
                         <button class="swk-control-button" data-camera="orthographic" title="Orthographic">
-                            <span>▦</span>
+                            <span><i class="fas fa-th"></i></span>
                         </button>
                     </div>
                 </div>
@@ -70,10 +70,10 @@ class ControlsPanel extends EventEmitter {
                 <div class="swk-control-group">
                     <div class="swk-button-group">
                         <button class="swk-control-button" id="swk-undo-btn" title="Undo (Ctrl+Z)" disabled>
-                            <span>↶</span>
+                            <span><i class="fas fa-undo"></i></span>
                         </button>
                         <button class="swk-control-button" id="swk-redo-btn" title="Redo (Ctrl+Y)" disabled>
-                            <span>↷</span>
+                            <span><i class="fas fa-redo"></i></span>
                         </button>
                     </div>
                 </div>
@@ -82,16 +82,16 @@ class ControlsPanel extends EventEmitter {
                 <div class="swk-control-group">
                     <div class="swk-button-group">
                         <button class="swk-control-button" id="swk-group-btn" title="Group Selected">
-                            <span>⊞</span>
+                            <span><i class="fas fa-object-group"></i></span>
                         </button>
                         <button class="swk-control-button" id="swk-ungroup-btn" title="Ungroup">
-                            <span>⊟</span>
+                            <span><i class="fas fa-object-ungroup"></i></span>
                         </button>
                         <button class="swk-control-button" id="swk-duplicate-btn" title="Duplicate">
-                            <span>⧉</span>
+                            <span><i class="fas fa-copy"></i></span>
                         </button>
                         <button class="swk-control-button swk-control-button-danger" id="swk-delete-btn" title="Delete">
-                            <span>🗑</span>
+                            <span><i class="fas fa-trash"></i></span>
                         </button>
                     </div>
                 </div>
@@ -100,10 +100,10 @@ class ControlsPanel extends EventEmitter {
                 <div class="swk-control-group">
                     <div class="swk-button-group">
                         <button class="swk-control-button" id="swk-export-gltf-btn" title="Export GLTF">
-                            <span>GLTF</span>
+                            <span><i class="fas fa-file-export"></i> GLTF</span>
                         </button>
                         <button class="swk-control-button" id="swk-export-stl-btn" title="Export STL">
-                            <span>STL</span>
+                            <span><i class="fas fa-file-export"></i> STL</span>
                         </button>
                     </div>
                 </div>

@@ -113,9 +113,9 @@ class OutlinerPanel extends EventEmitter {
         const indent = level * 20;
         
         // Content
-        let icon = '▢';
+        let icon = '<i class="fas fa-cube"></i>';
         if (isGroup) {
-            icon = isExpanded ? '▼' : '▶';
+            icon = isExpanded ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-right"></i>';
         } else if (object.userData.shapeType) {
             icon = this.getShapeIcon(object.userData.shapeType);
         }
@@ -162,25 +162,25 @@ class OutlinerPanel extends EventEmitter {
     /**
      * Get icon for shape type
      * @param {string} type - Shape type
-     * @returns {string} Icon character
+     * @returns {string} Icon HTML
      */
     getShapeIcon(type) {
         const icons = {
-            'box': '▢',
-            'sphere': '●',
-            'cylinder': '⬬',
-            'cone': '▲',
-            'torus': '◯',
-            'plane': '▭',
-            'pyramid': '△',
-            'torusknot': '⚭',
-            'tetrahedron': '◊',
-            'octahedron': '◈',
-            'icosahedron': '⬟',
-            'dodecahedron': '⬢',
-            'text': 'T'
+            'box': '<i class="fas fa-cube"></i>',
+            'sphere': '<i class="fas fa-circle"></i>',
+            'cylinder': '<i class="fas fa-database"></i>',
+            'cone': '<i class="fas fa-play"></i>',
+            'torus': '<i class="fas fa-ring"></i>',
+            'plane': '<i class="fas fa-square"></i>',
+            'pyramid': '<i class="fas fa-caret-up"></i>',
+            'torusknot': '<i class="fas fa-circle-notch"></i>',
+            'tetrahedron': '<i class="fas fa-gem"></i>',
+            'octahedron': '<i class="fas fa-gem"></i>',
+            'icosahedron': '<i class="fas fa-gem"></i>',
+            'dodecahedron': '<i class="fas fa-gem"></i>',
+            'text': '<i class="fas fa-font"></i>'
         };
-        return icons[type] || '▢';
+        return icons[type] || '<i class="fas fa-cube"></i>';
     }
 
     /**

@@ -20,19 +20,19 @@ class ShapesPanel extends EventEmitter {
         this.config = config;
         
         this.shapes = [
-            { type: SHAPE_TYPES.BOX, label: 'Box', icon: '▢' },
-            { type: SHAPE_TYPES.SPHERE, label: 'Sphere', icon: '●' },
-            { type: SHAPE_TYPES.CYLINDER, label: 'Cylinder', icon: '⬬' },
-            { type: SHAPE_TYPES.CONE, label: 'Cone', icon: '▲' },
-            { type: SHAPE_TYPES.TORUS, label: 'Torus', icon: '◯' },
-            { type: SHAPE_TYPES.PLANE, label: 'Plane', icon: '▭' },
-            { type: SHAPE_TYPES.PYRAMID, label: 'Pyramid', icon: '△' },
-            { type: SHAPE_TYPES.TORUS_KNOT, label: 'Torus Knot', icon: '⚭' },
-            { type: SHAPE_TYPES.TETRAHEDRON, label: 'Tetrahedron', icon: '◊' },
-            { type: SHAPE_TYPES.OCTAHEDRON, label: 'Octahedron', icon: '◈' },
-            { type: SHAPE_TYPES.ICOSAHEDRON, label: 'Icosahedron', icon: '⬟' },
-            { type: SHAPE_TYPES.DODECAHEDRON, label: 'Dodecahedron', icon: '⬢' },
-            { type: SHAPE_TYPES.TEXT, label: 'Text', icon: 'T' }
+            { type: SHAPE_TYPES.BOX, label: 'Box', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.SPHERE, label: 'Sphere', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.CYLINDER, label: 'Cylinder', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.CONE, label: 'Cone', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.TORUS, label: 'Torus', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.PLANE, label: 'Plane', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.PYRAMID, label: 'Pyramid', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.TORUS_KNOT, label: 'Torus Knot', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.TETRAHEDRON, label: 'Tetrahedron', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.OCTAHEDRON, label: 'Octahedron', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.ICOSAHEDRON, label: 'Icosahedron', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.DODECAHEDRON, label: 'Dodecahedron', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.TEXT, label: 'Text', icon: 'fa-font' }
         ];
     }
 
@@ -55,7 +55,7 @@ class ShapesPanel extends EventEmitter {
             button.setAttribute('data-shape-type', shape.type);
             button.title = shape.label;
             button.innerHTML = `
-                <span class="swk-shape-icon">${shape.icon}</span>
+                <span class="swk-shape-icon"><i class="fas ${shape.icon}"></i></span>
                 <span class="swk-shape-label">${shape.label}</span>
             `;
             

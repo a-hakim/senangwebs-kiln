@@ -3,6 +3,9 @@
  * Styles for all UI panels and components
  */
 
+/* Import Font Awesome */
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
 /* ====================
    Container & Layout
    ==================== */
@@ -236,8 +239,6 @@
     background: #10b981;
     border-color: #10b981;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .swk-shape-icon {

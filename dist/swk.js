@@ -4101,7 +4101,7 @@ var ControlsPanel = /*#__PURE__*/function (_EventEmitter) {
   return _createClass(ControlsPanel, [{
     key: "render",
     value: function render() {
-      this.container.innerHTML = "\n            <div class=\"swk-controls-toolbar\">\n                <!-- Transform Modes -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button active\" data-mode=\"translate\" title=\"Translate (T)\">\n                            <span>\u21C4</span>\n                        </button>\n                        <button class=\"swk-control-button\" data-mode=\"rotate\" title=\"Rotate (R)\">\n                            <span>\u21BB</span>\n                        </button>\n                        <button class=\"swk-control-button\" data-mode=\"scale\" title=\"Scale (S)\">\n                            <span>\u21F2</span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Camera Modes -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button active\" data-camera=\"perspective\" title=\"Perspective\">\n                            <span>\uD83C\uDFA5</span>\n                        </button>\n                        <button class=\"swk-control-button\" data-camera=\"orthographic\" title=\"Orthographic\">\n                            <span>\u25A6</span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Snap Settings -->\n                <div class=\"swk-control-group\">\n                    <select class=\"swk-control-select\" id=\"swk-snap-select\">\n                        <option value=\"0\">Off</option>\n                        <option value=\"0.01\">0.01</option>\n                        <option value=\"0.025\">0.025</option>\n                        <option value=\"0.05\">0.05</option>\n                        <option value=\"0.1\" selected>0.1</option>\n                        <option value=\"0.2\">0.2</option>\n                        <option value=\"0.5\">0.5</option>\n                    </select>\n                </div>\n                \n                <!-- History -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-undo-btn\" title=\"Undo (Ctrl+Z)\" disabled>\n                            <span>\u21B6</span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-redo-btn\" title=\"Redo (Ctrl+Y)\" disabled>\n                            <span>\u21B7</span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Actions -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-group-btn\" title=\"Group Selected\">\n                            <span>\u229E</span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-ungroup-btn\" title=\"Ungroup\">\n                            <span>\u229F</span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-duplicate-btn\" title=\"Duplicate\">\n                            <span>\u29C9</span>\n                        </button>\n                        <button class=\"swk-control-button swk-control-button-danger\" id=\"swk-delete-btn\" title=\"Delete\">\n                            <span>\uD83D\uDDD1</span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Export -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-export-gltf-btn\" title=\"Export GLTF\">\n                            <span>GLTF</span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-export-stl-btn\" title=\"Export STL\">\n                            <span>STL</span>\n                        </button>\n                    </div>\n                </div>\n            </div>\n        ";
+      this.container.innerHTML = "\n            <div class=\"swk-controls-toolbar\">\n                <!-- Transform Modes -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button active\" data-mode=\"translate\" title=\"Translate (T)\">\n                            <span><i class=\"fas fa-arrows-alt\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-mode=\"rotate\" title=\"Rotate (R)\">\n                            <span><i class=\"fas fa-redo\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-mode=\"scale\" title=\"Scale (S)\">\n                            <span><i class=\"fas fa-expand-arrows-alt\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Camera Modes -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button active\" data-camera=\"perspective\" title=\"Perspective\">\n                            <span><i class=\"fas fa-video\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" data-camera=\"orthographic\" title=\"Orthographic\">\n                            <span><i class=\"fas fa-th\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Snap Settings -->\n                <div class=\"swk-control-group\">\n                    <select class=\"swk-control-select\" id=\"swk-snap-select\">\n                        <option value=\"0\">Off</option>\n                        <option value=\"0.01\">0.01</option>\n                        <option value=\"0.025\">0.025</option>\n                        <option value=\"0.05\">0.05</option>\n                        <option value=\"0.1\" selected>0.1</option>\n                        <option value=\"0.2\">0.2</option>\n                        <option value=\"0.5\">0.5</option>\n                    </select>\n                </div>\n                \n                <!-- History -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-undo-btn\" title=\"Undo (Ctrl+Z)\" disabled>\n                            <span><i class=\"fas fa-undo\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-redo-btn\" title=\"Redo (Ctrl+Y)\" disabled>\n                            <span><i class=\"fas fa-redo\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Actions -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-group-btn\" title=\"Group Selected\">\n                            <span><i class=\"fas fa-object-group\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-ungroup-btn\" title=\"Ungroup\">\n                            <span><i class=\"fas fa-object-ungroup\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-duplicate-btn\" title=\"Duplicate\">\n                            <span><i class=\"fas fa-copy\"></i></span>\n                        </button>\n                        <button class=\"swk-control-button swk-control-button-danger\" id=\"swk-delete-btn\" title=\"Delete\">\n                            <span><i class=\"fas fa-trash\"></i></span>\n                        </button>\n                    </div>\n                </div>\n                \n                <!-- Export -->\n                <div class=\"swk-control-group\">\n                    <div class=\"swk-button-group\">\n                        <button class=\"swk-control-button\" id=\"swk-export-gltf-btn\" title=\"Export GLTF\">\n                            <span><i class=\"fas fa-file-export\"></i> GLTF</span>\n                        </button>\n                        <button class=\"swk-control-button\" id=\"swk-export-stl-btn\" title=\"Export STL\">\n                            <span><i class=\"fas fa-file-export\"></i> STL</span>\n                        </button>\n                    </div>\n                </div>\n            </div>\n        ";
       this.attachEventListeners();
     }
 
@@ -4488,9 +4488,9 @@ var OutlinerPanel = /*#__PURE__*/function (_EventEmitter) {
       var indent = level * 20;
 
       // Content
-      var icon = '▢';
+      var icon = '<i class="fas fa-cube"></i>';
       if (isGroup) {
-        icon = isExpanded ? '▼' : '▶';
+        icon = isExpanded ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-right"></i>';
       } else if (object.userData.shapeType) {
         icon = this.getShapeIcon(object.userData.shapeType);
       }
@@ -4529,27 +4529,27 @@ var OutlinerPanel = /*#__PURE__*/function (_EventEmitter) {
     /**
      * Get icon for shape type
      * @param {string} type - Shape type
-     * @returns {string} Icon character
+     * @returns {string} Icon HTML
      */
   }, {
     key: "getShapeIcon",
     value: function getShapeIcon(type) {
       var icons = {
-        'box': '▢',
-        'sphere': '●',
-        'cylinder': '⬬',
-        'cone': '▲',
-        'torus': '◯',
-        'plane': '▭',
-        'pyramid': '△',
-        'torusknot': '⚭',
-        'tetrahedron': '◊',
-        'octahedron': '◈',
-        'icosahedron': '⬟',
-        'dodecahedron': '⬢',
-        'text': 'T'
+        'box': '<i class="fas fa-cube"></i>',
+        'sphere': '<i class="fas fa-circle"></i>',
+        'cylinder': '<i class="fas fa-database"></i>',
+        'cone': '<i class="fas fa-play"></i>',
+        'torus': '<i class="fas fa-ring"></i>',
+        'plane': '<i class="fas fa-square"></i>',
+        'pyramid': '<i class="fas fa-caret-up"></i>',
+        'torusknot': '<i class="fas fa-circle-notch"></i>',
+        'tetrahedron': '<i class="fas fa-gem"></i>',
+        'octahedron': '<i class="fas fa-gem"></i>',
+        'icosahedron': '<i class="fas fa-gem"></i>',
+        'dodecahedron': '<i class="fas fa-gem"></i>',
+        'text': '<i class="fas fa-font"></i>'
       };
-      return icons[type] || '▢';
+      return icons[type] || '<i class="fas fa-cube"></i>';
     }
 
     /**
@@ -5050,55 +5050,55 @@ var ShapesPanel = /*#__PURE__*/function (_EventEmitter) {
     _this.shapes = [{
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.BOX,
       label: 'Box',
-      icon: '▢'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.SPHERE,
       label: 'Sphere',
-      icon: '●'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.CYLINDER,
       label: 'Cylinder',
-      icon: '⬬'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.CONE,
       label: 'Cone',
-      icon: '▲'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TORUS,
       label: 'Torus',
-      icon: '◯'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.PLANE,
       label: 'Plane',
-      icon: '▭'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.PYRAMID,
       label: 'Pyramid',
-      icon: '△'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TORUS_KNOT,
       label: 'Torus Knot',
-      icon: '⚭'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TETRAHEDRON,
       label: 'Tetrahedron',
-      icon: '◊'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.OCTAHEDRON,
       label: 'Octahedron',
-      icon: '◈'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.ICOSAHEDRON,
       label: 'Icosahedron',
-      icon: '⬟'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.DODECAHEDRON,
       label: 'Dodecahedron',
-      icon: '⬢'
+      icon: 'fa-shapes'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TEXT,
       label: 'Text',
-      icon: 'T'
+      icon: 'fa-font'
     }];
     return _this;
   }
@@ -5120,7 +5120,7 @@ var ShapesPanel = /*#__PURE__*/function (_EventEmitter) {
         button.className = 'swk-shape-button';
         button.setAttribute('data-shape-type', shape.type);
         button.title = shape.label;
-        button.innerHTML = "\n                <span class=\"swk-shape-icon\">".concat(shape.icon, "</span>\n                <span class=\"swk-shape-label\">").concat(shape.label, "</span>\n            ");
+        button.innerHTML = "\n                <span class=\"swk-shape-icon\"><i class=\"fas ".concat(shape.icon, "\"></i></span>\n                <span class=\"swk-shape-label\">").concat(shape.label, "</span>\n            ");
         button.addEventListener('click', function () {
           return _this2.createShape(shape.type);
         });
