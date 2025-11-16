@@ -1,41 +1,32 @@
-# 🔥 SenangWebs Kiln (SWK)
+# SenangWebs Kiln (SWK)
 
 A lightweight, powerful 3D modeling editor library built on Three.js. Create interactive 3D modeling experiences in your web applications with minimal code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Built with Three.js](https://img.shields.io/badge/Built%20with-Three.js-000000.svg)](https://threejs.org/)
 
-## ✨ Features
+## Features
 
-- **🎨 13 Built-in Shapes**: Box, Sphere, Cylinder, Cone, Torus, Plane, Pyramid, Torus Knot, and Platonic solids
-- **📝 Text Support**: 3D text with multiple fonts (Sans, Serif, Monospace)
-- **🎯 Selection System**: Single and multi-select with visual outlining
-- **🔄 Transform Controls**: Translate, rotate, and scale with snapping
-- **📦 Grouping**: Organize multiple objects into hierarchical groups
-- **↩️ Undo/Redo**: Full history system with 50 action stack
-- **🖼️ Complete UI**: Optional panels for shapes, properties, outliner, and controls
-- **💾 Export**: GLTF, GLB, and STL format support
-- **🎥 Dual Camera Modes**: Perspective and orthographic views
-- **⌨️ Keyboard Shortcuts**: T/R/S for transform modes, Ctrl+Z/Y for undo/redo
-- **📱 Responsive**: Works on desktop and mobile devices
-- **🎨 Customizable**: Extensive configuration options
-- **🚀 Lightweight**: ~90KB gzipped (production build)
+- **13 Built-in Shapes**: Box, Sphere, Cylinder, Cone, Torus, Plane, Pyramid, Torus Knot, and Platonic solids (Tetrahedron, Octahedron, Icosahedron, Dodecahedron)
+- **Text Support**: 3D text with multiple fonts (Sans, Serif, Monospace)
+- **Selection System**: Single and multi-select with visual outlining
+- **Transform Controls**: Translate, rotate, and scale with snapping
+- **Grouping**: Organize multiple objects into hierarchical groups
+- **Undo/Redo**: Full history system with 50 action stack
+- **Complete UI**: Optional panels for shapes, properties, outliner, and controls
+- **Export**: GLTF, GLB, and STL format support
+- **Dual Camera Modes**: Perspective and orthographic views
+- **Keyboard Shortcuts**: T/R/S for transform modes, Ctrl+Z/Y for undo/redo
+- **Responsive**: Works on desktop and mobile devices
+- **Customizable**: Extensive configuration options
+- **Lightweight**: Approximately 90KB gzipped (production build)
 
-## 📦 Installation
+## Installation
 
 ### Via CDN (Easiest)
 
 ```html
-<!-- Three.js dependencies -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
-
-<!-- SWK Library -->
+<!-- SWK Library (includes Three.js and all dependencies) -->
 <link rel="stylesheet" href="path/to/swk.css">
 <script src="path/to/swk.js"></script>
 ```
@@ -46,7 +37,7 @@ A lightweight, powerful 3D modeling editor library built on Three.js. Create int
 npm install senangwebs-kiln
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Method 1: JavaScript API (Headless Mode)
 
@@ -59,16 +50,12 @@ Perfect for integrating into existing applications with custom UI.
     <style>
         #editor { width: 100vw; height: 100vh; }
     </style>
+    <link rel="stylesheet" href="dist/swk.css">
 </head>
 <body>
     <div id="editor"></div>
     
-    <!-- Load Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
-    
-    <!-- Load SWK -->
+    <!-- Load SWK (includes all Three.js dependencies) -->
     <script src="dist/swk.js"></script>
     
     <script>
@@ -127,12 +114,7 @@ Perfect for quick prototyping or standalone 3D modeling tools.
          data-swk-history-enabled="true">
     </div>
     
-    <!-- Load Three.js + SWK -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
+    <!-- Load SWK (includes all Three.js dependencies) -->
     <script src="dist/swk.js"></script>
     
     <script>
@@ -144,14 +126,14 @@ Perfect for quick prototyping or standalone 3D modeling tools.
 </html>
 ```
 
-## 📖 Examples
+## Examples
 
 See the `examples/` folder for complete working examples:
 
-- **`js-init.html`** - JavaScript API initialization (headless mode)
-- **`html-init.html`** - HTML attributes initialization (full UI mode)
+- `js-init.html` - JavaScript API initialization (headless mode)
+- `html-init.html` - HTML attributes initialization (full UI mode)
 
-## 🎯 Core Concepts
+## Core Concepts
 
 ### Shapes
 
@@ -243,7 +225,7 @@ await editor.exportSTL();
 await editor.exportSelected('gltf');
 ```
 
-## ⌨️ Keyboard Shortcuts
+## Keyboard Shortcuts
 
 - **T** - Translate mode
 - **R** - Rotate mode
@@ -253,7 +235,7 @@ await editor.exportSelected('gltf');
 - **Ctrl+Y** or **Ctrl+Shift+Z** - Redo
 - **Ctrl+Click** - Multi-select (add to selection)
 
-## 🎨 Configuration
+## Configuration
 
 Full configuration options:
 
@@ -318,7 +300,7 @@ const editor = new SWK('#editor', {
 });
 ```
 
-## 📚 API Reference
+## API Reference
 
 See [API.md](docs/API.md) for complete API documentation.
 
@@ -376,7 +358,7 @@ editor.on('historyChanged', (data) => {});
 editor.on('exportComplete', (data) => {});
 ```
 
-## 🛠️ Development
+## Development
 
 ### Build from Source
 
@@ -394,15 +376,15 @@ npm run build:prod
 npm run watch
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE.md](LICENSE.md) for details
 
-## 🙏 Credits
+## Credits
 
 Built with:
 - [Three.js](https://threejs.org/) - 3D graphics library
@@ -410,8 +392,6 @@ Built with:
 - Webpack for bundling
 
 ---
-
-**Made with ❤️ by SenangWebs**
 
 ## Contributing
 
