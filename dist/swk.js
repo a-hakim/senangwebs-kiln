@@ -4755,7 +4755,7 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
     value: function showSingleObjectProperties(object) {
       var isText = object.userData.shapeType === _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TEXT;
       var isGroup = this.swk.isGroupContainer(object);
-      this.contentElement.innerHTML = "\n            <div class=\"swk-property-section\">\n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Name</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-name\" value=\"".concat(object.name, "\">\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Type</label>\n                    <input type=\"text\" class=\"swk-property-input\" readonly value=\"").concat(isGroup ? 'Group' : object.userData.shapeType || 'Object', "\">\n                </div>\n            </div>\n            \n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Transform</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Position</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-x\" value=\"").concat(object.position.x.toFixed(2), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-y\" value=\"").concat(object.position.y.toFixed(2), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-z\" value=\"").concat(object.position.z.toFixed(2), "\" step=\"0.1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Rotation (\xB0)</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-x\" value=\"").concat((object.rotation.x * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-y\" value=\"").concat((object.rotation.y * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-z\" value=\"").concat((object.rotation.z * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Scale</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-x\" value=\"").concat(object.scale.x.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-y\" value=\"").concat(object.scale.y.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-z\" value=\"").concat(object.scale.z.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                    </div>\n                </div>\n            </div>\n            \n            ").concat(!isGroup ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Material</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Color</label>\n                    <input type=\"color\" class=\"swk-property-input swk-property-color\" id=\"prop-color\" value=\"#".concat(object.material.color.getHexString(), "\">\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Visible</label>\n                    <input type=\"checkbox\" class=\"swk-property-checkbox\" id=\"prop-visible\" ").concat(object.visible ? 'checked' : '', ">\n                </div>\n            </div>\n            ") : '', "\n            \n            ").concat(isText ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Text</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Content</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-text\" value=\"".concat(object.userData.text || '', "\">\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Font</label>\n                    <select class=\"swk-property-input\" id=\"prop-font\">\n                        <option value=\"sans\" ").concat(object.userData.fontType === 'sans' ? 'selected' : '', ">Sans Serif</option>\n                        <option value=\"serif\" ").concat(object.userData.fontType === 'serif' ? 'selected' : '', ">Serif</option>\n                        <option value=\"mono\" ").concat(object.userData.fontType === 'mono' ? 'selected' : '', ">Monospace</option>\n                    </select>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Size</label>\n                    <input type=\"number\" class=\"swk-property-input\" id=\"prop-font-size\" value=\"").concat(object.userData.fontSize || 1, "\" step=\"0.1\" min=\"0.1\">\n                </div>\n            </div>\n            ") : '', "\n        ");
+      this.contentElement.innerHTML = "\n            <div class=\"swk-property-section\">\n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Name</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-name\" value=\"".concat(object.name, "\">\n                </div>\n            </div>\n            \n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Transform</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Position</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-x\" value=\"").concat(object.position.x.toFixed(2), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-y\" value=\"").concat(object.position.y.toFixed(2), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-z\" value=\"").concat(object.position.z.toFixed(2), "\" step=\"0.1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Rotation (\xB0)</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-x\" value=\"").concat((object.rotation.x * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-y\" value=\"").concat((object.rotation.y * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-z\" value=\"").concat((object.rotation.z * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Scale</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-x\" value=\"").concat(object.scale.x.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-y\" value=\"").concat(object.scale.y.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-z\" value=\"").concat(object.scale.z.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                    </div>\n                </div>\n            </div>\n            \n            ").concat(!isGroup ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Material</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Color</label>\n                    <input type=\"color\" class=\"swk-property-input swk-property-color\" id=\"prop-color\" value=\"#".concat(object.material.color.getHexString(), "\">\n                </div>\n            </div>\n            ") : '', "\n            \n            ").concat(isText ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Text</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Content</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-text\" value=\"".concat(object.userData.text || '', "\">\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Font</label>\n                    <select class=\"swk-property-input\" id=\"prop-font\">\n                        <option value=\"sans\" ").concat(object.userData.fontType === 'sans' ? 'selected' : '', ">Sans Serif</option>\n                        <option value=\"serif\" ").concat(object.userData.fontType === 'serif' ? 'selected' : '', ">Serif</option>\n                        <option value=\"mono\" ").concat(object.userData.fontType === 'mono' ? 'selected' : '', ">Monospace</option>\n                    </select>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Size</label>\n                    <input type=\"number\" class=\"swk-property-input\" id=\"prop-font-size\" value=\"").concat(object.userData.fontSize || 1, "\" step=\"0.1\" min=\"0.1\">\n                </div>\n            </div>\n            ") : '', "\n        ");
       this.attachEventListeners(object);
     }
 
@@ -4854,20 +4854,6 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
             object: object,
             property: 'color',
             value: e.target.value
-          });
-        });
-      }
-
-      // Visible
-      var visibleInput = document.getElementById('prop-visible');
-      if (visibleInput) {
-        visibleInput.addEventListener('change', function (e) {
-          object.visible = e.target.checked;
-          _this2.swk.captureState('Change visibility');
-          _this2.emit('propertyChanged', {
-            object: object,
-            property: 'visible',
-            value: object.visible
           });
         });
       }
@@ -5284,9 +5270,9 @@ var UIManager = /*#__PURE__*/function (_EventEmitter) {
       leftSidebar.className = 'swk-sidebar swk-sidebar-left';
       leftSidebar.innerHTML = "\n            <div id=\"swk-shapes-panel\" class=\"swk-panel\"></div>\n            <div id=\"swk-outliner-panel\" class=\"swk-panel\"></div>\n        ";
 
-      // Create right sidebar
+      // Create right sidebar (hidden by default)
       var rightSidebar = document.createElement('div');
-      rightSidebar.className = 'swk-sidebar swk-sidebar-right';
+      rightSidebar.className = 'swk-sidebar swk-sidebar-right swk-hidden';
       rightSidebar.innerHTML = "\n            <div id=\"swk-property-panel\" class=\"swk-panel\"></div>\n        ";
 
       // Create bottom toolbar
@@ -5357,6 +5343,8 @@ var UIManager = /*#__PURE__*/function (_EventEmitter) {
       this.swk.on('selectionChanged', function (selected) {
         if (_this2.propertyPanel) {
           _this2.propertyPanel.updateSelection(selected);
+          // Show/hide property panel based on selection
+          _this2.togglePropertyPanelVisibility(selected.length > 0);
         }
         if (_this2.outlinerPanel) {
           _this2.outlinerPanel.updateSelection(selected);
@@ -5465,6 +5453,22 @@ var UIManager = /*#__PURE__*/function (_EventEmitter) {
       var panel = this["".concat(panelName, "Panel")];
       if (panel && typeof panel.refresh === 'function') {
         panel.refresh();
+      }
+    }
+
+    /**
+     * Toggle property panel visibility based on selection state
+     * @param {boolean} show - Whether to show the panel
+     */
+  }, {
+    key: "togglePropertyPanelVisibility",
+    value: function togglePropertyPanelVisibility(show) {
+      if (this.uiElements.rightSidebar) {
+        if (show) {
+          this.uiElements.rightSidebar.classList.remove('swk-hidden');
+        } else {
+          this.uiElements.rightSidebar.classList.add('swk-hidden');
+        }
       }
     }
 
@@ -6306,6 +6310,10 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
     key: "onKeyDown",
     value: function onKeyDown(event) {
       var _this5 = this;
+      // Ignore keyboard shortcuts if user is typing in an input field
+      var target = event.target;
+      var isInputField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable;
+
       // Undo/Redo shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
       if (event.ctrlKey || event.metaKey) {
         if (event.key.toLowerCase() === 'z') {
@@ -6326,8 +6334,8 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
         }
       }
 
-      // Transform mode shortcuts (T, R, S)
-      if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+      // Transform mode shortcuts (T, R, S) - skip if typing in input field
+      if (!event.ctrlKey && !event.metaKey && !event.altKey && !isInputField) {
         switch (event.key.toLowerCase()) {
           case 't':
             this.setTransformMode('translate');

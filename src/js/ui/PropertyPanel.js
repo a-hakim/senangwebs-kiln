@@ -93,11 +93,6 @@ class PropertyPanel extends EventEmitter {
                     <label class="swk-property-label">Name</label>
                     <input type="text" class="swk-property-input" id="prop-name" value="${object.name}">
                 </div>
-                
-                <div class="swk-property-group">
-                    <label class="swk-property-label">Type</label>
-                    <input type="text" class="swk-property-input" readonly value="${isGroup ? 'Group' : object.userData.shapeType || 'Object'}">
-                </div>
             </div>
             
             <div class="swk-property-section">
@@ -138,11 +133,6 @@ class PropertyPanel extends EventEmitter {
                 <div class="swk-property-group">
                     <label class="swk-property-label">Color</label>
                     <input type="color" class="swk-property-input swk-property-color" id="prop-color" value="#${object.material.color.getHexString()}">
-                </div>
-                
-                <div class="swk-property-group">
-                    <label class="swk-property-label">Visible</label>
-                    <input type="checkbox" class="swk-property-checkbox" id="prop-visible" ${object.visible ? 'checked' : ''}>
                 </div>
             </div>
             ` : ''}
@@ -255,16 +245,6 @@ class PropertyPanel extends EventEmitter {
                 object.material.color.set(e.target.value);
                 this.swk.captureState('Change color');
                 this.emit('propertyChanged', { object, property: 'color', value: e.target.value });
-            });
-        }
-        
-        // Visible
-        const visibleInput = document.getElementById('prop-visible');
-        if (visibleInput) {
-            visibleInput.addEventListener('change', (e) => {
-                object.visible = e.target.checked;
-                this.swk.captureState('Change visibility');
-                this.emit('propertyChanged', { object, property: 'visible', value: object.visible });
             });
         }
         

@@ -376,6 +376,13 @@ class SWK extends EventEmitter {
      * Handle keyboard shortcuts
      */
     onKeyDown(event) {
+        // Ignore keyboard shortcuts if user is typing in an input field
+        const target = event.target;
+        const isInputField = target.tagName === 'INPUT' || 
+                           target.tagName === 'TEXTAREA' || 
+                           target.tagName === 'SELECT' ||
+                           target.isContentEditable;
+        
         // Undo/Redo shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
         if (event.ctrlKey || event.metaKey) {
             if (event.key.toLowerCase() === 'z') {
@@ -396,8 +403,8 @@ class SWK extends EventEmitter {
             }
         }
         
-        // Transform mode shortcuts (T, R, S)
-        if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+        // Transform mode shortcuts (T, R, S) - skip if typing in input field
+        if (!event.ctrlKey && !event.metaKey && !event.altKey && !isInputField) {
             switch (event.key.toLowerCase()) {
                 case 't':
                     this.setTransformMode('translate');

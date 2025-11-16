@@ -84,9 +84,9 @@ class UIManager extends EventEmitter {
             <div id="swk-outliner-panel" class="swk-panel"></div>
         `;
         
-        // Create right sidebar
+        // Create right sidebar (hidden by default)
         const rightSidebar = document.createElement('div');
-        rightSidebar.className = 'swk-sidebar swk-sidebar-right';
+        rightSidebar.className = 'swk-sidebar swk-sidebar-right swk-hidden';
         rightSidebar.innerHTML = `
             <div id="swk-property-panel" class="swk-panel"></div>
         `;
@@ -172,6 +172,8 @@ class UIManager extends EventEmitter {
         this.swk.on('selectionChanged', (selected) => {
             if (this.propertyPanel) {
                 this.propertyPanel.updateSelection(selected);
+                // Show/hide property panel based on selection
+                this.togglePropertyPanelVisibility(selected.length > 0);
             }
             if (this.outlinerPanel) {
                 this.outlinerPanel.updateSelection(selected);
@@ -273,6 +275,20 @@ class UIManager extends EventEmitter {
         const panel = this[`${panelName}Panel`];
         if (panel && typeof panel.refresh === 'function') {
             panel.refresh();
+        }
+    }
+
+    /**
+     * Toggle property panel visibility based on selection state
+     * @param {boolean} show - Whether to show the panel
+     */
+    togglePropertyPanelVisibility(show) {
+        if (this.uiElements.rightSidebar) {
+            if (show) {
+                this.uiElements.rightSidebar.classList.remove('swk-hidden');
+            } else {
+                this.uiElements.rightSidebar.classList.add('swk-hidden');
+            }
         }
     }
 

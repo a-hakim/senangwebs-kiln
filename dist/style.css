@@ -61,6 +61,11 @@
     max-height: min-content;
 }
 
+/* Hide property panel by default - shown when objects selected */
+.swk-sidebar-right.swk-hidden {
+    display: none;
+}
+
 /* ====================
    Toolbar
    ==================== */
