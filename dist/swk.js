@@ -4747,6 +4747,17 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
     }
 
     /**
+     * Escape HTML for use in attributes
+     */
+  }, {
+    key: "escapeHtml",
+    value: function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    /**
      * Show properties for a single object
      * @param {THREE.Object3D} object - The selected object
      */
@@ -4755,7 +4766,7 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
     value: function showSingleObjectProperties(object) {
       var isText = object.userData.shapeType === _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TEXT;
       var isGroup = this.swk.isGroupContainer(object);
-      this.contentElement.innerHTML = "\n            <div class=\"swk-property-section\">\n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Name</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-name\" value=\"".concat(object.name, "\">\n                </div>\n            </div>\n            \n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Transform</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Position</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-x\" value=\"").concat(object.position.x.toFixed(2), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-y\" value=\"").concat(object.position.y.toFixed(2), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-z\" value=\"").concat(object.position.z.toFixed(2), "\" step=\"0.1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Rotation (\xB0)</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-x\" value=\"").concat((object.rotation.x * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-y\" value=\"").concat((object.rotation.y * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-z\" value=\"").concat((object.rotation.z * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Scale</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-x\" value=\"").concat(object.scale.x.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-y\" value=\"").concat(object.scale.y.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-z\" value=\"").concat(object.scale.z.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                    </div>\n                </div>\n            </div>\n            \n            ").concat(!isGroup ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Material</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Color</label>\n                    <input type=\"color\" class=\"swk-property-input swk-property-color\" id=\"prop-color\" value=\"#".concat(object.material.color.getHexString(), "\">\n                </div>\n            </div>\n            ") : '', "\n            \n            ").concat(isText ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Text</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Content</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-text\" value=\"".concat(object.userData.text || '', "\">\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Font</label>\n                    <select class=\"swk-property-input\" id=\"prop-font\">\n                        <option value=\"sans\" ").concat(object.userData.fontType === 'sans' ? 'selected' : '', ">Sans Serif</option>\n                        <option value=\"serif\" ").concat(object.userData.fontType === 'serif' ? 'selected' : '', ">Serif</option>\n                        <option value=\"mono\" ").concat(object.userData.fontType === 'mono' ? 'selected' : '', ">Monospace</option>\n                    </select>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Size</label>\n                    <input type=\"number\" class=\"swk-property-input\" id=\"prop-font-size\" value=\"").concat(object.userData.fontSize || 1, "\" step=\"0.1\" min=\"0.1\">\n                </div>\n            </div>\n            ") : '', "\n        ");
+      this.contentElement.innerHTML = "\n            <div class=\"swk-property-section\">\n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Name</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-name\" value=\"".concat(object.name, "\">\n                </div>\n            </div>\n            \n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Transform</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Position</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-x\" value=\"").concat(object.position.x.toFixed(2), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-y\" value=\"").concat(object.position.y.toFixed(2), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-z\" value=\"").concat(object.position.z.toFixed(2), "\" step=\"0.1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Rotation (\xB0)</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-x\" value=\"").concat((object.rotation.x * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-y\" value=\"").concat((object.rotation.y * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-z\" value=\"").concat((object.rotation.z * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Scale</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-x\" value=\"").concat(object.scale.x.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-y\" value=\"").concat(object.scale.y.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-z\" value=\"").concat(object.scale.z.toFixed(2), "\" step=\"0.1\" min=\"0.01\">\n                    </div>\n                </div>\n            </div>\n            \n            ").concat(!isGroup ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Material</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Color</label>\n                    <input type=\"color\" class=\"swk-property-input swk-property-color\" id=\"prop-color\" value=\"#".concat(object.material.color.getHexString(), "\">\n                </div>\n            </div>\n            ") : '', "\n            \n            ").concat(isText ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Text</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Content</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-text\" value=\"".concat(this.escapeHtml(object.userData.textContent || ''), "\">\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Font</label>\n                    <select class=\"swk-property-input\" id=\"prop-font\">\n                        <option value=\"sans\" ").concat(object.userData.textFont === 'sans' ? 'selected' : '', ">Sans Serif</option>\n                        <option value=\"serif\" ").concat(object.userData.textFont === 'serif' ? 'selected' : '', ">Serif</option>\n                        <option value=\"mono\" ").concat(object.userData.textFont === 'mono' ? 'selected' : '', ">Monospace</option>\n                    </select>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Size</label>\n                    <input type=\"number\" class=\"swk-property-input\" id=\"prop-font-size\" value=\"").concat(object.userData.textHeight || 0.2, "\" step=\"0.1\" min=\"0.1\">\n                </div>\n            </div>\n            ") : '', "\n        ");
       this.attachEventListeners(object);
     }
 
@@ -4862,7 +4873,7 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
       var textInput = document.getElementById('prop-text');
       if (textInput) {
         textInput.addEventListener('change', function (e) {
-          _this2.updateTextGeometry(object, e.target.value, object.userData.fontSize, object.userData.fontType);
+          _this2.updateTextGeometry(object, e.target.value, object.userData.textFont, object.userData.textHeight, object.userData.textBevel);
         });
       }
 
@@ -4870,7 +4881,7 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
       var fontInput = document.getElementById('prop-font');
       if (fontInput) {
         fontInput.addEventListener('change', function (e) {
-          _this2.updateTextGeometry(object, object.userData.text, object.userData.fontSize, e.target.value);
+          _this2.updateTextGeometry(object, object.userData.textContent, e.target.value, object.userData.textHeight, object.userData.textBevel);
         });
       }
 
@@ -4878,8 +4889,8 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
       var fontSizeInput = document.getElementById('prop-font-size');
       if (fontSizeInput) {
         fontSizeInput.addEventListener('change', function (e) {
-          var size = Math.max(0.1, parseFloat(e.target.value) || 1);
-          _this2.updateTextGeometry(object, object.userData.text, size, object.userData.fontType);
+          var size = Math.max(0.1, parseFloat(e.target.value) || 0.2);
+          _this2.updateTextGeometry(object, object.userData.textContent, object.userData.textFont, size, object.userData.textBevel);
         });
       }
     }
@@ -4888,13 +4899,14 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
      * Update text geometry
      * @param {THREE.Object3D} object - Text object
      * @param {string} text - New text content
-     * @param {number} fontSize - Font size
-     * @param {string} fontType - Font type
+     * @param {string} font - Font type
+     * @param {number} height - Font height/size
+     * @param {number} bevel - Bevel size
      */
   }, {
     key: "updateTextGeometry",
     value: (function () {
-      var _updateTextGeometry = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(object, text, fontSize, fontType) {
+      var _updateTextGeometry = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(object, text, font, height, bevel) {
         var shapeFactory, _t;
         return _regenerator().w(function (_context) {
           while (1) switch (_context.p = _context.n) {
@@ -4906,8 +4918,13 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
                 break;
               }
               _context.n = 1;
-              return shapeFactory.updateTextGeometry(object, text, fontSize, fontType);
+              return shapeFactory.updateTextGeometry(object, text, font, height, bevel);
             case 1:
+              // Refresh the outline to match the new geometry
+              if (this.swk.outliner) {
+                this.swk.outliner.removeOutline(object);
+                this.swk.outliner.createOutline(object);
+              }
               this.swk.captureState('Update text');
               this.emit('propertyChanged', {
                 object: object,
@@ -4925,7 +4942,7 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
           }
         }, _callee, this, [[0, 3]]);
       }));
-      function updateTextGeometry(_x, _x2, _x3, _x4) {
+      function updateTextGeometry(_x, _x2, _x3, _x4, _x5) {
         return _updateTextGeometry.apply(this, arguments);
       }
       return updateTextGeometry;
@@ -5084,30 +5101,20 @@ var ShapesPanel = /*#__PURE__*/function (_EventEmitter) {
     key: "createShape",
     value: (function () {
       var _createShape = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(type) {
-        var options, text, shape, _t;
+        var options, shape, _t;
         return _regenerator().w(function (_context) {
           while (1) switch (_context.p = _context.n) {
             case 0:
               _context.p = 0;
               options = {}; // Special handling for text
-              if (!(type === _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TEXT)) {
-                _context.n = 2;
-                break;
+              if (type === _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TEXT) {
+                options = {
+                  text: 'Hello! Text'
+                };
               }
-              text = prompt('Enter text:', 'Hello');
-              if (text) {
-                _context.n = 1;
-                break;
-              }
-              return _context.a(2);
-            case 1:
-              options = {
-                text: text
-              };
-            case 2:
-              _context.n = 3;
+              _context.n = 1;
               return this.swk.addShape(type, options);
-            case 3:
+            case 1:
               shape = _context.v;
               if (shape) {
                 // Select the newly created shape
@@ -5117,16 +5124,16 @@ var ShapesPanel = /*#__PURE__*/function (_EventEmitter) {
                   shape: shape
                 });
               }
-              _context.n = 5;
+              _context.n = 3;
               break;
-            case 4:
-              _context.p = 4;
+            case 2:
+              _context.p = 2;
               _t = _context.v;
               console.error('Failed to create shape:', _t);
-            case 5:
+            case 3:
               return _context.a(2);
           }
-        }, _callee, this, [[0, 4]]);
+        }, _callee, this, [[0, 2]]);
       }));
       function createShape(_x) {
         return _createShape.apply(this, arguments);

@@ -80,6 +80,15 @@ class PropertyPanel extends EventEmitter {
     }
 
     /**
+     * Escape HTML for use in attributes
+     */
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
      * Show properties for a single object
      * @param {THREE.Object3D} object - The selected object
      */
@@ -143,21 +152,21 @@ class PropertyPanel extends EventEmitter {
                 
                 <div class="swk-property-group">
                     <label class="swk-property-label">Content</label>
-                    <input type="text" class="swk-property-input" id="prop-text" value="${object.userData.text || ''}">
+                    <input type="text" class="swk-property-input" id="prop-text" value="${this.escapeHtml(object.userData.textContent || '')}">
                 </div>
                 
                 <div class="swk-property-group">
                     <label class="swk-property-label">Font</label>
                     <select class="swk-property-input" id="prop-font">
-                        <option value="sans" ${object.userData.fontType === 'sans' ? 'selected' : ''}>Sans Serif</option>
-                        <option value="serif" ${object.userData.fontType === 'serif' ? 'selected' : ''}>Serif</option>
-                        <option value="mono" ${object.userData.fontType === 'mono' ? 'selected' : ''}>Monospace</option>
+                        <option value="sans" ${object.userData.textFont === 'sans' ? 'selected' : ''}>Sans Serif</option>
+                        <option value="serif" ${object.userData.textFont === 'serif' ? 'selected' : ''}>Serif</option>
+                        <option value="mono" ${object.userData.textFont === 'mono' ? 'selected' : ''}>Monospace</option>
                     </select>
                 </div>
                 
                 <div class="swk-property-group">
                     <label class="swk-property-label">Size</label>
-                    <input type="number" class="swk-property-input" id="prop-font-size" value="${object.userData.fontSize || 1}" step="0.1" min="0.1">
+                    <input type="number" class="swk-property-input" id="prop-font-size" value="${object.userData.textHeight || 0.2}" step="0.1" min="0.1">
                 </div>
             </div>
             ` : ''}
@@ -252,7 +261,7 @@ class PropertyPanel extends EventEmitter {
         const textInput = document.getElementById('prop-text');
         if (textInput) {
             textInput.addEventListener('change', (e) => {
-                this.updateTextGeometry(object, e.target.value, object.userData.fontSize, object.userData.fontType);
+                this.updateTextGeometry(object, e.target.value, object.userData.textFont, object.userData.textHeight, object.userData.textBevel);
             });
         }
         
@@ -260,7 +269,7 @@ class PropertyPanel extends EventEmitter {
         const fontInput = document.getElementById('prop-font');
         if (fontInput) {
             fontInput.addEventListener('change', (e) => {
-                this.updateTextGeometry(object, object.userData.text, object.userData.fontSize, e.target.value);
+                this.updateTextGeometry(object, object.userData.textContent, e.target.value, object.userData.textHeight, object.userData.textBevel);
             });
         }
         
@@ -268,8 +277,8 @@ class PropertyPanel extends EventEmitter {
         const fontSizeInput = document.getElementById('prop-font-size');
         if (fontSizeInput) {
             fontSizeInput.addEventListener('change', (e) => {
-                const size = Math.max(0.1, parseFloat(e.target.value) || 1);
-                this.updateTextGeometry(object, object.userData.text, size, object.userData.fontType);
+                const size = Math.max(0.1, parseFloat(e.target.value) || 0.2);
+                this.updateTextGeometry(object, object.userData.textContent, object.userData.textFont, size, object.userData.textBevel);
             });
         }
     }
@@ -278,14 +287,22 @@ class PropertyPanel extends EventEmitter {
      * Update text geometry
      * @param {THREE.Object3D} object - Text object
      * @param {string} text - New text content
-     * @param {number} fontSize - Font size
-     * @param {string} fontType - Font type
+     * @param {string} font - Font type
+     * @param {number} height - Font height/size
+     * @param {number} bevel - Bevel size
      */
-    async updateTextGeometry(object, text, fontSize, fontType) {
+    async updateTextGeometry(object, text, font, height, bevel) {
         try {
             const shapeFactory = this.swk.shapeFactory;
             if (shapeFactory && typeof shapeFactory.updateTextGeometry === 'function') {
-                await shapeFactory.updateTextGeometry(object, text, fontSize, fontType);
+                await shapeFactory.updateTextGeometry(object, text, font, height, bevel);
+                
+                // Refresh the outline to match the new geometry
+                if (this.swk.outliner) {
+                    this.swk.outliner.removeOutline(object);
+                    this.swk.outliner.createOutline(object);
+                }
+                
                 this.swk.captureState('Update text');
                 this.emit('propertyChanged', { object, property: 'text' });
             }

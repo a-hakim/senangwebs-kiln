@@ -78,9 +78,7 @@ class ShapesPanel extends EventEmitter {
             
             // Special handling for text
             if (type === SHAPE_TYPES.TEXT) {
-                const text = prompt('Enter text:', 'Hello');
-                if (!text) return;
-                options = { text };
+                options = { text: 'Hello! Text' };
             }
             
             const shape = await this.swk.addShape(type, options);

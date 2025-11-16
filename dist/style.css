@@ -38,7 +38,7 @@
     position: absolute;
     top: 0;
     bottom: 40px;
-    width: 280px;
+    width: 320px;
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid #e2e8f0;
     display: flex;
@@ -146,7 +146,7 @@
 
 .swk-panel-content {
     padding: 12px;
-    max-height: 400px;
+    /* max-height: 400px; */
     overflow-y: auto;
 }
 
@@ -171,7 +171,7 @@
 
 .swk-shapes-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
 }
 
@@ -489,7 +489,7 @@
 
 @media (max-width: 1024px) {
     .swk-sidebar {
-        width: 240px;
+        width: 300px;
     }
     
     .swk-control-label {
@@ -499,7 +499,7 @@
 
 @media (max-width: 768px) {
     .swk-sidebar {
-        width: 200px;
+        width: 280px;
     }
     
     .swk-shapes-grid {
