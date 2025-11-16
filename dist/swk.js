@@ -6508,6 +6508,39 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "deleteObject",
     value: function deleteObject(mesh) {
+      var _this6 = this;
+      // If no mesh provided, delete all selected objects
+      if (!mesh) {
+        var selected = this.selectionManager.getSelectedObjects();
+        if (selected.length === 0) return false;
+
+        // Delete each object without capturing state individually
+        var deleted = false;
+        selected.forEach(function (obj) {
+          // Call deleteObject with skipStateCapture = true
+          if (_this6._deleteObjectInternal(obj)) {
+            deleted = true;
+          }
+        });
+
+        // Capture state once for all deletions
+        if (deleted) {
+          var count = selected.length;
+          this.captureState("Delete ".concat(count, " object").concat(count > 1 ? 's' : ''));
+        }
+        return deleted;
+      }
+      return this._deleteObjectInternal(mesh, true);
+    }
+
+    /**
+     * Internal delete object method
+     * @private
+     */
+  }, {
+    key: "_deleteObjectInternal",
+    value: function _deleteObjectInternal(mesh) {
+      var captureState = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       if (!mesh) return false;
 
       // Remove from scene
@@ -6551,8 +6584,10 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
         callback(mesh);
       }
 
-      // Capture state for undo
-      this.captureState("Delete ".concat(mesh.name));
+      // Capture state for undo if requested
+      if (captureState) {
+        this.captureState("Delete ".concat(mesh.name));
+      }
       return true;
     }
 
@@ -6562,6 +6597,43 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "duplicateObject",
     value: function duplicateObject(mesh) {
+      var _this7 = this;
+      // If no mesh provided, duplicate all selected objects
+      if (!mesh) {
+        var selected = this.selectionManager.getSelectedObjects();
+        if (selected.length === 0) return null;
+        var duplicates = [];
+        selected.forEach(function (obj) {
+          var duplicate = _this7._duplicateObjectInternal(obj, false);
+          if (duplicate) {
+            duplicates.push(duplicate);
+          }
+        });
+
+        // Select the duplicated objects
+        if (duplicates.length > 0) {
+          this.selectionManager.clear();
+          duplicates.forEach(function (dup) {
+            _this7.selectionManager.addToSelection(dup);
+          });
+
+          // Capture state once for all duplications
+          var count = duplicates.length;
+          this.captureState("Duplicate ".concat(count, " object").concat(count > 1 ? 's' : ''));
+        }
+        return duplicates.length > 0 ? duplicates : null;
+      }
+      return this._duplicateObjectInternal(mesh, true);
+    }
+
+    /**
+     * Internal duplicate object method
+     * @private
+     */
+  }, {
+    key: "_duplicateObjectInternal",
+    value: function _duplicateObjectInternal(mesh) {
+      var captureState = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       if (!mesh) return null;
       var shapeType = mesh.userData.shapeType;
       var options = {
@@ -6591,8 +6663,10 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
       // Emit event
       this.emit('objectAdded', duplicate);
 
-      // Capture state for undo
-      this.captureState("Duplicate ".concat(mesh.name));
+      // Capture state for undo if requested
+      if (captureState) {
+        this.captureState("Duplicate ".concat(mesh.name));
+      }
       return duplicate;
     }
 
@@ -6602,15 +6676,15 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "getAllObjects",
     value: function getAllObjects() {
-      var _this6 = this;
+      var _this8 = this;
       // Get all user objects from scene
       var scene = this.sceneManager.getScene();
       var allObjects = [];
       scene.children.forEach(function (obj) {
         if (obj.userData && obj.userData.isUserObject) {
-          if (_this6.groupManager.isGroupContainer(obj)) {
+          if (_this8.groupManager.isGroupContainer(obj)) {
             // This is a group - get its children
-            var children = _this6.groupManager.getGroupChildren(obj);
+            var children = _this8.groupManager.getGroupChildren(obj);
             allObjects.push.apply(allObjects, _toConsumableArray(children));
           } else {
             // Regular object
@@ -6658,7 +6732,7 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "updateSelectionOutlines",
     value: function updateSelectionOutlines() {
-      var _this7 = this;
+      var _this9 = this;
       // Clear all outlines
       this.outliner.clearAllOutlines();
 
@@ -6668,13 +6742,13 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
         // Collect all objects that need outlines (avoiding duplicates)
         var objectsToOutline = new Set();
         selected.forEach(function (obj) {
-          if (_this7.groupManager.isGroupContainer(obj)) {
+          if (_this9.groupManager.isGroupContainer(obj)) {
             // If it's a group, add all children to outline set
-            var children = _this7.groupManager.getGroupChildren(obj);
+            var children = _this9.groupManager.getGroupChildren(obj);
             children.forEach(function (child) {
               return objectsToOutline.add(child);
             });
-          } else if (!_this7.groupManager.isGrouped(obj)) {
+          } else if (!_this9.groupManager.isGrouped(obj)) {
             // Regular non-grouped object, add it directly
             objectsToOutline.add(obj);
           }
@@ -6684,7 +6758,7 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
 
         // Create outlines for all collected objects
         objectsToOutline.forEach(function (obj) {
-          _this7.outliner.createOutline(obj);
+          _this9.outliner.createOutline(obj);
         });
       }
 
@@ -6907,7 +6981,7 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "undo",
     value: function undo() {
-      var _this8 = this;
+      var _this0 = this;
       if (this.historyManager) {
         var success = this.historyManager.undo();
         if (success) {
@@ -6919,16 +6993,16 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
           // Add all standalone objects (not in groups)
           scene.children.forEach(function (obj) {
             if (obj.userData && obj.userData.isUserObject) {
-              _this8.objects.push(obj);
+              _this0.objects.push(obj);
             }
           });
 
           // Add all children from groups
           var groups = this.groupManager.getAllGroups();
           groups.forEach(function (group) {
-            var _this8$objects;
-            var children = _this8.groupManager.getGroupChildren(group.container);
-            (_this8$objects = _this8.objects).push.apply(_this8$objects, _toConsumableArray(children));
+            var _this0$objects;
+            var children = _this0.groupManager.getGroupChildren(group.container);
+            (_this0$objects = _this0.objects).push.apply(_this0$objects, _toConsumableArray(children));
           });
 
           // Update groups reference
@@ -6951,7 +7025,7 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "redo",
     value: function redo() {
-      var _this9 = this;
+      var _this1 = this;
       if (this.historyManager) {
         var success = this.historyManager.redo();
         if (success) {
@@ -6963,16 +7037,16 @@ var SWK = /*#__PURE__*/function (_EventEmitter) {
           // Add all standalone objects (not in groups)
           scene.children.forEach(function (obj) {
             if (obj.userData && obj.userData.isUserObject) {
-              _this9.objects.push(obj);
+              _this1.objects.push(obj);
             }
           });
 
           // Add all children from groups
           var groups = this.groupManager.getAllGroups();
           groups.forEach(function (group) {
-            var _this9$objects;
-            var children = _this9.groupManager.getGroupChildren(group.container);
-            (_this9$objects = _this9.objects).push.apply(_this9$objects, _toConsumableArray(children));
+            var _this1$objects;
+            var children = _this1.groupManager.getGroupChildren(group.container);
+            (_this1$objects = _this1.objects).push.apply(_this1$objects, _toConsumableArray(children));
           });
 
           // Update groups reference

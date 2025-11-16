@@ -556,6 +556,37 @@ class SWK extends EventEmitter {
      * Delete object from scene
      */
     deleteObject(mesh) {
+        // If no mesh provided, delete all selected objects
+        if (!mesh) {
+            const selected = this.selectionManager.getSelectedObjects();
+            if (selected.length === 0) return false;
+            
+            // Delete each object without capturing state individually
+            let deleted = false;
+            selected.forEach(obj => {
+                // Call deleteObject with skipStateCapture = true
+                if (this._deleteObjectInternal(obj)) {
+                    deleted = true;
+                }
+            });
+            
+            // Capture state once for all deletions
+            if (deleted) {
+                const count = selected.length;
+                this.captureState(`Delete ${count} object${count > 1 ? 's' : ''}`);
+            }
+            
+            return deleted;
+        }
+
+        return this._deleteObjectInternal(mesh, true);
+    }
+
+    /**
+     * Internal delete object method
+     * @private
+     */
+    _deleteObjectInternal(mesh, captureState = false) {
         if (!mesh) return false;
 
         // Remove from scene
@@ -597,8 +628,10 @@ class SWK extends EventEmitter {
             callback(mesh);
         }
 
-        // Capture state for undo
-        this.captureState(`Delete ${mesh.name}`);
+        // Capture state for undo if requested
+        if (captureState) {
+            this.captureState(`Delete ${mesh.name}`);
+        }
 
         return true;
     }
@@ -607,6 +640,42 @@ class SWK extends EventEmitter {
      * Duplicate object
      */
     duplicateObject(mesh) {
+        // If no mesh provided, duplicate all selected objects
+        if (!mesh) {
+            const selected = this.selectionManager.getSelectedObjects();
+            if (selected.length === 0) return null;
+            
+            const duplicates = [];
+            selected.forEach(obj => {
+                const duplicate = this._duplicateObjectInternal(obj, false);
+                if (duplicate) {
+                    duplicates.push(duplicate);
+                }
+            });
+            
+            // Select the duplicated objects
+            if (duplicates.length > 0) {
+                this.selectionManager.clear();
+                duplicates.forEach(dup => {
+                    this.selectionManager.addToSelection(dup);
+                });
+                
+                // Capture state once for all duplications
+                const count = duplicates.length;
+                this.captureState(`Duplicate ${count} object${count > 1 ? 's' : ''}`);
+            }
+            
+            return duplicates.length > 0 ? duplicates : null;
+        }
+
+        return this._duplicateObjectInternal(mesh, true);
+    }
+
+    /**
+     * Internal duplicate object method
+     * @private
+     */
+    _duplicateObjectInternal(mesh, captureState = false) {
         if (!mesh) return null;
 
         const shapeType = mesh.userData.shapeType;
@@ -639,8 +708,10 @@ class SWK extends EventEmitter {
         // Emit event
         this.emit('objectAdded', duplicate);
 
-        // Capture state for undo
-        this.captureState(`Duplicate ${mesh.name}`);
+        // Capture state for undo if requested
+        if (captureState) {
+            this.captureState(`Duplicate ${mesh.name}`);
+        }
 
         return duplicate;
     }
