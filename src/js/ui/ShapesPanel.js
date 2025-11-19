@@ -32,6 +32,12 @@ class ShapesPanel extends EventEmitter {
             { type: SHAPE_TYPES.OCTAHEDRON, label: 'Octahedron', icon: 'fa-shapes' },
             { type: SHAPE_TYPES.ICOSAHEDRON, label: 'Icosahedron', icon: 'fa-shapes' },
             { type: SHAPE_TYPES.DODECAHEDRON, label: 'Dodecahedron', icon: 'fa-shapes' },
+            { type: SHAPE_TYPES.POLYGON, label: 'Polygon', icon: 'fa-draw-polygon' },
+            { type: SHAPE_TYPES.WEDGE, label: 'Wedge', icon: 'fa-caret-up' },
+            { type: SHAPE_TYPES.HALF_CYLINDER, label: 'Half Cylinder', icon: 'fa-archway' },
+            { type: SHAPE_TYPES.HALF_SPHERE, label: 'Half Sphere', icon: 'fa-igloo' },
+            { type: SHAPE_TYPES.ROOF, label: 'Roof', icon: 'fa-home' },
+            { type: SHAPE_TYPES.HEART, label: 'Heart', icon: 'fa-heart' },
             { type: SHAPE_TYPES.TEXT, label: 'Text', icon: 'fa-font' }
         ];
     }

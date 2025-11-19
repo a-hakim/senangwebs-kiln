@@ -15,7 +15,13 @@ export const SHAPE_TYPES = {
     OCTAHEDRON: 'octahedron',
     ICOSAHEDRON: 'icosahedron',
     DODECAHEDRON: 'dodecahedron',
-    TEXT: 'text'
+    TEXT: 'text',
+    POLYGON: 'polygon',
+    WEDGE: 'wedge',
+    HALF_CYLINDER: 'halfcylinder',
+    HALF_SPHERE: 'halfsphere',
+    ROOF: 'roof',
+    HEART: 'heart'
 };
 
 export const TRANSFORM_MODES = {

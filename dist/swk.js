@@ -58514,7 +58514,13 @@ var ShapeFactory = /*#__PURE__*/function () {
       octahedron: 0,
       icosahedron: 0,
       dodecahedron: 0,
-      text: 0
+      text: 0,
+      polygon: 0,
+      wedge: 0,
+      halfcylinder: 0,
+      halfsphere: 0,
+      roof: 0,
+      heart: 0
     };
   }
 
@@ -58647,6 +58653,84 @@ var ShapeFactory = /*#__PURE__*/function () {
           name = "Text ".concat(this.shapeCounters.text);
           isFlat = true;
           break;
+        case _utils_Constants_js__WEBPACK_IMPORTED_MODULE_0__.SHAPE_TYPES.POLYGON:
+          var sides = options.sides || 5;
+          geometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, sides);
+          this.shapeCounters.polygon++;
+          name = "Polygon ".concat(this.shapeCounters.polygon);
+          break;
+        case _utils_Constants_js__WEBPACK_IMPORTED_MODULE_0__.SHAPE_TYPES.WEDGE:
+          var wedgeShape = new THREE.Shape();
+          wedgeShape.moveTo(0, 0);
+          wedgeShape.lineTo(1, 0);
+          wedgeShape.lineTo(0, 1);
+          wedgeShape.lineTo(0, 0);
+          var wedgeSettings = {
+            steps: 1,
+            depth: 1,
+            bevelEnabled: false
+          };
+          geometry = new THREE.ExtrudeGeometry(wedgeShape, wedgeSettings);
+          geometry.center(); // Center the geometry
+          this.shapeCounters.wedge++;
+          name = "Wedge ".concat(this.shapeCounters.wedge);
+          break;
+        case _utils_Constants_js__WEBPACK_IMPORTED_MODULE_0__.SHAPE_TYPES.HALF_CYLINDER:
+          var halfCylShape = new THREE.Shape();
+          halfCylShape.absarc(0, 0, 0.5, 0, Math.PI);
+          halfCylShape.lineTo(0.5, 0); // Close the shape
+
+          var halfCylSettings = {
+            steps: 1,
+            depth: 1,
+            bevelEnabled: false,
+            curveSegments: 32
+          };
+          geometry = new THREE.ExtrudeGeometry(halfCylShape, halfCylSettings);
+          geometry.center();
+          geometry.rotateX(-Math.PI / 2); // Stand it up
+          geometry.rotateZ(-Math.PI / 2); // Rotate to match previous orientation
+          this.shapeCounters.halfcylinder++;
+          name = "HalfCylinder ".concat(this.shapeCounters.halfcylinder);
+          break;
+        case _utils_Constants_js__WEBPACK_IMPORTED_MODULE_0__.SHAPE_TYPES.HALF_SPHERE:
+          geometry = new THREE.SphereGeometry(0.5, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+          this.shapeCounters.halfsphere++;
+          name = "HalfSphere ".concat(this.shapeCounters.halfsphere);
+          break;
+        case _utils_Constants_js__WEBPACK_IMPORTED_MODULE_0__.SHAPE_TYPES.ROOF:
+          geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 3);
+          // Rotate to make it look like a roof (triangular prism lying down)
+          geometry.rotateZ(Math.PI / 2);
+          geometry.rotateY(Math.PI / 2);
+          this.shapeCounters.roof++;
+          name = "Roof ".concat(this.shapeCounters.roof);
+          break;
+        case _utils_Constants_js__WEBPACK_IMPORTED_MODULE_0__.SHAPE_TYPES.HEART:
+          var heartShape = new THREE.Shape();
+          var x = 0,
+            y = 0;
+          heartShape.moveTo(x + 0.25, y + 0.25);
+          heartShape.bezierCurveTo(x + 0.25, y + 0.25, x + 0.20, y, x, y);
+          heartShape.bezierCurveTo(x - 0.30, y, x - 0.30, y + 0.35, x - 0.30, y + 0.35);
+          heartShape.bezierCurveTo(x - 0.30, y + 0.55, x - 0.10, y + 0.77, x + 0.25, y + 0.95);
+          heartShape.bezierCurveTo(x + 0.60, y + 0.77, x + 0.80, y + 0.55, x + 0.80, y + 0.35);
+          heartShape.bezierCurveTo(x + 0.80, y + 0.35, x + 0.80, y, x + 0.50, y);
+          heartShape.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
+          var heartSettings = {
+            steps: 1,
+            depth: 0.2,
+            bevelEnabled: true,
+            bevelThickness: 0.02,
+            bevelSize: 0.02,
+            bevelSegments: 2
+          };
+          geometry = new THREE.ExtrudeGeometry(heartShape, heartSettings);
+          geometry.center();
+          geometry.rotateZ(Math.PI); // Flip it right side up
+          this.shapeCounters.heart++;
+          name = "Heart ".concat(this.shapeCounters.heart);
+          break;
       }
 
       // Compute geometry bounds
@@ -58692,6 +58776,11 @@ var ShapeFactory = /*#__PURE__*/function () {
         mesh.userData.textFont = options.font || 'sans';
         mesh.userData.textHeight = options.height || 0.2;
         mesh.userData.textBevel = options.bevel || 0.01;
+      }
+
+      // Store polygon-specific data
+      if (shapeType === _utils_Constants_js__WEBPACK_IMPORTED_MODULE_0__.SHAPE_TYPES.POLYGON) {
+        mesh.userData.polygonSides = options.sides || 5;
       }
 
       // Apply options (for restoring from history)
@@ -58763,6 +58852,32 @@ var ShapeFactory = /*#__PURE__*/function () {
       mesh.userData.textFont = font;
       mesh.userData.textHeight = height;
       mesh.userData.textBevel = bevel;
+      return true;
+    }
+
+    /**
+     * Update polygon geometry
+     */
+  }, {
+    key: "updatePolygonGeometry",
+    value: function updatePolygonGeometry(mesh, sides) {
+      if (mesh.userData.shapeType !== _utils_Constants_js__WEBPACK_IMPORTED_MODULE_0__.SHAPE_TYPES.POLYGON) {
+        return false;
+      }
+
+      // Clamp sides between 3 and 12
+      sides = Math.max(3, Math.min(12, Math.floor(sides)));
+      var newGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, sides);
+      newGeometry.computeBoundingBox();
+      newGeometry.computeBoundingSphere();
+      newGeometry.center();
+
+      // Replace geometry
+      mesh.geometry.dispose();
+      mesh.geometry = newGeometry;
+
+      // Update user data
+      mesh.userData.polygonSides = sides;
       return true;
     }
 
@@ -59973,8 +60088,9 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
     key: "showSingleObjectProperties",
     value: function showSingleObjectProperties(object) {
       var isText = object.userData.shapeType === _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TEXT;
+      var isPolygon = object.userData.shapeType === _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.POLYGON;
       var isGroup = this.swk.isGroupContainer(object);
-      this.contentElement.innerHTML = "\n            <div class=\"swk-property-section\">\n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Name</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-name\" value=\"".concat(object.name, "\">\n                </div>\n            </div>\n            \n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Transform</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Position</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-x\" value=\"").concat(object.position.x.toFixed(3), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-y\" value=\"").concat(object.position.y.toFixed(3), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-z\" value=\"").concat(object.position.z.toFixed(3), "\" step=\"0.1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Rotation (\xB0)</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-x\" value=\"").concat((object.rotation.x * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-y\" value=\"").concat((object.rotation.y * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-z\" value=\"").concat((object.rotation.z * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Scale</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-x\" value=\"").concat(object.scale.x.toFixed(3), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-y\" value=\"").concat(object.scale.y.toFixed(3), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-z\" value=\"").concat(object.scale.z.toFixed(3), "\" step=\"0.1\" min=\"0.01\">\n                    </div>\n                </div>\n            </div>\n            \n            ").concat(!isGroup ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Material</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Color</label>\n                    <div class=\"swk-property-color-inputs\">\n                        <input type=\"color\" class=\"swk-property-input swk-property-color\" id=\"prop-color\" value=\"#".concat(object.material.color.getHexString(), "\">\n                        <input type=\"text\" class=\"swk-property-input\" id=\"prop-color-hex\" value=\"#").concat(object.material.color.getHexString(), "\">\n                    </div>\n                </div>\n            </div>\n            ") : '', "\n            \n            ").concat(isText ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Text</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Content</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-text\" value=\"".concat(this.escapeHtml(object.userData.textContent || ''), "\">\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Font</label>\n                    <select class=\"swk-property-input\" id=\"prop-font\">\n                        <option value=\"sans\" ").concat(object.userData.textFont === 'sans' ? 'selected' : '', ">Sans Serif</option>\n                        <option value=\"serif\" ").concat(object.userData.textFont === 'serif' ? 'selected' : '', ">Serif</option>\n                        <option value=\"mono\" ").concat(object.userData.textFont === 'mono' ? 'selected' : '', ">Monospace</option>\n                    </select>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Size</label>\n                    <input type=\"number\" class=\"swk-property-input\" id=\"prop-font-size\" value=\"").concat(object.userData.textHeight || 0.2, "\" step=\"0.1\" min=\"0.1\">\n                </div>\n            </div>\n            ") : '', "\n        ");
+      this.contentElement.innerHTML = "\n            <div class=\"swk-property-section\">\n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Name</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-name\" value=\"".concat(object.name, "\">\n                </div>\n            </div>\n            \n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Transform</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Position</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-x\" value=\"").concat(object.position.x.toFixed(3), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-y\" value=\"").concat(object.position.y.toFixed(3), "\" step=\"0.1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-pos-z\" value=\"").concat(object.position.z.toFixed(3), "\" step=\"0.1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Rotation (\xB0)</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-x\" value=\"").concat((object.rotation.x * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-y\" value=\"").concat((object.rotation.y * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-rot-z\" value=\"").concat((object.rotation.z * 180 / Math.PI).toFixed(1), "\" step=\"1\">\n                    </div>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Scale</label>\n                    <div class=\"swk-property-vector\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-x\" value=\"").concat(object.scale.x.toFixed(3), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-y\" value=\"").concat(object.scale.y.toFixed(3), "\" step=\"0.1\" min=\"0.01\">\n                        <input type=\"number\" class=\"swk-property-input\" id=\"prop-scale-z\" value=\"").concat(object.scale.z.toFixed(3), "\" step=\"0.1\" min=\"0.01\">\n                    </div>\n                </div>\n            </div>\n            \n            ").concat(!isGroup ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Material</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Color</label>\n                    <div class=\"swk-property-color-inputs\">\n                        <input type=\"color\" class=\"swk-property-input swk-property-color\" id=\"prop-color\" value=\"#".concat(object.material.color.getHexString(), "\">\n                        <input type=\"text\" class=\"swk-property-input\" id=\"prop-color-hex\" value=\"#").concat(object.material.color.getHexString(), "\">\n                    </div>\n                </div>\n            </div>\n            ") : '', "\n            \n            ").concat(isText ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Text</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Content</label>\n                    <input type=\"text\" class=\"swk-property-input\" id=\"prop-text\" value=\"".concat(this.escapeHtml(object.userData.textContent || ''), "\">\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Font</label>\n                    <select class=\"swk-property-input\" id=\"prop-font\">\n                        <option value=\"sans\" ").concat(object.userData.textFont === 'sans' ? 'selected' : '', ">Sans Serif</option>\n                        <option value=\"serif\" ").concat(object.userData.textFont === 'serif' ? 'selected' : '', ">Serif</option>\n                        <option value=\"mono\" ").concat(object.userData.textFont === 'mono' ? 'selected' : '', ">Monospace</option>\n                    </select>\n                </div>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Size</label>\n                    <input type=\"number\" class=\"swk-property-input\" id=\"prop-font-size\" value=\"").concat(object.userData.textHeight || 0.2, "\" step=\"0.1\" min=\"0.1\">\n                </div>\n            </div>\n            ") : '', "\n\n            ").concat(isPolygon ? "\n            <div class=\"swk-property-section\">\n                <h4 class=\"swk-property-section-title\">Polygon Settings</h4>\n                \n                <div class=\"swk-property-group\">\n                    <label class=\"swk-property-label\">Sides (3-12)</label>\n                    <input type=\"number\" class=\"swk-property-input\" id=\"prop-polygon-sides\" value=\"".concat(object.userData.polygonSides || 5, "\" step=\"1\" min=\"3\" max=\"12\">\n                </div>\n            </div>\n            ") : '', "\n        ");
       this.attachEventListeners(object);
     }
 
@@ -60101,6 +60217,15 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
           _this2.updateTextGeometry(object, object.userData.textContent, object.userData.textFont, size, object.userData.textBevel);
         });
       }
+
+      // Polygon sides
+      var polygonSidesInput = document.getElementById('prop-polygon-sides');
+      if (polygonSidesInput) {
+        polygonSidesInput.addEventListener('change', function (e) {
+          var sides = Math.max(3, Math.min(12, parseInt(e.target.value) || 5));
+          _this2.updatePolygonGeometry(object, sides);
+        });
+      }
     }
 
     /**
@@ -60189,6 +60314,56 @@ var PropertyPanel = /*#__PURE__*/function (_EventEmitter) {
         return _updateTextGeometry.apply(this, arguments);
       }
       return updateTextGeometry;
+    }()
+    /**
+     * Update polygon geometry
+     * @param {THREE.Object3D} object - Polygon object
+     * @param {number} sides - Number of sides
+     */
+    )
+  }, {
+    key: "updatePolygonGeometry",
+    value: (function () {
+      var _updatePolygonGeometry = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(object, sides) {
+        var shapeFactory, _t2;
+        return _regenerator().w(function (_context2) {
+          while (1) switch (_context2.p = _context2.n) {
+            case 0:
+              _context2.p = 0;
+              shapeFactory = this.swk.shapeFactory;
+              if (!(shapeFactory && typeof shapeFactory.updatePolygonGeometry === 'function')) {
+                _context2.n = 2;
+                break;
+              }
+              _context2.n = 1;
+              return shapeFactory.updatePolygonGeometry(object, sides);
+            case 1:
+              // Refresh the outline to match the new geometry
+              if (this.swk.outliner) {
+                this.swk.outliner.removeOutline(object);
+                this.swk.outliner.createOutline(object);
+              }
+              this.swk.captureState('Update polygon');
+              this.emit('propertyChanged', {
+                object: object,
+                property: 'polygonSides'
+              });
+            case 2:
+              _context2.n = 4;
+              break;
+            case 3:
+              _context2.p = 3;
+              _t2 = _context2.v;
+              console.error('Failed to update polygon:', _t2);
+            case 4:
+              return _context2.a(2);
+          }
+        }, _callee2, this, [[0, 3]]);
+      }));
+      function updatePolygonGeometry(_x6, _x7) {
+        return _updatePolygonGeometry.apply(this, arguments);
+      }
+      return updatePolygonGeometry;
     }()
     /**
      * Clean up
@@ -60303,6 +60478,30 @@ var ShapesPanel = /*#__PURE__*/function (_EventEmitter) {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.DODECAHEDRON,
       label: 'Dodecahedron',
       icon: 'fa-shapes'
+    }, {
+      type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.POLYGON,
+      label: 'Polygon',
+      icon: 'fa-draw-polygon'
+    }, {
+      type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.WEDGE,
+      label: 'Wedge',
+      icon: 'fa-caret-up'
+    }, {
+      type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.HALF_CYLINDER,
+      label: 'Half Cylinder',
+      icon: 'fa-archway'
+    }, {
+      type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.HALF_SPHERE,
+      label: 'Half Sphere',
+      icon: 'fa-igloo'
+    }, {
+      type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.ROOF,
+      label: 'Roof',
+      icon: 'fa-home'
+    }, {
+      type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.HEART,
+      label: 'Heart',
+      icon: 'fa-heart'
     }, {
       type: _utils_Constants_js__WEBPACK_IMPORTED_MODULE_1__.SHAPE_TYPES.TEXT,
       label: 'Text',
@@ -60861,7 +61060,13 @@ var SHAPE_TYPES = {
   OCTAHEDRON: 'octahedron',
   ICOSAHEDRON: 'icosahedron',
   DODECAHEDRON: 'dodecahedron',
-  TEXT: 'text'
+  TEXT: 'text',
+  POLYGON: 'polygon',
+  WEDGE: 'wedge',
+  HALF_CYLINDER: 'halfcylinder',
+  HALF_SPHERE: 'halfsphere',
+  ROOF: 'roof',
+  HEART: 'heart'
 };
 var TRANSFORM_MODES = {
   TRANSLATE: 'translate',

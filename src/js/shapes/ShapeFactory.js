@@ -22,7 +22,13 @@ export default class ShapeFactory {
             octahedron: 0,
             icosahedron: 0,
             dodecahedron: 0,
-            text: 0
+            text: 0,
+            polygon: 0,
+            wedge: 0,
+            halfcylinder: 0,
+            halfsphere: 0,
+            roof: 0,
+            heart: 0
         };
     }
 
@@ -168,6 +174,94 @@ export default class ShapeFactory {
                 name = `Text ${this.shapeCounters.text}`;
                 isFlat = true;
                 break;
+
+            case SHAPE_TYPES.POLYGON:
+                const sides = options.sides || 5;
+                geometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, sides);
+                this.shapeCounters.polygon++;
+                name = `Polygon ${this.shapeCounters.polygon}`;
+                break;
+
+            case SHAPE_TYPES.WEDGE:
+                const wedgeShape = new THREE.Shape();
+                wedgeShape.moveTo(0, 0);
+                wedgeShape.lineTo(1, 0);
+                wedgeShape.lineTo(0, 1);
+                wedgeShape.lineTo(0, 0);
+                
+                const wedgeSettings = {
+                    steps: 1,
+                    depth: 1,
+                    bevelEnabled: false
+                };
+                
+                geometry = new THREE.ExtrudeGeometry(wedgeShape, wedgeSettings);
+                geometry.center(); // Center the geometry
+                this.shapeCounters.wedge++;
+                name = `Wedge ${this.shapeCounters.wedge}`;
+                break;
+
+            case SHAPE_TYPES.HALF_CYLINDER:
+                const halfCylShape = new THREE.Shape();
+                halfCylShape.absarc(0, 0, 0.5, 0, Math.PI);
+                halfCylShape.lineTo(0.5, 0); // Close the shape
+
+                const halfCylSettings = {
+                    steps: 1,
+                    depth: 1,
+                    bevelEnabled: false,
+                    curveSegments: 32
+                };
+
+                geometry = new THREE.ExtrudeGeometry(halfCylShape, halfCylSettings);
+                geometry.center();
+                geometry.rotateX(-Math.PI / 2); // Stand it up
+                geometry.rotateZ(-Math.PI / 2); // Rotate to match previous orientation
+                this.shapeCounters.halfcylinder++;
+                name = `HalfCylinder ${this.shapeCounters.halfcylinder}`;
+                break;
+
+            case SHAPE_TYPES.HALF_SPHERE:
+                geometry = new THREE.SphereGeometry(0.5, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                this.shapeCounters.halfsphere++;
+                name = `HalfSphere ${this.shapeCounters.halfsphere}`;
+                break;
+
+            case SHAPE_TYPES.ROOF:
+                geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 3);
+                // Rotate to make it look like a roof (triangular prism lying down)
+                geometry.rotateZ(Math.PI / 2);
+                geometry.rotateY(Math.PI / 2);
+                this.shapeCounters.roof++;
+                name = `Roof ${this.shapeCounters.roof}`;
+                break;
+
+            case SHAPE_TYPES.HEART:
+                const heartShape = new THREE.Shape();
+                const x = 0, y = 0;
+                heartShape.moveTo(x + 0.25, y + 0.25);
+                heartShape.bezierCurveTo(x + 0.25, y + 0.25, x + 0.20, y, x, y);
+                heartShape.bezierCurveTo(x - 0.30, y, x - 0.30, y + 0.35, x - 0.30, y + 0.35);
+                heartShape.bezierCurveTo(x - 0.30, y + 0.55, x - 0.10, y + 0.77, x + 0.25, y + 0.95);
+                heartShape.bezierCurveTo(x + 0.60, y + 0.77, x + 0.80, y + 0.55, x + 0.80, y + 0.35);
+                heartShape.bezierCurveTo(x + 0.80, y + 0.35, x + 0.80, y, x + 0.50, y);
+                heartShape.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
+
+                const heartSettings = {
+                    steps: 1,
+                    depth: 0.2,
+                    bevelEnabled: true,
+                    bevelThickness: 0.02,
+                    bevelSize: 0.02,
+                    bevelSegments: 2
+                };
+                
+                geometry = new THREE.ExtrudeGeometry(heartShape, heartSettings);
+                geometry.center();
+                geometry.rotateZ(Math.PI); // Flip it right side up
+                this.shapeCounters.heart++;
+                name = `Heart ${this.shapeCounters.heart}`;
+                break;
         }
 
         // Compute geometry bounds
@@ -213,6 +307,11 @@ export default class ShapeFactory {
             mesh.userData.textFont = options.font || 'sans';
             mesh.userData.textHeight = options.height || 0.2;
             mesh.userData.textBevel = options.bevel || 0.01;
+        }
+
+        // Store polygon-specific data
+        if (shapeType === SHAPE_TYPES.POLYGON) {
+            mesh.userData.polygonSides = options.sides || 5;
         }
 
         // Apply options (for restoring from history)
@@ -282,6 +381,32 @@ export default class ShapeFactory {
         mesh.userData.textFont = font;
         mesh.userData.textHeight = height;
         mesh.userData.textBevel = bevel;
+
+        return true;
+    }
+
+    /**
+     * Update polygon geometry
+     */
+    updatePolygonGeometry(mesh, sides) {
+        if (mesh.userData.shapeType !== SHAPE_TYPES.POLYGON) {
+            return false;
+        }
+
+        // Clamp sides between 3 and 12
+        sides = Math.max(3, Math.min(12, Math.floor(sides)));
+
+        const newGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, sides);
+        newGeometry.computeBoundingBox();
+        newGeometry.computeBoundingSphere();
+        newGeometry.center();
+
+        // Replace geometry
+        mesh.geometry.dispose();
+        mesh.geometry = newGeometry;
+
+        // Update user data
+        mesh.userData.polygonSides = sides;
 
         return true;
     }

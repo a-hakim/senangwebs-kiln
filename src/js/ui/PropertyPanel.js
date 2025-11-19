@@ -94,6 +94,7 @@ class PropertyPanel extends EventEmitter {
      */
     showSingleObjectProperties(object) {
         const isText = object.userData.shapeType === SHAPE_TYPES.TEXT;
+        const isPolygon = object.userData.shapeType === SHAPE_TYPES.POLYGON;
         const isGroup = this.swk.isGroupContainer(object);
         
         this.contentElement.innerHTML = `
@@ -170,6 +171,17 @@ class PropertyPanel extends EventEmitter {
                 <div class="swk-property-group">
                     <label class="swk-property-label">Size</label>
                     <input type="number" class="swk-property-input" id="prop-font-size" value="${object.userData.textHeight || 0.2}" step="0.1" min="0.1">
+                </div>
+            </div>
+            ` : ''}
+
+            ${isPolygon ? `
+            <div class="swk-property-section">
+                <h4 class="swk-property-section-title">Polygon Settings</h4>
+                
+                <div class="swk-property-group">
+                    <label class="swk-property-label">Sides (3-12)</label>
+                    <input type="number" class="swk-property-input" id="prop-polygon-sides" value="${object.userData.polygonSides || 5}" step="1" min="3" max="12">
                 </div>
             </div>
             ` : ''}
@@ -284,6 +296,15 @@ class PropertyPanel extends EventEmitter {
                 this.updateTextGeometry(object, object.userData.textContent, object.userData.textFont, size, object.userData.textBevel);
             });
         }
+
+        // Polygon sides
+        const polygonSidesInput = document.getElementById('prop-polygon-sides');
+        if (polygonSidesInput) {
+            polygonSidesInput.addEventListener('change', (e) => {
+                const sides = Math.max(3, Math.min(12, parseInt(e.target.value) || 5));
+                this.updatePolygonGeometry(object, sides);
+            });
+        }
     }
 
     /**
@@ -345,6 +366,31 @@ class PropertyPanel extends EventEmitter {
             }
         } catch (error) {
             console.error('Failed to update text:', error);
+        }
+    }
+
+    /**
+     * Update polygon geometry
+     * @param {THREE.Object3D} object - Polygon object
+     * @param {number} sides - Number of sides
+     */
+    async updatePolygonGeometry(object, sides) {
+        try {
+            const shapeFactory = this.swk.shapeFactory;
+            if (shapeFactory && typeof shapeFactory.updatePolygonGeometry === 'function') {
+                await shapeFactory.updatePolygonGeometry(object, sides);
+                
+                // Refresh the outline to match the new geometry
+                if (this.swk.outliner) {
+                    this.swk.outliner.removeOutline(object);
+                    this.swk.outliner.createOutline(object);
+                }
+                
+                this.swk.captureState('Update polygon');
+                this.emit('propertyChanged', { object, property: 'polygonSides' });
+            }
+        } catch (error) {
+            console.error('Failed to update polygon:', error);
         }
     }
 
