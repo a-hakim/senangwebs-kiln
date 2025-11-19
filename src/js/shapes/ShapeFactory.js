@@ -216,7 +216,6 @@ export default class ShapeFactory {
                 geometry = new THREE.ExtrudeGeometry(halfCylShape, halfCylSettings);
                 geometry.center();
                 geometry.rotateX(-Math.PI / 2); // Stand it up
-                geometry.rotateZ(-Math.PI / 2); // Rotate to match previous orientation
                 this.shapeCounters.halfcylinder++;
                 name = `HalfCylinder ${this.shapeCounters.halfcylinder}`;
                 break;
@@ -229,10 +228,24 @@ export default class ShapeFactory {
                 break;
 
             case SHAPE_TYPES.ROOF:
-                geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 3);
-                // Rotate to make it look like a roof (triangular prism lying down)
-                geometry.rotateZ(Math.PI / 2);
-                geometry.rotateY(Math.PI / 2);
+                // Create a triangular prism roof shape
+                const roofShape = new THREE.Shape();
+                roofShape.moveTo(-0.5, 0);      // Bottom left
+                roofShape.lineTo(0.5, 0);       // Bottom right
+                roofShape.lineTo(0, 0.5);       // Top peak
+                roofShape.lineTo(-0.5, 0);      // Close the triangle
+                
+                const roofSettings = {
+                    steps: 1,
+                    depth: 1,
+                    bevelEnabled: false
+                };
+                
+                geometry = new THREE.ExtrudeGeometry(roofShape, roofSettings);
+                geometry.computeBoundingBox();
+                // Center horizontally but keep base at y=0
+                const bbox = geometry.boundingBox;
+                geometry.translate(0, -bbox.min.y, 0);
                 this.shapeCounters.roof++;
                 name = `Roof ${this.shapeCounters.roof}`;
                 break;
