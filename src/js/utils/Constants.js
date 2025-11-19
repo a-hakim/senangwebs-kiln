@@ -22,6 +22,8 @@ export const SHAPE_TYPES = {
     HALF_SPHERE: 'halfsphere',
     ROOF: 'roof',
     HEART: 'heart'
+    ,
+    TUBE: 'tube'
 };
 
 export const TRANSFORM_MODES = {

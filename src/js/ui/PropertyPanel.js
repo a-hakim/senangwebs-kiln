@@ -95,6 +95,7 @@ class PropertyPanel extends EventEmitter {
     showSingleObjectProperties(object) {
         const isText = object.userData.shapeType === SHAPE_TYPES.TEXT;
         const isPolygon = object.userData.shapeType === SHAPE_TYPES.POLYGON;
+        const isTube = object.userData.shapeType === SHAPE_TYPES.TUBE;
         const isGroup = this.swk.isGroupContainer(object);
         
         this.contentElement.innerHTML = `
@@ -181,6 +182,18 @@ class PropertyPanel extends EventEmitter {
                         <input type="range" class="swk-property-input swk-property-range" id="prop-polygon-sides" value="${object.userData.polygonSides || 5}" step="1" min="3" max="12">
                         <input type="number" class="swk-property-input swk-property-range-value" id="prop-polygon-sides-value" value="${object.userData.polygonSides || 5}" step="1" min="3" max="12" readonly>
                     </div>
+                </div>
+            </div>
+            ` : ''}
+            ${isTube ? `
+            <div class="swk-property-section">
+                <div class="swk-property-group">
+                    <label class="swk-property-label">Hole Radius</label>
+                    <input type="number" class="swk-property-input" id="prop-tube-hole" value="${object.userData.holeRadius || 0.25}" step="0.01" min="0.01">
+                </div>
+                <div class="swk-property-group">
+                    <label class="swk-property-label">Length</label>
+                    <input type="number" class="swk-property-input" id="prop-tube-length" value="${object.userData.length || 1}" step="0.01" min="0.01">
                 </div>
             </div>
             ` : ''}
@@ -314,6 +327,24 @@ class PropertyPanel extends EventEmitter {
                 this.updatePolygonGeometry(object, sides);
             });
         }
+
+        // Tube properties (hole radius & length)
+        const tubeHoleInput = document.getElementById('prop-tube-hole');
+        const tubeLengthInput = document.getElementById('prop-tube-length');
+        if (tubeHoleInput) {
+            tubeHoleInput.addEventListener('change', (e) => {
+                const holeRadius = Math.max(0.01, parseFloat(e.target.value) || 0.25);
+                object.userData.holeRadius = holeRadius;
+                this.updateTubeGeometry(object, holeRadius, object.userData.length || 1);
+            });
+        }
+        if (tubeLengthInput) {
+            tubeLengthInput.addEventListener('change', (e) => {
+                const length = Math.max(0.01, parseFloat(e.target.value) || 1);
+                object.userData.length = length;
+                this.updateTubeGeometry(object, object.userData.holeRadius || 0.25, length);
+            });
+        }
     }
 
     /**
@@ -402,6 +433,31 @@ class PropertyPanel extends EventEmitter {
             }
         } catch (error) {
             console.error('Failed to update polygon:', error);
+        }
+    }
+
+    /**
+     * Update tube geometry
+     * @param {THREE.Object3D} object - The tube object
+     * @param {number} holeRadius - Hole radius
+     * @param {number} length - Tube length
+     */
+    async updateTubeGeometry(object, holeRadius, length) {
+        try {
+            const shapeFactory = this.swk.shapeFactory;
+            if (shapeFactory && typeof shapeFactory.updateTubeGeometry === 'function') {
+                await shapeFactory.updateTubeGeometry(object, holeRadius, length);
+
+                if (this.swk.outliner) {
+                    this.swk.outliner.removeOutline(object);
+                    this.swk.outliner.createOutline(object);
+                }
+
+                this.swk.captureState('Update tube');
+                this.emit('propertyChanged', { object, property: 'tube' });
+            }
+        } catch (error) {
+            console.error('Failed to update tube:', error);
         }
     }
 

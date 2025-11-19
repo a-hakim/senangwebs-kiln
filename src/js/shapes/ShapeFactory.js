@@ -29,6 +29,8 @@ export default class ShapeFactory {
             halfsphere: 0,
             roof: 0,
             heart: 0
+            ,
+            tube: 0
         };
     }
 
@@ -276,6 +278,34 @@ export default class ShapeFactory {
                 this.shapeCounters.heart++;
                 name = `Heart ${this.shapeCounters.heart}`;
                 break;
+
+            case SHAPE_TYPES.TUBE:
+                // Hollow cylinder (extruded ring)
+                const outerRadius = options.radius || 0.5;
+                const holeRadius = options.holeRadius || 0.25;
+                const length = options.length || 1;
+
+                const outerShape = new THREE.Shape();
+                outerShape.absarc(0, 0, outerRadius, 0, Math.PI * 2, false);
+
+                const holePath = new THREE.Path();
+                holePath.absarc(0, 0, holeRadius, 0, Math.PI * 2, true);
+                outerShape.holes.push(holePath);
+
+                const tubeSettings = {
+                    steps: 1,
+                    depth: length,
+                    bevelEnabled: false,
+                    curveSegments: 32
+                };
+
+                geometry = new THREE.ExtrudeGeometry(outerShape, tubeSettings);
+                geometry.center();
+                // Rotate so extrusion (depth) is along Y axis
+                geometry.rotateX(-Math.PI / 2);
+                this.shapeCounters.tube++;
+                name = `Tube ${this.shapeCounters.tube}`;
+                break;
         }
 
         // Compute geometry bounds
@@ -327,6 +357,13 @@ export default class ShapeFactory {
         // Store polygon-specific data
         if (shapeType === SHAPE_TYPES.POLYGON) {
             mesh.userData.polygonSides = options.sides || 5;
+        }
+
+        // Store tube-specific data
+        if (shapeType === SHAPE_TYPES.TUBE) {
+            mesh.userData.outerRadius = options.radius || 0.5;
+            mesh.userData.holeRadius = options.holeRadius || 0.25;
+            mesh.userData.length = options.length || 1;
         }
 
         // Apply options (for restoring from history)
@@ -422,6 +459,52 @@ export default class ShapeFactory {
 
         // Update user data
         mesh.userData.polygonSides = sides;
+
+        return true;
+    }
+
+    /**
+     * Update tube geometry
+     */
+    updateTubeGeometry(mesh, holeRadius, length) {
+        if (mesh.userData.shapeType !== SHAPE_TYPES.TUBE) {
+            return false;
+        }
+
+        // Clamp to sensible values
+        holeRadius = Math.max(0.01, parseFloat(holeRadius) || 0.25);
+        length = Math.max(0.01, parseFloat(length) || 1);
+
+        const outerRadius = mesh.userData.outerRadius || 0.5;
+
+        const outerShape = new THREE.Shape();
+        outerShape.absarc(0, 0, outerRadius, 0, Math.PI * 2, false);
+
+        const holePath = new THREE.Path();
+        holePath.absarc(0, 0, holeRadius, 0, Math.PI * 2, true);
+        outerShape.holes.push(holePath);
+
+        const tubeSettings = {
+            steps: 1,
+            depth: length,
+            bevelEnabled: false,
+            curveSegments: 32
+        };
+
+        const newGeometry = new THREE.ExtrudeGeometry(outerShape, tubeSettings);
+        newGeometry.computeBoundingBox();
+        newGeometry.computeBoundingSphere();
+        newGeometry.center();
+        newGeometry.rotateX(-Math.PI / 2);
+
+        // Replace geometry
+        mesh.geometry.dispose();
+        mesh.geometry = newGeometry;
+
+        // Update user data
+        mesh.userData.holeRadius = holeRadius;
+        mesh.userData.length = length;
+        mesh.userData.outerRadius = outerRadius;
 
         return true;
     }

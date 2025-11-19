@@ -262,6 +262,13 @@ class StateCapture {
             options.font = data.textFont || 'sans';
         }
 
+        // Special handling for tube
+        if (data.type === SHAPE_TYPES.TUBE) {
+            options.radius = data.userData?.outerRadius || 0.5;
+            options.holeRadius = data.userData?.holeRadius || 0.25;
+            options.length = data.userData?.length || 1;
+        }
+
         // Create the object
         const obj = shapeFactory.createShape(data.type, options);
         if (!obj) return null;

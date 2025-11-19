@@ -38,6 +38,7 @@ class ShapesPanel extends EventEmitter {
             { type: SHAPE_TYPES.HALF_SPHERE, label: 'Half Sphere', icon: 'fa-igloo' },
             { type: SHAPE_TYPES.ROOF, label: 'Roof', icon: 'fa-home' },
             { type: SHAPE_TYPES.HEART, label: 'Heart', icon: 'fa-heart' },
+            { type: SHAPE_TYPES.TUBE, label: 'Tube', icon: 'fa-ring' },
             { type: SHAPE_TYPES.TEXT, label: 'Text', icon: 'fa-font' }
         ];
     }
@@ -82,6 +83,12 @@ class ShapesPanel extends EventEmitter {
             // Special handling for text
             if (type === SHAPE_TYPES.TEXT) {
                 options = { text: 'Hello! Text' };
+            }
+
+            // Special handling for tube shape
+            if (type === SHAPE_TYPES.TUBE) {
+                // Default tube parameters: outer radius 0.5, hole radius 0.25, length 1
+                options = { radius: 0.5, holeRadius: 0.25, length: 1 };
             }
             
             const shape = await this.swk.addShape(type, options);

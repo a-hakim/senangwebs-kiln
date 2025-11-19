@@ -25,6 +25,7 @@ import Renderer from './core/Renderer.js';
 import Camera from './core/Camera.js';
 import Lighting from './core/Lighting.js';
 import ShapeFactory from './shapes/ShapeFactory.js';
+import { SHAPE_TYPES } from './utils/Constants.js';
 import Picker from './selection/Picker.js';
 import SelectionManager from './selection/SelectionManager.js';
 import Outliner from './selection/Outliner.js';
@@ -680,6 +681,13 @@ class SWK extends EventEmitter {
             options.font = mesh.userData.textFont;
             options.height = mesh.userData.textHeight;
             options.bevel = mesh.userData.textBevel;
+        }
+
+        // Copy tube options if it's a tube
+        if (shapeType === SHAPE_TYPES.TUBE) {
+            options.radius = mesh.userData.outerRadius;
+            options.holeRadius = mesh.userData.holeRadius;
+            options.length = mesh.userData.length;
         }
 
         const duplicate = this.shapeFactory.createShape(shapeType, options);
