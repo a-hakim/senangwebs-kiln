@@ -245,7 +245,7 @@ class SWK extends EventEmitter {
         const camera = this.cameraManager.getCamera();
         const canvas = this.renderer.getCanvas();
         
-        this.controls = new THREE.OrbitControls(camera, canvas);
+        this.controls = new OrbitControls(camera, canvas);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.screenSpacePanning = false;
