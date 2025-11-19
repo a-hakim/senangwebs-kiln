@@ -275,7 +275,7 @@
     margin-bottom: 0px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px;
 }
 
 .swk-property-section-title {
@@ -353,6 +353,22 @@
     color: #64748b;
     margin: 0;
     line-height: 1.5;
+}
+
+.swk-property-range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.swk-property-input.swk-property-range-value {
+    width: 32px;
+    text-align: center;
+    padding: 6px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
 }
 
 /* ====================

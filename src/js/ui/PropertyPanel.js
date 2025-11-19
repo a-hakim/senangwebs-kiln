@@ -106,7 +106,6 @@ class PropertyPanel extends EventEmitter {
             </div>
             
             <div class="swk-property-section">
-                <h4 class="swk-property-section-title">Transform</h4>
                 
                 <div class="swk-property-group">
                     <label class="swk-property-label">Position</label>
@@ -138,7 +137,6 @@ class PropertyPanel extends EventEmitter {
             
             ${!isGroup ? `
             <div class="swk-property-section">
-                <h4 class="swk-property-section-title">Material</h4>
                 
                 <div class="swk-property-group">
                     <label class="swk-property-label">Color</label>
@@ -152,24 +150,23 @@ class PropertyPanel extends EventEmitter {
             
             ${isText ? `
             <div class="swk-property-section">
-                <h4 class="swk-property-section-title">Text</h4>
                 
                 <div class="swk-property-group">
-                    <label class="swk-property-label">Content</label>
+                    <label class="swk-property-label">Text</label>
                     <input type="text" class="swk-property-input" id="prop-text" value="${this.escapeHtml(object.userData.textContent || '')}">
                 </div>
                 
                 <div class="swk-property-group">
                     <label class="swk-property-label">Font</label>
                     <select class="swk-property-input" id="prop-font">
-                        <option value="sans" ${object.userData.textFont === 'sans' ? 'selected' : ''}>Sans Serif</option>
+                        <option value="sans" ${object.userData.textFont === 'sans' ? 'selected' : ''}>Sans</option>
                         <option value="serif" ${object.userData.textFont === 'serif' ? 'selected' : ''}>Serif</option>
                         <option value="mono" ${object.userData.textFont === 'mono' ? 'selected' : ''}>Monospace</option>
                     </select>
                 </div>
                 
                 <div class="swk-property-group">
-                    <label class="swk-property-label">Size</label>
+                    <label class="swk-property-label">Thickness</label>
                     <input type="number" class="swk-property-input" id="prop-font-size" value="${object.userData.textHeight || 0.2}" step="0.1" min="0.1">
                 </div>
             </div>
@@ -177,11 +174,13 @@ class PropertyPanel extends EventEmitter {
 
             ${isPolygon ? `
             <div class="swk-property-section">
-                <h4 class="swk-property-section-title">Polygon Settings</h4>
                 
                 <div class="swk-property-group">
-                    <label class="swk-property-label">Sides (3-12)</label>
-                    <input type="number" class="swk-property-input" id="prop-polygon-sides" value="${object.userData.polygonSides || 5}" step="1" min="3" max="12">
+                    <label class="swk-property-label">Sides</label>
+                    <div class="swk-property-range-wrapper">
+                        <input type="range" class="swk-property-input swk-property-range" id="prop-polygon-sides" value="${object.userData.polygonSides || 5}" step="1" min="3" max="12">
+                        <input type="number" class="swk-property-input swk-property-range-value" id="prop-polygon-sides-value" value="${object.userData.polygonSides || 5}" step="1" min="3" max="12" readonly>
+                    </div>
                 </div>
             </div>
             ` : ''}
@@ -297,11 +296,21 @@ class PropertyPanel extends EventEmitter {
             });
         }
 
-        // Polygon sides
-        const polygonSidesInput = document.getElementById('prop-polygon-sides');
-        if (polygonSidesInput) {
-            polygonSidesInput.addEventListener('change', (e) => {
+        // Polygon sides (range + numeric display)
+        const polygonRange = document.getElementById('prop-polygon-sides');
+        const polygonRangeValue = document.getElementById('prop-polygon-sides-value');
+        if (polygonRange) {
+            // Update displayed numeric value while sliding
+            polygonRange.addEventListener('input', (e) => {
+                if (polygonRangeValue) polygonRangeValue.value = e.target.value;
+            });
+
+            // Update polygon geometry after user finishes sliding (change event)
+            polygonRange.addEventListener('change', (e) => {
                 const sides = Math.max(3, Math.min(12, parseInt(e.target.value) || 5));
+                if (polygonRangeValue) polygonRangeValue.value = sides;
+                // Update stored userData immediately
+                object.userData.polygonSides = sides;
                 this.updatePolygonGeometry(object, sides);
             });
         }
@@ -378,6 +387,8 @@ class PropertyPanel extends EventEmitter {
         try {
             const shapeFactory = this.swk.shapeFactory;
             if (shapeFactory && typeof shapeFactory.updatePolygonGeometry === 'function') {
+                // Store the new sides value in userData
+                object.userData.polygonSides = sides;
                 await shapeFactory.updatePolygonGeometry(object, sides);
                 
                 // Refresh the outline to match the new geometry
