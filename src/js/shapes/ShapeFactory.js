@@ -223,6 +223,7 @@ export default class ShapeFactory {
 
             case SHAPE_TYPES.HALF_SPHERE:
                 geometry = new THREE.SphereGeometry(0.5, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                geometry.scale(1, 1, 1); // Ensure the cap is generated
                 this.shapeCounters.halfsphere++;
                 name = `HalfSphere ${this.shapeCounters.halfsphere}`;
                 break;
@@ -276,7 +277,8 @@ export default class ShapeFactory {
             roughness: 0.5,
             metalness: 0.3,
             transparent: false,
-            opacity: 1.0
+            opacity: 1.0,
+            side: shapeType === SHAPE_TYPES.HALF_SPHERE ? THREE.DoubleSide : THREE.FrontSide
         });
 
         // Create mesh
