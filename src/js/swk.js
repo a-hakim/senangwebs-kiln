@@ -689,6 +689,10 @@ class SWK extends EventEmitter {
             options.holeRadius = mesh.userData.holeRadius;
             options.length = mesh.userData.length;
         }
+        // Copy polygon sides if it's a polygon
+        if (shapeType === SHAPE_TYPES.POLYGON) {
+            options.sides = mesh.userData.polygonSides || 5;
+        }
 
         const duplicate = this.shapeFactory.createShape(shapeType, options);
         

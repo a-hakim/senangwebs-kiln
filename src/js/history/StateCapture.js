@@ -262,6 +262,15 @@ class StateCapture {
             options.font = data.textFont || 'sans';
         }
 
+        // Special handling for polygon - ensure sides are applied when recreating
+        if (data.type === SHAPE_TYPES.POLYGON) {
+            // sides may be stored at top-level or in userData
+            let sides = data.userData?.polygonSides || data.polygonSides || 5;
+            // clamp sides between 3 and 12
+            sides = Math.max(3, Math.min(12, parseInt(sides, 10) || 5));
+            options.sides = sides;
+        }
+
         // Special handling for tube
         if (data.type === SHAPE_TYPES.TUBE) {
             options.radius = data.userData?.outerRadius || 0.5;
