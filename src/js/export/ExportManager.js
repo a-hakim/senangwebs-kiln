@@ -302,6 +302,164 @@ class ExportManager extends EventEmitter {
     }
 
     /**
+     * Export scene as JSON format
+     * @param {Object} options - Export options
+     * @param {string} options.filename - Custom filename (without extension)
+     * @returns {Promise<boolean>} Success status
+     */
+    async exportJSON(options = {}) {
+        const filename = options.filename || `scene-${getTimestamp()}`;
+        
+        try {
+            this.emit('exportStart', { format: 'json' });
+            
+            const data = {
+                metadata: {
+                    version: '1.0',
+                    timestamp: Date.now(),
+                    generator: 'SenangWebs Kiln'
+                },
+                groups: [],
+                objects: []
+            };
+            
+            // Export groups
+            this.swk.groupManager.getAllGroups().forEach(group => {
+                data.groups.push({
+                    id: group.id,
+                    name: group.name,
+                    transform: {
+                        position: group.container.position.toArray(),
+                        rotation: group.container.quaternion.toArray(),
+                        scale: group.container.scale.toArray()
+                    }
+                });
+            });
+            
+            // Export objects
+            this.swk.objects.forEach(obj => {
+                // Skip if not user object
+                if (!obj.userData.isUserObject) return;
+                
+                const objData = {
+                    type: obj.userData.shapeType,
+                    name: obj.name,
+                    userData: { ...obj.userData },
+                    transform: {
+                        position: obj.position.toArray(),
+                        rotation: obj.quaternion.toArray(),
+                        scale: obj.scale.toArray()
+                    },
+                    groupId: obj.userData.groupId || null
+                };
+                
+                data.objects.push(objData);
+            });
+            
+            // Download
+            const output = JSON.stringify(data, null, 2);
+            const blob = new Blob([output], { type: 'application/json' });
+            downloadFile(blob, `${filename}.json`);
+            
+            console.log(`Exported ${data.objects.length} objects as JSON`);
+            this.emit('exportComplete', { 
+                format: 'json', 
+                filename: `${filename}.json`,
+                objectCount: data.objects.length
+            });
+            
+            return true;
+            
+        } catch (error) {
+            console.error('JSON export error:', error);
+            this.emit('exportError', { format: 'json', error: error.message });
+            return false;
+        }
+    }
+
+    /**
+     * Import scene from JSON
+     * @param {string|Object} jsonContent - JSON string or object
+     * @returns {Promise<boolean>} Success status
+     */
+    async importJSON(jsonContent) {
+        try {
+            const data = typeof jsonContent === 'string' ? JSON.parse(jsonContent) : jsonContent;
+            
+            // Validate
+            if (!data.metadata || !data.objects) {
+                throw new Error('Invalid JSON format');
+            }
+            
+            // Clear scene
+            this.swk.clearScene(true);
+            
+            // Restore groups
+            if (data.groups) {
+                data.groups.forEach(groupData => {
+                    this.swk.groupManager.restoreGroup(groupData);
+                });
+            }
+            
+            // Restore objects
+            data.objects.forEach(objData => {
+                // Reconstruct options from userData
+                const options = {
+                    color: objData.userData.color,
+                    skipStateCapture: true
+                };
+                
+                // Map specific properties based on type
+                if (objData.type === 'text') {
+                    options.text = objData.userData.textContent;
+                    options.font = objData.userData.textFont;
+                    options.height = objData.userData.textHeight;
+                    options.bevel = objData.userData.textBevel;
+                } else if (objData.type === 'polygon') {
+                    options.sides = objData.userData.polygonSides;
+                } else if (objData.type === 'tube') {
+                    options.radius = objData.userData.outerRadius;
+                    options.holeRadius = objData.userData.holeRadius;
+                    options.length = objData.userData.length;
+                }
+                
+                // Create shape (adds to scene and swk.objects)
+                // We pass skipStateCapture=true to avoid spamming history (if supported)
+                // But swk.addShape doesn't support it yet. We might need to add it.
+                const mesh = this.swk.addShape(objData.type, options);
+                
+                if (mesh) {
+                    // Restore transform
+                    mesh.position.fromArray(objData.transform.position);
+                    mesh.quaternion.fromArray(objData.transform.rotation);
+                    mesh.scale.fromArray(objData.transform.scale);
+                    
+                    // Restore name
+                    mesh.name = objData.name;
+                    
+                    // Restore all userData
+                    Object.assign(mesh.userData, objData.userData);
+                    
+                    // Handle grouping
+                    if (objData.groupId) {
+                        this.swk.groupManager.restoreObjectToGroup(mesh, objData.groupId);
+                    }
+                }
+            });
+            
+            // Capture state for the import action
+            this.swk.captureState('Import JSON');
+            
+            console.log(`Imported ${data.objects.length} objects from JSON`);
+            return true;
+            
+        } catch (error) {
+            console.error('JSON import error:', error);
+            return false;
+        }
+    }
+
+    /**
      * Clean up
      */
     dispose() {

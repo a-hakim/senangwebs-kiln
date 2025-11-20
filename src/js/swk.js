@@ -252,7 +252,7 @@ class SWK extends EventEmitter {
         this.controls.screenSpacePanning = false;
         this.controls.minDistance = 1;
         this.controls.maxDistance = 100;
-        this.controls.maxPolarAngle = Math.PI / 2;
+        this.controls.maxPolarAngle = Math.PI;
         
         // Link controls to camera manager
         this.cameraManager.setControls(this.controls);
@@ -538,10 +538,64 @@ class SWK extends EventEmitter {
         }
 
         // Capture state for undo
-        this.captureState(`Add ${mesh.name}`);
+        if (!options.skipStateCapture) {
+            this.captureState(`Add ${mesh.name}`);
+        }
 
         console.log(`SWK: Added ${mesh.name}`);
         return mesh;
+    }
+
+    /**
+     * Export scene as JSON
+     */
+    exportJSON(options = {}) {
+        if (this.exportManager) {
+            return this.exportManager.exportJSON(options);
+        }
+        return Promise.resolve(false);
+    }
+
+    /**
+     * Import scene from JSON
+     */
+    importJSON(source) {
+        if (!this.exportManager) return Promise.resolve(false);
+
+        if (source instanceof File) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    this.exportManager.importJSON(content).then(resolve);
+                };
+                reader.readAsText(source);
+            });
+        } else {
+            return this.exportManager.importJSON(source);
+        }
+    }
+    
+    /**
+     * Clear scene (delete all objects and groups)
+     */
+    clearScene(skipCapture = false) {
+        // Deselect all
+        this.deselectAll();
+        
+        // Delete all objects without capturing state for each
+        // Use a copy of the array since we're modifying it
+        [...this.objects].forEach(obj => {
+            this._deleteObjectInternal(obj, false);
+        });
+        
+        // Clear groups
+        this.groupManager.clearAllGroups();
+        
+        // Capture state for the clear action
+        if (!skipCapture) {
+            this.captureState('Clear Scene');
+        }
     }
 
     /**

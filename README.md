@@ -14,7 +14,7 @@ A lightweight, powerful 3D modeling editor library built on Three.js. Create int
 - **Grouping**: Organize multiple objects into hierarchical groups
 - **Undo/Redo**: Full history system with 50 action stack
 - **Complete UI**: Optional panels for shapes, properties, outliner, and controls
-- **Export**: GLTF, GLB, and STL format support
+- **Export**: GLTF, GLB, STL, and JSON (save/load) format support
 - **Dual Camera Modes**: Perspective and orthographic views
 - **Keyboard Shortcuts**: T/R/S for transform modes, Ctrl+Z/Y for undo/redo
 - **Responsive**: Works on desktop and mobile devices
@@ -223,6 +223,21 @@ await editor.exportSTL();
 
 // Export selected objects only
 await editor.exportSelected('gltf');
+
+// Export scene as JSON (save file)
+await editor.exportJSON({ filename: 'my-scene' });
+
+// Import scene from JSON (load file)
+// From a File object (e.g., from <input type="file">)
+const fileInput = document.getElementById('file-input');
+fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    await editor.importJSON(file);
+});
+
+// From a JSON string or object
+const saveData = { ... };
+await editor.importJSON(saveData);
 ```
 
 ## Keyboard Shortcuts
@@ -339,6 +354,8 @@ See [API.md](docs/API.md) for complete API documentation.
 - `exportGLB(options)` - Export as GLB
 - `exportSTL(options)` - Export as STL
 - `exportSelected(format, options)` - Export selected only
+- `exportJSON(options)` - Export scene as JSON (save file)
+- `importJSON(source)` - Import scene from JSON (load file)
 
 ### Camera Methods
 

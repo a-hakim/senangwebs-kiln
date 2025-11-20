@@ -356,6 +356,63 @@ export default class GroupManager {
     }
 
     /**
+     * Restore group from data
+     */
+    restoreGroup(groupData) {
+        const groupContainer = new THREE.Group();
+        groupContainer.userData.isGroupResult = true;
+        groupContainer.userData.groupId = groupData.id;
+        groupContainer.name = groupData.name;
+        
+        // Restore transform
+        groupContainer.position.fromArray(groupData.transform.position);
+        groupContainer.quaternion.fromArray(groupData.transform.rotation);
+        groupContainer.scale.fromArray(groupData.transform.scale);
+        
+        this.scene.add(groupContainer);
+        
+        const group = {
+            id: groupData.id,
+            name: groupData.name,
+            children: [],
+            container: groupContainer,
+            isDirty: false
+        };
+        
+        this.groups.push(group);
+        
+        // Update counter if needed
+        const idNum = parseInt(groupData.id.replace('group_', ''));
+        if (!isNaN(idNum) && idNum >= this.groupIdCounter) {
+            this.groupIdCounter = idNum + 1;
+        }
+        
+        return group;
+    }
+
+    /**
+     * Restore object to group (assumes object is already in correct local transform)
+     */
+    restoreObjectToGroup(object, groupId) {
+        const group = this.getGroupById(groupId);
+        if (!group) return false;
+        
+        // Remove from scene if present
+        if (object.parent) {
+            object.parent.remove(object);
+        }
+        
+        // Add to container
+        group.container.add(object);
+        group.children.push(object);
+        
+        // Set metadata
+        object.userData.groupId = groupId;
+        
+        return true;
+    }
+
+    /**
      * Get statistics
      */
     getStats() {
