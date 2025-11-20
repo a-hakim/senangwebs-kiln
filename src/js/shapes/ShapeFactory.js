@@ -114,6 +114,7 @@ export default class ShapeFactory {
 
             case SHAPE_TYPES.TORUS:
                 geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+                geometry.rotateX(Math.PI / 2); // Flip it right side up
                 this.shapeCounters.torus++;
                 name = `Torus ${this.shapeCounters.torus}`;
                 break;
@@ -172,6 +173,10 @@ export default class ShapeFactory {
                     console.warn('SWK: Text geometry not ready, fonts may not be loaded');
                     return null;
                 }
+                geometry.rotateX(Math.PI / 2);
+                geometry.rotateX(Math.PI / 1);
+                geometry.rotateY(Math.PI / 1);
+                geometry.rotateY(Math.PI / 1);
                 this.shapeCounters.text++;
                 name = `Text ${this.shapeCounters.text}`;
                 isFlat = true;
@@ -275,6 +280,7 @@ export default class ShapeFactory {
                 geometry = new THREE.ExtrudeGeometry(heartShape, heartSettings);
                 geometry.center();
                 geometry.rotateZ(Math.PI); // Flip it right side up
+                geometry.rotateX(Math.PI / 2); // Flip it right side up
                 this.shapeCounters.heart++;
                 name = `Heart ${this.shapeCounters.heart}`;
                 break;
