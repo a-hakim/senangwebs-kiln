@@ -29,8 +29,8 @@ A lightweight, powerful 3D modeling editor library built on Three.js. Create int
 
 ```html
 <!-- SWK Library (includes Three.js and all dependencies) -->
-<link rel="stylesheet" href="https://unpkg.com/senangwebs-roll@latest/dist/swk.min.css">
-<script src="https://unpkg.com/senangwebs-roll@latest/dist/swk.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css">
+<script src="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.js"></script>
 ```
 
 ### Via NPM (Coming Soon)
@@ -52,13 +52,13 @@ Perfect for integrating into existing applications with custom UI.
     <style>
         #editor { width: 100vw; height: 100vh; }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/senangwebs-roll@latest/dist/swk.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css">
 </head>
 <body>
     <div id="editor"></div>
     
     <!-- Load SWK (includes all Three.js dependencies) -->
-    <script src="https://unpkg.com/senangwebs-roll@latest/dist/swk.min.js"></script>
+    <script src="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.js"></script>
     
     <script>
         // Initialize editor
@@ -102,7 +102,7 @@ Perfect for quick prototyping or standalone 3D modeling tools.
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="https://unpkg.com/senangwebs-roll@latest/dist/swk.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css">
 </head>
 <body>
     <!-- Container with HTML attributes -->
@@ -117,7 +117,7 @@ Perfect for quick prototyping or standalone 3D modeling tools.
     </div>
     
     <!-- Load SWK (includes all Three.js dependencies) -->
-    <script src="https://unpkg.com/senangwebs-roll@latest/dist/swk.min.js"></script>
+    <script src="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.js"></script>
     
     <script>
         // Auto-initialize on page load
