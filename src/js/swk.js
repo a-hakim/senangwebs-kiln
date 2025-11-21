@@ -738,16 +738,18 @@ class SWK extends EventEmitter {
      * Internal duplicate object method
      * @private
      */
-    _duplicateObjectInternal(mesh, captureState = false) {
-        if (!mesh) return null;
-
+    /**
+     * Get shape options from mesh user data
+     * @private
+     */
+    _getShapeOptions(mesh) {
         const shapeType = mesh.userData.shapeType;
         const options = {
             color: mesh.userData.color
         };
 
         // Copy text options if it's a text shape
-        if (shapeType === 'text') {
+        if (shapeType === SHAPE_TYPES.TEXT) {
             options.text = mesh.userData.textContent;
             options.font = mesh.userData.textFont;
             options.height = mesh.userData.textHeight;
@@ -760,10 +762,94 @@ class SWK extends EventEmitter {
             options.holeRadius = mesh.userData.holeRadius;
             options.length = mesh.userData.length;
         }
+        
         // Copy polygon sides if it's a polygon
         if (shapeType === SHAPE_TYPES.POLYGON) {
             options.sides = mesh.userData.polygonSides || 5;
         }
+
+        return options;
+    }
+
+    /**
+     * Internal duplicate group method
+     * @private
+     */
+    _duplicateGroupInternal(groupContainer, captureState = false) {
+        const group = this.groupManager.getGroupByContainer(groupContainer);
+        if (!group) return null;
+
+        const newGroupObjects = [];
+
+        // Duplicate each child
+        group.children.forEach(child => {
+            const shapeType = child.userData.shapeType;
+            const options = this._getShapeOptions(child);
+            
+            const duplicate = this.shapeFactory.createShape(shapeType, options);
+            if (duplicate) {
+                // Copy world transform
+                const worldPos = new THREE.Vector3();
+                const worldQuat = new THREE.Quaternion();
+                const worldScale = new THREE.Vector3();
+                
+                child.getWorldPosition(worldPos);
+                child.getWorldQuaternion(worldQuat);
+                child.getWorldScale(worldScale);
+                
+                duplicate.position.copy(worldPos);
+                duplicate.quaternion.copy(worldQuat);
+                duplicate.scale.copy(worldScale);
+                
+                // Add to scene temporarily
+                this.sceneManager.add(duplicate);
+                this.objects.push(duplicate);
+                newGroupObjects.push(duplicate);
+                
+                // Emit event for each object
+                this.emit('objectAdded', duplicate);
+            }
+        });
+
+        if (newGroupObjects.length === 0) return null;
+
+        // Create new group
+        const newGroupContainer = this.groupManager.createGroup(newGroupObjects, `${group.name} (Copy)`);
+        
+        if (newGroupContainer) {
+            // Offset the entire group slightly
+            newGroupContainer.position.x += 0.5;
+            newGroupContainer.position.z += 0.5;
+            
+            // Capture state
+            if (captureState) {
+                this.captureState(`Duplicate ${group.name}`);
+            }
+        }
+
+        return newGroupContainer;
+    }
+
+    /**
+     * Internal duplicate object method
+     * @private
+     */
+    _duplicateObjectInternal(mesh, captureState = false) {
+        if (!mesh) return null;
+
+        // Check if it's a group
+        if (this.groupManager.isGroupContainer(mesh)) {
+            return this._duplicateGroupInternal(mesh, captureState);
+        }
+
+        const shapeType = mesh.userData.shapeType;
+        // Safety check for shapeType
+        if (!shapeType) {
+            console.warn('SWK: Cannot duplicate object without shapeType', mesh);
+            return null;
+        }
+
+        const options = this._getShapeOptions(mesh);
 
         const duplicate = this.shapeFactory.createShape(shapeType, options);
         

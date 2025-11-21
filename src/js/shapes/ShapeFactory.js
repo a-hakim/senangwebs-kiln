@@ -179,7 +179,7 @@ export default class ShapeFactory {
                 geometry.rotateY(Math.PI / 1);
                 this.shapeCounters.text++;
                 name = `Text ${this.shapeCounters.text}`;
-                isFlat = true;
+                // isFlat = true; // Text should be treated as 3D for positioning
                 break;
 
             case SHAPE_TYPES.POLYGON:
@@ -343,7 +343,7 @@ export default class ShapeFactory {
         mesh.userData.id = mesh.uuid;
 
         // Position the shape
-        if (isFlat || shapeType === SHAPE_TYPES.TEXT) {
+        if (isFlat) {
             mesh.position.set(0, 0, 0);
         } else {
             // Raise 3D objects above ground
@@ -430,6 +430,11 @@ export default class ShapeFactory {
             return false;
         }
 
+        newGeometry.rotateX(Math.PI / 2);
+        newGeometry.rotateX(Math.PI / 1);
+        newGeometry.rotateY(Math.PI / 1);
+        newGeometry.rotateY(Math.PI / 1);
+
         // Replace geometry
         mesh.geometry.dispose();
         mesh.geometry = newGeometry;
@@ -454,7 +459,7 @@ export default class ShapeFactory {
         // Clamp sides between 3 and 12
         sides = Math.max(3, Math.min(12, Math.floor(sides)));
 
-        const newGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, sides);
+        const newGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1.0, sides);
         newGeometry.computeBoundingBox();
         newGeometry.computeBoundingSphere();
         newGeometry.center();
