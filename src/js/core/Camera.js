@@ -153,6 +153,18 @@ export default class Camera {
     }
 
     /**
+     * Set camera view position
+     * @param {Array} position - [x, y, z] coordinates
+     */
+    setView(position) {
+        this.currentCamera.position.set(...position);
+        if (this.controls) {
+            this.controls.target.set(0, 0, 0);
+            this.controls.update();
+        }
+    }
+
+    /**
      * Dispose camera
      */
     dispose() {

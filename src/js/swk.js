@@ -25,7 +25,7 @@ import Renderer from './core/Renderer.js';
 import Camera from './core/Camera.js';
 import Lighting from './core/Lighting.js';
 import ShapeFactory from './shapes/ShapeFactory.js';
-import { SHAPE_TYPES } from './utils/Constants.js';
+import { SHAPE_TYPES, VIEW_ORIENTATIONS } from './utils/Constants.js';
 import Picker from './selection/Picker.js';
 import SelectionManager from './selection/SelectionManager.js';
 import Outliner from './selection/Outliner.js';
@@ -510,6 +510,23 @@ class SWK extends EventEmitter {
         if (this.cameraManager) {
             this.cameraManager.reset();
             this.emit('cameraReset');
+        }
+    }
+
+    /**
+     * Set camera view
+     * @param {string} viewName - Key from VIEW_ORIENTATIONS
+     */
+    setCameraView(viewName) {
+        const view = VIEW_ORIENTATIONS[viewName];
+        if (!view) {
+            console.warn(`SWK: Invalid view ${viewName}`);
+            return;
+        }
+        
+        if (this.cameraManager) {
+            this.cameraManager.setView(view.position);
+            this.emit('cameraViewChanged', viewName);
         }
     }
 

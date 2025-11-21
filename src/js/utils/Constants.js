@@ -76,3 +76,16 @@ export const CAMERA_SETTINGS = {
 export const HISTORY_MAX_SIZE = 50;
 
 export const OUTLINE_THICKNESS = 0.04;
+
+export const VIEW_ORIENTATIONS = {
+    TOP: { name: 'Top', position: [0, 10, 0] },
+    BOTTOM: { name: 'Bottom', position: [0, -10, 0] },
+    FRONT: { name: 'Front', position: [0, 0, 10] },
+    BACK: { name: 'Back', position: [0, 0, -10] },
+    LEFT: { name: 'Left', position: [-10, 0, 0] },
+    RIGHT: { name: 'Right', position: [10, 0, 0] },
+    ISO_TFR: { name: 'Iso (Front-Right)', position: [10, 10, 10] },
+    ISO_TFL: { name: 'Iso (Front-Left)', position: [-10, 10, 10] },
+    ISO_TBR: { name: 'Iso (Back-Right)', position: [10, 10, -10] },
+    ISO_TBL: { name: 'Iso (Back-Left)', position: [-10, 10, -10] }
+};

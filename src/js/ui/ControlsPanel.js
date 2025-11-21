@@ -4,7 +4,7 @@
  */
 
 import EventEmitter from '../core/EventEmitter.js';
-import { TRANSFORM_MODES, CAMERA_MODES } from '../utils/Constants.js';
+import { TRANSFORM_MODES, CAMERA_MODES, VIEW_ORIENTATIONS } from '../utils/Constants.js';
 
 class ControlsPanel extends EventEmitter {
     /**
@@ -42,7 +42,7 @@ class ControlsPanel extends EventEmitter {
                 </div>
                 
                 <!-- Camera Modes -->
-                <div class="swk-control-group">
+                <div class="swk-control-group" style="flex-direction: row;">
                     <div class="swk-button-group">
                         <button class="swk-control-button active" data-camera="perspective" title="Perspective">
                             <span><i class="fas fa-video"></i></span>
@@ -51,6 +51,10 @@ class ControlsPanel extends EventEmitter {
                             <span><i class="fas fa-th"></i></span>
                         </button>
                     </div>
+                    <select class="swk-control-select" id="swk-view-select" style="width: auto;">
+                        <option value="" disabled selected>View</option>
+                        ${Object.entries(VIEW_ORIENTATIONS).map(([key, value]) => `<option value="${key}">${value.name}</option>`).join('')}
+                    </select>
                 </div>
                 
                 <!-- Snap Settings -->
@@ -135,6 +139,17 @@ class ControlsPanel extends EventEmitter {
             });
         });
         
+        // View select
+        const viewSelect = document.getElementById('swk-view-select');
+        if (viewSelect) {
+            viewSelect.addEventListener('change', (e) => {
+                const view = e.target.value;
+                this.swk.setCameraView(view);
+                // Reset selection to title
+                e.target.value = "";
+            });
+        }
+
         // Snap select
         const snapSelect = document.getElementById('swk-snap-select');
         if (snapSelect) {
