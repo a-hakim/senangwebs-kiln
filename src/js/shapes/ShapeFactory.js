@@ -184,7 +184,7 @@ export default class ShapeFactory {
 
             case SHAPE_TYPES.POLYGON:
                 const sides = options.sides || 5;
-                geometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, sides);
+                geometry = new THREE.CylinderGeometry(0.5, 0.5, 1.0, sides);
                 this.shapeCounters.polygon++;
                 name = `Polygon ${this.shapeCounters.polygon}`;
                 break;
