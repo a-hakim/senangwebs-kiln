@@ -8,8 +8,7 @@ module.exports = (env, argv) => {
 
   return {
     entry: {
-      swk: './src/js/swk.js',
-      style: './src/css/swk.css'
+      swk: ['./src/css/swk.css', './src/js/swk.js']
     },
     output: {
       filename: isDevelopment ? '[name].js' : '[name].min.js',
