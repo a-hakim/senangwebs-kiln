@@ -5,6 +5,7 @@
 
 import EventEmitter from '../core/EventEmitter.js';
 import { SHAPE_TYPES } from '../utils/Constants.js';
+import { SHAPE_ICONS } from './ShapeIcons.js';
 
 class ShapesPanel extends EventEmitter {
     /**
@@ -20,26 +21,26 @@ class ShapesPanel extends EventEmitter {
         this.config = config;
         
         this.shapes = [
-            { type: SHAPE_TYPES.BOX, label: 'Box', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.SPHERE, label: 'Sphere', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.CYLINDER, label: 'Cylinder', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.CONE, label: 'Cone', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.TORUS, label: 'Torus', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.PLANE, label: 'Plane', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.PYRAMID, label: 'Pyramid', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.POLYGON, label: 'Polygon', icon: 'fa-draw-polygon' },
-            { type: SHAPE_TYPES.TEXT, label: 'Text', icon: 'fa-font' },
-            { type: SHAPE_TYPES.WEDGE, label: 'Wedge', icon: 'fa-caret-up' },
-            { type: SHAPE_TYPES.ROOF, label: 'Roof', icon: 'fa-home' },
-            { type: SHAPE_TYPES.TUBE, label: 'Tube', icon: 'fa-ring' },
-            { type: SHAPE_TYPES.HALF_CYLINDER, label: 'Half Cylinder', icon: 'fa-archway' },
-            { type: SHAPE_TYPES.HALF_SPHERE, label: 'Half Sphere', icon: 'fa-igloo' },
-            { type: SHAPE_TYPES.HEART, label: 'Heart', icon: 'fa-heart' },
-            { type: SHAPE_TYPES.TORUS_KNOT, label: 'Torus Knot', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.TETRAHEDRON, label: 'Tetrahedron', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.OCTAHEDRON, label: 'Octahedron', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.ICOSAHEDRON, label: 'Icosahedron', icon: 'fa-shapes' },
-            { type: SHAPE_TYPES.DODECAHEDRON, label: 'Dodecahedron', icon: 'fa-shapes' }
+            { type: SHAPE_TYPES.BOX, label: 'Box' },
+            { type: SHAPE_TYPES.SPHERE, label: 'Sphere' },
+            { type: SHAPE_TYPES.CYLINDER, label: 'Cylinder' },
+            { type: SHAPE_TYPES.CONE, label: 'Cone' },
+            { type: SHAPE_TYPES.TORUS, label: 'Torus' },
+            { type: SHAPE_TYPES.PLANE, label: 'Plane' },
+            { type: SHAPE_TYPES.PYRAMID, label: 'Pyramid' },
+            { type: SHAPE_TYPES.POLYGON, label: 'Polygon' },
+            { type: SHAPE_TYPES.TEXT, label: 'Text' },
+            { type: SHAPE_TYPES.WEDGE, label: 'Wedge' },
+            { type: SHAPE_TYPES.ROOF, label: 'Roof' },
+            { type: SHAPE_TYPES.TUBE, label: 'Tube' },
+            { type: SHAPE_TYPES.HALF_CYLINDER, label: 'Half Cylinder' },
+            { type: SHAPE_TYPES.HALF_SPHERE, label: 'Half Sphere' },
+            { type: SHAPE_TYPES.HEART, label: 'Heart' },
+            { type: SHAPE_TYPES.TORUS_KNOT, label: 'Torus Knot' },
+            { type: SHAPE_TYPES.TETRAHEDRON, label: 'Tetrahedron' },
+            { type: SHAPE_TYPES.OCTAHEDRON, label: 'Octahedron' },
+            { type: SHAPE_TYPES.ICOSAHEDRON, label: 'Icosahedron' },
+            { type: SHAPE_TYPES.DODECAHEDRON, label: 'Dodecahedron' }
         ];
     }
 
@@ -61,8 +62,12 @@ class ShapesPanel extends EventEmitter {
             button.className = 'swk-shape-button';
             button.setAttribute('data-shape-type', shape.type);
             button.title = shape.label;
+            
+            // Get SVG icon or fallback
+            const iconSvg = SHAPE_ICONS[shape.type] || SHAPE_ICONS[SHAPE_TYPES.BOX];
+            
             button.innerHTML = `
-                <span class="swk-shape-icon"><i class="fas ${shape.icon}"></i></span>
+                <span class="swk-shape-icon">${iconSvg}</span>
                 <span class="swk-shape-label">${shape.label}</span>
             `;
             
