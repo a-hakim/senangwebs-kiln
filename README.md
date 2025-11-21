@@ -5,6 +5,8 @@ A lightweight, powerful 3D modeling editor library built on Three.js. Create int
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Built with Three.js](https://img.shields.io/badge/Built%20with-Three.js-000000.svg)](https://threejs.org/)
 
+![SenangWebs Kiln Preview](https://raw.githubusercontent.com/a-hakim/senangwebs-kiln/master/swk_preview.png)
+
 ## Features
 
 - **13 Built-in Shapes**: Box, Sphere, Cylinder, Cone, Torus, Plane, Pyramid, Torus Knot, and Platonic solids (Tetrahedron, Octahedron, Icosahedron, Dodecahedron)
