@@ -4,6 +4,8 @@
  */
 
 import EventEmitter from '../core/EventEmitter.js';
+import { SHAPE_TYPES } from '../utils/Constants.js';
+import { SHAPE_ICONS } from './ShapeIcons.js';
 
 class OutlinerPanel extends EventEmitter {
     /**
@@ -165,22 +167,13 @@ class OutlinerPanel extends EventEmitter {
      * @returns {string} Icon HTML
      */
     getShapeIcon(type) {
-        const icons = {
-            'box': '<i class="fas fa-cube"></i>',
-            'sphere': '<i class="fas fa-circle"></i>',
-            'cylinder': '<i class="fas fa-database"></i>',
-            'cone': '<i class="fas fa-play"></i>',
-            'torus': '<i class="fas fa-ring"></i>',
-            'plane': '<i class="fas fa-square"></i>',
-            'pyramid': '<i class="fas fa-caret-up"></i>',
-            'torusknot': '<i class="fas fa-circle-notch"></i>',
-            'tetrahedron': '<i class="fas fa-gem"></i>',
-            'octahedron': '<i class="fas fa-gem"></i>',
-            'icosahedron': '<i class="fas fa-gem"></i>',
-            'dodecahedron': '<i class="fas fa-gem"></i>',
-            'text': '<i class="fas fa-font"></i>'
-        };
-        return icons[type] || '<i class="fas fa-cube"></i>';
+        // Use the centralized SVG icons
+        if (SHAPE_ICONS[type]) {
+            return SHAPE_ICONS[type];
+        }
+        
+        // Fallback for groups or unknown types
+        return '<i class="fas fa-cube"></i>';
     }
 
     /**

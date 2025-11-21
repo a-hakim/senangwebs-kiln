@@ -425,7 +425,7 @@
 
 .swk-outliner-item-selected .swk-outliner-item-content {
     background: #dbeafe;
-    font-weight: 500;
+    /* font-weight: 500; */
     margin-bottom: 4px;
 }
 
@@ -443,6 +443,8 @@
     color: #64748b;
     width: 16px;
     text-align: center;
+    display: flex;
+    align-items: center;
 }
 
 .swk-outliner-name {
