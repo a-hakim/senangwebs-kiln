@@ -1,6 +1,6 @@
 {
   "name": "senangwebs-kiln",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A lightweight, responsive 3D modeling editor library",
   "main": "dist/swk.js",
   "types": "dist/swk.d.ts",
@@ -28,7 +28,7 @@
     "npm": ">=6.0.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@bookklik/senangstart-icons": "^1.0.4",
     "three": "^0.128.0"
   }
 }
