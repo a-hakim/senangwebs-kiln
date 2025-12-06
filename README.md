@@ -4,6 +4,7 @@ A lightweight, powerful 3D modeling editor library built on Three.js. Create int
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Built with Three.js](https://img.shields.io/badge/Built%20with-Three.js-000000.svg)](https://threejs.org/)
+[![Built with SenangStart Icons](https://img.shields.io/badge/Built%20with-SenangStart%20Icons-2563EB.svg)](https://github.com/a-hakim/senangstart-icons)
 
 ![SenangWebs Kiln Preview](https://raw.githubusercontent.com/a-hakim/senangwebs-kiln/master/swk_preview.png)
 
@@ -29,7 +30,10 @@ A lightweight, powerful 3D modeling editor library built on Three.js. Create int
 
 ```html
 <!-- SWK Library (includes Three.js and all dependencies) -->
-<link rel="stylesheet" href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css">
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css"
+/>
 <script src="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.js"></script>
 ```
 
@@ -48,49 +52,55 @@ Perfect for integrating into existing applications with custom UI.
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <style>
-        #editor { width: 100vw; height: 100vh; }
+      #editor {
+        width: 100vw;
+        height: 100vh;
+      }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css"
+    />
+  </head>
+  <body>
     <div id="editor"></div>
-    
+
     <!-- Load SWK (includes all Three.js dependencies) -->
     <script src="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.js"></script>
-    
+
     <script>
-        // Initialize editor
-        const editor = new SWK('#editor', {
-            viewportBackground: '#e2e8f0',
-            grid: { show: true },
-            camera: {
-                mode: 'perspective',
-                position: [5, 5, 5]
-            }
-        });
+      // Initialize editor
+      const editor = new SWK('#editor', {
+          viewportBackground: '#e2e8f0',
+          grid: { show: true },
+          camera: {
+              mode: 'perspective',
+              position: [5, 5, 5]
+          }
+      });
 
-        // Add shapes
-        const box = editor.addShape('box');
-        editor.selectObject(box);
+      // Add shapes
+      const box = editor.addShape('box');
+      editor.selectObject(box);
 
-        // Listen to events
-        editor.on('selectionChanged', (selected) => {
-            console.log('Selected:', selected.length, 'objects');
-        });
+      // Listen to events
+      editor.on('selectionChanged', (selected) => {
+          console.log('Selected:', selected.length, 'objects');
+      });
 
-        // Transform controls
-        editor.setTransformMode('translate'); // or 'rotate', 'scale'
-        
-        // Undo/Redo
-        editor.undo();
-        editor.redo();
-        
-        // Export
-        await editor.exportGLTF();
+      // Transform controls
+      editor.setTransformMode('translate'); // or 'rotate', 'scale'
+
+      // Undo/Redo
+      editor.undo();
+      editor.redo();
+
+      // Export
+      await editor.exportGLTF();
     </script>
-</body>
+  </body>
 </html>
 ```
 
@@ -101,30 +111,34 @@ Perfect for quick prototyping or standalone 3D modeling tools.
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-    <link rel="stylesheet" href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css">
-</head>
-<body>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.css"
+    />
+  </head>
+  <body>
     <!-- Container with HTML attributes -->
-    <div id="editor"
-         data-swk-init="true"
-         data-swk-viewport-background="#e2e8f0"
-         data-swk-grid-show="true"
-         data-swk-camera-mode="perspective"
-         data-swk-camera-position="5,5,5"
-         data-swk-ui-enabled="true"
-         data-swk-history-enabled="true">
-    </div>
-    
+    <div
+      id="editor"
+      data-swk-init="true"
+      data-swk-viewport-background="#e2e8f0"
+      data-swk-grid-show="true"
+      data-swk-camera-mode="perspective"
+      data-swk-camera-position="5,5,5"
+      data-swk-ui-enabled="true"
+      data-swk-history-enabled="true"
+    ></div>
+
     <!-- Load SWK (includes all Three.js dependencies) -->
     <script src="https://unpkg.com/senangwebs-kiln@latest/dist/swk.min.js"></script>
-    
+
     <script>
-        // Auto-initialize on page load
-        const editors = SWK.autoInit();
-        console.log('Initialized:', editors.length, 'editors');
+      // Auto-initialize on page load
+      const editors = SWK.autoInit();
+      console.log("Initialized:", editors.length, "editors");
     </script>
-</body>
+  </body>
 </html>
 ```
 
@@ -142,9 +156,9 @@ See the `examples/` folder for complete working examples:
 Create any of the 13 built-in shapes:
 
 ```javascript
-const box = editor.addShape('box', { width: 2, height: 2, depth: 2 });
-const sphere = editor.addShape('sphere', { radius: 1 });
-const text = editor.addShape('text', { text: 'Hello', fontSize: 1 });
+const box = editor.addShape("box", { width: 2, height: 2, depth: 2 });
+const sphere = editor.addShape("sphere", { radius: 1 });
+const text = editor.addShape("text", { text: "Hello", fontSize: 1 });
 ```
 
 ### Selection
@@ -171,10 +185,10 @@ Move, rotate, and scale objects:
 
 ```javascript
 // Set transform mode
-editor.setTransformMode('translate'); // 'rotate', 'scale'
+editor.setTransformMode("translate"); // 'rotate', 'scale'
 
 // Set transform space
-editor.setTransformSpace('local'); // or 'world'
+editor.setTransformSpace("local"); // or 'world'
 
 // Enable snapping
 editor.setSnapUnit(0.5); // Snap to 0.5 units
@@ -205,7 +219,7 @@ editor.redo();
 
 // Check availability
 if (editor.canUndo()) {
-    editor.undo();
+  editor.undo();
 }
 ```
 
@@ -257,63 +271,63 @@ await editor.importJSON(saveData);
 Full configuration options:
 
 ```javascript
-const editor = new SWK('#editor', {
-    // Container & Sizing
-    width: '100%',
-    height: '100%',
-    
-    // Viewport
-    viewportBackground: '#e2e8f0',
-    outlineColor: '#10b981',
-    
-    // Grid
-    grid: {
-        show: true,
-        size: 20,
-        divisions: 20,
-        centerColor: '#888888',
-        linesColor: '#cccccc'
+const editor = new SWK("#editor", {
+  // Container & Sizing
+  width: "100%",
+  height: "100%",
+
+  // Viewport
+  viewportBackground: "#e2e8f0",
+  outlineColor: "#10b981",
+
+  // Grid
+  grid: {
+    show: true,
+    size: 20,
+    divisions: 20,
+    centerColor: "#888888",
+    linesColor: "#cccccc",
+  },
+
+  // Camera
+  camera: {
+    mode: "perspective", // 'perspective' or 'orthographic'
+    fov: 75,
+    near: 0.1,
+    far: 1000,
+    position: [5, 5, 5],
+  },
+
+  // Transform
+  transform: {
+    mode: "translate", // 'translate', 'rotate', 'scale'
+    space: "local", // 'local' or 'world'
+    snapUnit: 0.1,
+  },
+
+  // UI
+  ui: {
+    enabled: false, // Enable full UI panels
+    panels: {
+      shapes: true, // Shape creation panel
+      properties: true, // Property editor panel
+      outliner: true, // Scene hierarchy panel
+      controls: true, // Bottom toolbar
     },
-    
-    // Camera
-    camera: {
-        mode: 'perspective', // 'perspective' or 'orthographic'
-        fov: 75,
-        near: 0.1,
-        far: 1000,
-        position: [5, 5, 5]
-    },
-    
-    // Transform
-    transform: {
-        mode: 'translate', // 'translate', 'rotate', 'scale'
-        space: 'local', // 'local' or 'world'
-        snapUnit: 0.1
-    },
-    
-    // UI
-    ui: {
-        enabled: false, // Enable full UI panels
-        panels: {
-            shapes: true,      // Shape creation panel
-            properties: true,  // Property editor panel
-            outliner: true,    // Scene hierarchy panel
-            controls: true     // Bottom toolbar
-        }
-    },
-    
-    // History
-    history: {
-        enabled: true,
-        maxSize: 50 // Maximum undo stack size
-    },
-    
-    // Features
-    features: {
-        grouping: true,
-        undo: true,
-        export: true
-    }
+  },
+
+  // History
+  history: {
+    enabled: true,
+    maxSize: 50, // Maximum undo stack size
+  },
+
+  // Features
+  features: {
+    grouping: true,
+    undo: true,
+    export: true,
+  },
 });
 ```
 
@@ -367,14 +381,14 @@ See [API.md](docs/API.md) for complete API documentation.
 ### Events
 
 ```javascript
-editor.on('initialized', () => {});
-editor.on('objectAdded', (object) => {});
-editor.on('objectRemoved', (object) => {});
-editor.on('selectionChanged', (selected, deselected) => {});
-editor.on('transformModeChanged', (mode) => {});
-editor.on('groupCreated', (group) => {});
-editor.on('historyChanged', (data) => {});
-editor.on('exportComplete', (data) => {});
+editor.on("initialized", () => {});
+editor.on("objectAdded", (object) => {});
+editor.on("objectRemoved", (object) => {});
+editor.on("selectionChanged", (selected, deselected) => {});
+editor.on("transformModeChanged", (mode) => {});
+editor.on("groupCreated", (group) => {});
+editor.on("historyChanged", (data) => {});
+editor.on("exportComplete", (data) => {});
 ```
 
 ## Development
